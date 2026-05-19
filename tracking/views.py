@@ -1,10 +1,15 @@
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import Route, Stop, Bus
-from .serializers import RouteSerializer, StopSerializer, BusSerializer
+from .models import Route, Stop, Bus, BusLocation, Passenger
 
+from .serializers import (
+    RouteSerializer,
+    StopSerializer,
+    BusSerializer,
+    PassengerSerializer
+)
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
@@ -20,32 +25,48 @@ class BusViewSet(viewsets.ModelViewSet):
     queryset = Bus.objects.all()
     serializer_class = BusSerializer
 
-    @action(detail=True, methods=['post'])
-    def move(self, request, pk=None):
-        bus = self.get_object()
 
-        # Get all stops for this route in order
-        stops = Stop.objects.filter(route=bus.route).order_by('order')
+@api_view(["POST"])
+def update_bus_location(request, bus_id):
 
-        if not stops.exists():
-            return Response({"error": "No stops for this route"})
+    try:
 
-        # Move to next stop (loop back to start)
-        bus.current_stop_index = (bus.current_stop_index + 1) % len(stops)
+        bus = Bus.objects.get(id=bus_id)
 
-        next_stop = stops[bus.current_stop_index]
+        lat = request.data.get("lat")
+        lng = request.data.get("lng")
+        speed = request.data.get("speed", 0)
 
-        # Update bus location
-        bus.current_lat = next_stop.latitude
-        bus.current_lng = next_stop.longitude
+        bus.current_lat = lat
+        bus.current_lng = lng
+        bus.speed = speed
 
         bus.save()
 
+        BusLocation.objects.create(
+            bus=bus,
+            latitude=lat,
+            longitude=lng,
+            speed=speed
+        )
+
         return Response({
-            "message": "Bus moved",
+            "message": "GPS updated successfully",
             "bus_id": bus.id,
-            "current_stop": next_stop.name,
-            "current_stop_index": bus.current_stop_index,
-            "lat": bus.current_lat,
-            "lng": bus.current_lng
+            "lat": lat,
+            "lng": lng,
+            "speed": speed
         })
+
+    except Bus.DoesNotExist:
+
+        return Response({
+            "error": "Bus not found"
+        }, status=404)
+    
+
+class PassengerViewSet(viewsets.ModelViewSet):
+
+    queryset = Passenger.objects.all()
+
+    serializer_class = PassengerSerializer

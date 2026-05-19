@@ -24,8 +24,40 @@ class Bus(models.Model):
     current_lng = models.FloatField()
     current_stop_index = models.IntegerField(default=0)
 
+    speed = models.FloatField(default=0)
+    last_updated = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
     class Meta:
         verbose_name_plural = "Buses"
 
     def __str__(self):
         return f"Bus {self.id} on {self.route.name}"
+    
+class BusLocation(models.Model):
+
+    bus = models.ForeignKey(Bus, on_delete=models.CASCADE)
+
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    speed = models.FloatField(default=0)
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.bus} @ {self.timestamp}"
+    
+class Passenger(models.Model):
+
+    name = models.CharField(max_length=100)
+
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    is_active = models.BooleanField(default=False)
+
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
