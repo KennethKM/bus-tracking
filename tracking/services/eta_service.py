@@ -59,3 +59,22 @@ def get_bus_eta(bus, passenger):
 
         "estimated_wait_time": f"{eta_minutes} minutes"
     }
+    
+import math
+
+def calculate_eta(bus, stop):
+
+    distance = math.sqrt(
+        (bus.current_lat - stop.latitude) ** 2 +
+        (bus.current_lng - stop.longitude) ** 2
+    )
+
+    # Convert degrees to KM
+    distance_km = distance * 111
+
+    if bus.speed <= 0:
+        return 0
+
+    eta = (distance_km / bus.speed) * 60
+
+    return round(eta) 

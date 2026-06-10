@@ -56,7 +56,7 @@ ROOT_URLCONF = 'bus_tracking.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -117,3 +117,30 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# your_project/settings.py - Add channels configuration
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'channels',  # Add this
+    'corsheaders',  # Add this for development
+    'tracking',
+]
+
+# Channels configuration
+ASGI_APPLICATION = 'your_project.asgi.application'  # Update 'your_project' to your project name
+
+# For development - in production use Redis
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
+
+# CORS settings (for development)
+CORS_ALLOW_ALL_ORIGINS = True

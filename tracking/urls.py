@@ -1,51 +1,13 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
-from .views import (
-    RouteViewSet,
-    StopViewSet,
-    BusViewSet,
-    PassengerViewSet,
-    update_bus_location,
-    update_passenger_location,
-    nearby_passengers,
-    bus_eta,
-    nearby_buses
-)
-
-
-
-router = DefaultRouter()
-router.register(r'routes', RouteViewSet)
-router.register(r'stops', StopViewSet)
-router.register(r'buses', BusViewSet)
-router.register(r'passengers', PassengerViewSet)
-
+from django.views.generic import TemplateView
+from . import views
 
 urlpatterns = [
-
-    path(
-        'buses/<int:bus_id>/location/',
-        update_bus_location
-    ),
-
-    path(
-    'passengers/<int:passenger_id>/location/',
-    update_passenger_location
-    ),
-
-    path(
-    'buses/<int:bus_id>/nearby-passengers/',
-    nearby_passengers
-    ),
-
-    path(
-    'buses/<int:bus_id>/eta/<int:passenger_id>/',
-    bus_eta
-    ),
-
-    path(
-    'passengers/<int:passenger_id>/nearby-buses/',
-    nearby_buses
-    ),
-
-] + router.urls
+    # Frontend
+    path('', views.index, name='index'),
+    
+    # API endpoints
+    path('api/stops/', views.get_all_stops, name='all-stops'),
+    path('api/live-buses/', views.get_all_buses, name='live-buses'),
+    path('api/passengers/nearby-buses/', views.find_nearby_buses, name='nearby-buses'),
+]

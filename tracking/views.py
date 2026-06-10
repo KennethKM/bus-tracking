@@ -1,191 +1,127 @@
-from rest_framework import viewsets
+from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Route, Stop, Bus, BusLocation, Passenger
+from .models import Bus, Stop, Passenger
+from math import radians, sin, cos, sqrt, atan2
 
-from .services.location_service import (
-    save_bus_location,
-    save_passenger_location
-)
-
-
-from .services.route_service import (
-get_nearby_buses,
-get_nearby_passengers
-)
-
-
-from .services.eta_service import (
+def haversine_distance(lat1, lng1, lat2, lng2):
+    """Calculate distance between two points in km"""
+    R = 6371
+    lat1, lng1, lat2, lng2 = map(float, [lat1, lng1, lat2, lng2])
     
-    get_bus_eta
-)
-
-
-from .serializers import (
-    RouteSerializer,
-    StopSerializer,
-    BusSerializer,
-    PassengerSerializer
-)
-
-
-
-
-class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.all()
-    serializer_class = RouteSerializer
-
-
-class StopViewSet(viewsets.ModelViewSet):
-    queryset = Stop.objects.all()
-    serializer_class = StopSerializer
-
-
-class BusViewSet(viewsets.ModelViewSet):
-    queryset = Bus.objects.all()
-    serializer_class = BusSerializer
-
-
-
-
-
-
-
-
-@api_view(["POST"])
-def update_bus_location(request, bus_id):
-
-    try:
-
-        bus = save_bus_location(
-            bus_id,
-            request.data.get("lat"),
-            request.data.get("lng"),
-            request.data.get("speed", 0)
-        )
-
-        return Response({
-            "message": "GPS updated successfully",
-            "bus_id": bus.id,
-            "lat": bus.current_lat,
-            "lng": bus.current_lng,
-            "speed": bus.speed
-        })
-
-    except Bus.DoesNotExist:
-
-        return Response({
-            "error": "Bus not found"
-        }, status=404)
+    lat1_rad = radians(lat1)
+    lat2_rad = radians(lat2)
+    delta_lat = radians(lat2 - lat1)
+    delta_lng = radians(lng2 - lng1)
     
+    a = sin(delta_lat/2)**2 + cos(lat1_rad) * cos(lat2_rad) * sin(delta_lng/2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    
+    return R * c
 
+@api_view(['GET'])
+def get_all_stops(request):
+    """Get all bus stops"""
+    stops = Stop.objects.all().select_related('route')
+    data = [{
+        'id': s.id,
+        'name': s.name,
+        'latitude': s.latitude,
+        'longitude': s.longitude,
+    } for s in stops]
+    return Response(data)
 
-@api_view(["POST"])
-def update_passenger_location(request, passenger_id):
+@api_view(['GET'])
+def get_all_buses(request):
+    """Get all active buses"""
+    buses = Bus.objects.filter(is_active=True).select_related('route')
+    data = [{
+        'id': b.id,
+        'bus_number': b.bus_number,
+        'route_name': b.route.name,
+        'current_lat': b.current_lat,
+        'current_lng': b.current_lng,
+        'speed': b.speed,
+        'available_seats': b.available_seats,
+        'occupancy': b.occupancy_percentage,
+        'capacity': b.capacity
+    } for b in buses]
+    return Response(data)
 
+@api_view(['GET'])
+def find_nearby_buses(request):
+    """Find buses near passenger location"""
     try:
-
-        passenger = save_passenger_location(
-            passenger_id,
-            request.data.get("lat"),
-            request.data.get("lng"),
-            request.data.get("is_active", False)
-        )
-
+        # Get parameters from URL
+        passenger_lat = request.GET.get('latitude')
+        passenger_lng = request.GET.get('longitude')
+        radius_km = request.GET.get('radius_km', 10)
+        
+        print(f"📍 Finding nearby buses - Lat: {passenger_lat}, Lng: {passenger_lng}, Radius: {radius_km}km")
+        
+        # Validate input
+        if not passenger_lat or not passenger_lng:
+            return Response({
+                'error': 'Latitude and longitude required',
+                'nearby_buses': []
+            }, status=400)
+        
+        # Convert to float
+        passenger_lat = float(passenger_lat)
+        passenger_lng = float(passenger_lng)
+        radius_km = float(radius_km)
+        
+        # Get all active buses
+        buses = Bus.objects.filter(is_active=True).select_related('route')
+        print(f"📡 Total active buses: {buses.count()}")
+        
+        nearby = []
+        
+        for bus in buses:
+            # Calculate distance
+            distance = haversine_distance(passenger_lat, passenger_lng, bus.current_lat, bus.current_lng)
+            
+            print(f"  Bus {bus.bus_number}: distance = {distance:.2f}km")
+            
+            # Check if within radius
+            if distance <= radius_km:
+                # Calculate ETA in minutes
+                if bus.speed > 0:
+                    eta_minutes = int((distance / bus.speed) * 60)
+                else:
+                    eta_minutes = int((distance / 20) * 60)  # Assume 20 km/h if speed is 0
+                
+                eta_minutes = max(1, eta_minutes)  # Minimum 1 minute
+                
+                nearby.append({
+                    'bus_id': bus.id,
+                    'bus_number': bus.bus_number,
+                    'route_name': bus.route.name,
+                    'distance_km': round(distance, 2),
+                    'eta_minutes': eta_minutes,
+                    'available_seats': bus.available_seats,
+                    'occupancy_percentage': bus.occupancy_percentage,
+                    'speed': bus.speed
+                })
+        
+        # Sort by distance
+        nearby.sort(key=lambda x: x['distance_km'])
+        
+        print(f"✅ Found {len(nearby)} buses within {radius_km}km")
+        
         return Response({
-            "message": "Passenger updated successfully",
-            "passenger_id": passenger.id,
-            "lat": passenger.latitude,
-            "lng": passenger.longitude,
-            "is_active": passenger.is_active
+            'nearby_buses': nearby,
+            'count': len(nearby),
+            'passenger_location': {'lat': passenger_lat, 'lng': passenger_lng}
         })
-
-    except Passenger.DoesNotExist:
-
+        
+    except Exception as e:
+        print(f"❌ Error in find_nearby_buses: {str(e)}")
         return Response({
-            "error": "Passenger not found"
-        }, status=404)
+            'error': str(e),
+            'nearby_buses': []
+        }, status=500)
 
-
-
-@api_view(["GET"])
-def nearby_passengers(request, bus_id):
-
-    try:
-
-        bus = Bus.objects.get(id=bus_id)
-
-        nearby = get_nearby_passengers(
-            bus
-        )
-
-        return Response({
-            "bus_id": bus.id,
-            "nearby_passengers": nearby
-        })
-
-    except Bus.DoesNotExist:
-
-        return Response({
-            "error": "Bus not found"
-        }, status=404)
-
-
-
-@api_view(["GET"])
-def bus_eta(request, bus_id, passenger_id):
-
-    try:
-
-        bus = Bus.objects.get(id=bus_id)
-
-        passenger = Passenger.objects.get(id=passenger_id)
-
-        result = get_bus_eta(
-            bus,
-            passenger
-        )
-
-        return Response(result)
-
-    except Bus.DoesNotExist:
-
-        return Response({
-            "error": "Bus not found"
-        }, status=404)
-
-    except Passenger.DoesNotExist:
-
-        return Response({
-            "error": "Passenger not found"
-        }, status=404)
-
-
-
-
-
-@api_view(["GET"])
-def nearby_buses(request, passenger_id):
-
-    try:
-        passenger = Passenger.objects.get(id=passenger_id)
-
-        results = get_nearby_buses(passenger)
-
-        return Response({
-            "passenger_id": passenger.id,
-            "nearby_buses": results
-        })
-
-    except Passenger.DoesNotExist:
-
-        return Response({
-            "error": "Passenger not found"
-        }, status=404)
-
-
-class PassengerViewSet(viewsets.ModelViewSet):
-
-    queryset = Passenger.objects.all()
-
-    serializer_class = PassengerSerializer
+def index(request):
+    """Main page view"""
+    return render(request, 'tracking/index.html')
