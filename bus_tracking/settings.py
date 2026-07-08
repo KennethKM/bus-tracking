@@ -37,12 +37,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tracking',
     'rest_framework',
+    'channels',  # Add this for WebSocket support
+    'corsheaders',  # Add this for CORS support
+    'tracking',  # Your tracking app
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Add this at the top
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -70,6 +73,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bus_tracking.wsgi.application'
 
+# ASGI application for WebSocket support
+ASGI_APPLICATION = 'bus_tracking.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -118,29 +123,45 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# your_project/settings.py - Add channels configuration
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'channels',  # Add this
-    'corsheaders',  # Add this for development
-    'tracking',
-]
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 
-# Channels configuration
-ASGI_APPLICATION = 'your_project.asgi.application'  # Update 'your_project' to your project name
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# For development - in production use Redis
+# ============================================
+# CHANNELS CONFIGURATION (for WebSocket support)
+# ============================================
+
+# In-memory channel layer for development
+# For production, use Redis: 'BACKEND': 'channels_redis.core.RedisChannelLayer'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'
     }
 }
 
-# CORS settings (for development)
+# ============================================
+# CORS CONFIGURATION (for development)
+# ============================================
+
+# Allow all origins in development
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Or specify allowed origins
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+# ]
+
+# ============================================
+# CUSTOM SETTINGS FOR THE BUS TRACKING APP
+# ============================================
+
+# Maximum distance for nearby buses search (in km)
+NEARBY_BUS_RADIUS = 10
+
+# WebSocket connection settings
+WEBSOCKET_TIMEOUT = 60  # seconds
+
+# Notification settings
+NOTIFICATION_EXPIRY_DAYS = 7 

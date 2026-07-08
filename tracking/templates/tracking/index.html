@@ -2,75 +2,342 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Lusaka Bus Tracker</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        
         #map { height: 100vh; width: 100%; }
-        .controls {
+        
+        .header {
             position: fixed;
-            bottom: 20px;
+            top: 0;
             left: 0;
             right: 0;
-            text-align: center;
-            z-index: 1000;
-        }
-        button {
             background: #2563eb;
             color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 16px;
-            margin: 5px;
-            cursor: pointer;
+            padding: 12px 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        button:hover { background: #1d4ed8; }
-        .bus-list {
+        .header h1 { font-size: 18px; font-weight: 600; }
+        .header-actions { display: flex; gap: 10px; }
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .header-btn:hover { background: rgba(255,255,255,0.3); }
+        
+        .fab-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            cursor: pointer;
+            font-size: 22px;
+            transition: all 0.3s;
+        }
+        .fab:hover { transform: scale(1.05); background: #2563eb; color: white; }
+        .fab-primary { background: #2563eb; color: white; }
+        .fab-tracking { background: #10b981; color: white; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .bottom-sheet {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: white;
-            border-radius: 20px 20px 0 0;
-            padding: 20px;
-            max-height: 60vh;
-            overflow-y: auto;
-            z-index: 1000;
+            border-radius: 25px 25px 0 0;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
             transform: translateY(100%);
-            transition: transform 0.3s;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            max-height: 75vh;
+            overflow-y: auto;
         }
-        .bus-list.show { transform: translateY(0); }
-        .bus-item {
+        .bottom-sheet.active { transform: translateY(0); }
+        
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 10px auto;
+        }
+        .sheet-header {
+            padding: 0 20px 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sheet-header h3 { font-size: 18px; color: #1f2937; }
+        .sheet-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        .sheet-content { padding: 20px; }
+        
+        .bus-card {
+            background: #f9fafb;
+            border-radius: 12px;
             padding: 15px;
-            border-bottom: 1px solid #ddd;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid #2563eb;
+        }
+        .bus-card:hover { background: #f3f4f6; transform: translateX(5px); }
+        .bus-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .bus-number { font-weight: bold; color: #2563eb; font-size: 18px; }
+        .bus-eta { color: #10b981; font-weight: 600; font-size: 14px; }
+        
+        .tracking-status {
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h2 { margin-bottom: 20px; color: #1f2937; }
+        .modal input, .modal select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .modal button {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
         }
-        .bus-item:hover { background: #f0f0f0; }
-        .close-btn {
-            float: right;
-            background: #ddd;
-            padding: 5px 15px;
-            margin-bottom: 10px;
+        .modal button:hover { background: #1d4ed8; }
+        .modal .cancel-btn {
+            background: #e5e7eb;
+            color: #1f2937;
+            margin-top: 8px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            right: 20px;
+            background: #1f2937;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            z-index: 3000;
+            display: none;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        @keyframes slideDown {
+            from { top: -100px; opacity: 0; }
+            to { top: 70px; opacity: 1; }
+        }
+        .notification.success { background: #10b981; }
+        .notification.error { background: #ef4444; }
+        .notification.info { background: #3b82f6; }
+        
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 2000;
+            display: none;
+            text-align: center;
+        }
+        .loading.active { display: block; }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .trip-status {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 10px 0;
+        }
+        .trip-status .status-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .trip-status .status-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #10b981;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 14px; }
+            .fab-container { bottom: 80px; }
+            .fab { width: 48px; height: 48px; font-size: 18px; }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>🚍 Lusaka Bus Tracker</h1>
+        <div class="header-actions">
+            <button class="header-btn" onclick="openModal()">📝 Book Trip</button>
+            <button class="header-btn" onclick="refreshData()">🔄</button>
+        </div>
+    </div>
+    
     <div id="map"></div>
-    <div class="controls">
-        <button onclick="findNearbyBuses()">📍 FIND NEARBY BUSES</button>
-        <button onclick="centerLocation()">🎯 MY LOCATION</button>
+    
+    <div class="fab-container">
+        <button class="fab fab-primary" onclick="findNearbyBuses()" title="Find nearby buses">📍</button>
+        <button class="fab" onclick="centerOnMyLocation()" title="My location">🎯</button>
+        <button class="fab" onclick="refreshData()" title="Refresh">🔄</button>
+        <button class="fab" id="trackingBtn" onclick="toggleTripTracking()" title="Track my trip" style="display:none;">🚗</button>
     </div>
-    <div class="bus-list" id="busList">
-        <button class="close-btn" onclick="closeBusList()">✕ CLOSE</button>
-        <div id="busListContent"></div>
+    
+    <div class="bottom-sheet" id="bottomSheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <h3 id="sheetTitle">Nearby Buses</h3>
+            <button class="sheet-close" onclick="closeSheet()">&times;</button>
+        </div>
+        <div class="sheet-content" id="sheetContent">
+            <div style="text-align: center; padding: 20px; color: #6b7280;">
+                Click 📍 to find buses near you
+            </div>
+        </div>
     </div>
-
+    
+    <div class="modal-overlay" id="tripModal">
+        <div class="modal">
+            <h2>📝 Book a Trip</h2>
+            <input type="text" id="pickupInput" placeholder="Pickup location" value="My Location">
+            <input type="text" id="dropoffInput" placeholder="Dropoff location">
+            <select id="busSelect">
+                <option value="">Select a bus (optional)</option>
+            </select>
+            <button onclick="requestTrip()">🚌 Request Trip</button>
+            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+    
     <script>
         let map;
         let busMarkers = new Map();
         let currentLocation = null;
+        let userMarker = null;
+        let allBuses = new Map();
+        let trackingInterval = null;
+        let currentTripId = null;
+        let isTracking = false;
+        let ws = null;
+        let tripTrackingInterval = null;
+        
+        // Bus icons
+        const busIcon = L.divIcon({
+            html: `<div style="background: #2563eb; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 16px;">🚌</div>`,
+            iconSize: [32, 32],
+            className: 'bus-marker'
+        });
+        
+        const movingBusIcon = L.divIcon({
+            html: `<div style="background: #10b981; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #34d399; box-shadow: 0 0 20px rgba(16,185,129,0.5); font-size: 18px; animation: pulse 1s infinite;">🚌</div>`,
+            iconSize: [36, 36],
+            className: 'moving-bus-marker'
+        });
+        
+        const passengerIcon = L.divIcon({
+            html: `<div style="background: #f59e0b; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 12px;">👤</div>`,
+            iconSize: [24, 24],
+            className: 'passenger-marker'
+        });
         
         function initMap() {
             map = L.map('map').setView([-15.3875, 28.3228], 13);
@@ -81,6 +348,36 @@
             loadStops();
             loadBuses();
             getUserLocation();
+            setupWebSocket();
+        }
+        
+        function setupWebSocket() {
+            try {
+                const wsScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                ws = new WebSocket(`${wsScheme}${window.location.host}/ws/tracking/`);
+                
+                ws.onopen = function() {
+                    console.log('🔌 WebSocket connected');
+                };
+                
+                ws.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'bus_update') {
+                        updateBusMarker(data);
+                        if (allBuses.has(data.bus_id)) {
+                            const bus = allBuses.get(data.bus_id);
+                            Object.assign(bus, data);
+                        }
+                    }
+                };
+                
+                ws.onclose = function() {
+                    console.log('🔌 WebSocket disconnected');
+                    setTimeout(setupWebSocket, 5000);
+                };
+            } catch(e) {
+                console.log('WebSocket not available, using polling');
+            }
         }
         
         async function loadStops() {
@@ -89,10 +386,13 @@
                 const stops = await response.json();
                 stops.forEach(stop => {
                     L.circleMarker([stop.latitude, stop.longitude], {
-                        radius: 6, fillColor: '#f59e0b', color: '#fff', weight: 2
+                        radius: 7,
+                        fillColor: '#f59e0b',
+                        color: '#fff',
+                        weight: 2,
+                        fillOpacity: 0.9
                     }).addTo(map).bindPopup(`<b>🛑 ${stop.name}</b>`);
                 });
-                console.log('Stops loaded:', stops.length);
             } catch(error) {
                 console.error('Error loading stops:', error);
             }
@@ -107,18 +407,47 @@
                 busMarkers.clear();
                 
                 buses.forEach(bus => {
-                    const marker = L.marker([bus.current_lat, bus.current_lng]).addTo(map);
-                    marker.bindPopup(`
-                        <b>🚌 ${bus.bus_number}</b><br>
-                        Route: ${bus.route_name}<br>
-                        Speed: ${bus.speed} km/h<br>
-                        Seats: ${bus.available_seats} available
-                    `);
-                    busMarkers.set(bus.id, marker);
+                    allBuses.set(bus.id, bus);
+                    updateBusMarker(bus);
                 });
-                console.log('Buses loaded:', buses.length);
+                
+                // Update bus select in modal
+                const select = document.getElementById('busSelect');
+                select.innerHTML = '<option value="">Select a bus (optional)</option>';
+                buses.forEach(bus => {
+                    select.innerHTML += `<option value="${bus.id}">${bus.bus_number} - ${bus.route_name}</option>`;
+                });
             } catch(error) {
                 console.error('Error loading buses:', error);
+            }
+        }
+        
+        function updateBusMarker(bus) {
+            const isMoving = bus.speed > 5;
+            const icon = isMoving ? movingBusIcon : busIcon;
+            
+            const popupContent = `
+                <div style="min-width: 200px;">
+                    <b style="font-size: 16px; color: #2563eb;">🚌 ${bus.bus_number}</b>
+                    ${isMoving ? '<span style="color: #10b981; font-size: 12px;"> ● Moving</span>' : ''}<br>
+                    <b>Route:</b> ${bus.route_name}<br>
+                    <b>Speed:</b> ${bus.speed} km/h<br>
+                    <b>Available Seats:</b> ${bus.available_seats}<br>
+                    <button onclick="showBusDetails(${bus.id})" style="margin-top: 8px; padding: 5px 10px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        📋 View Details
+                    </button>
+                </div>
+            `;
+            
+            if (busMarkers.has(bus.id)) {
+                const marker = busMarkers.get(bus.id);
+                marker.setLatLng([bus.current_lat, bus.current_lng]);
+                marker.setIcon(icon);
+                marker.bindPopup(popupContent);
+            } else {
+                const marker = L.marker([bus.current_lat, bus.current_lng], { icon }).addTo(map);
+                marker.bindPopup(popupContent);
+                busMarkers.set(bus.id, marker);
             }
         }
         
@@ -130,14 +459,17 @@
                             lat: position.coords.latitude,
                             lng: position.coords.longitude
                         };
-                        const userMarker = L.marker([currentLocation.lat, currentLocation.lng]).addTo(map);
-                        userMarker.bindPopup('📍 You are here').openPopup();
+                        
+                        if (userMarker) {
+                            userMarker.setLatLng([currentLocation.lat, currentLocation.lng]);
+                        } else {
+                            userMarker = L.marker([currentLocation.lat, currentLocation.lng], { icon: passengerIcon }).addTo(map);
+                            userMarker.bindPopup('📍 You are here').openPopup();
+                        }
                         map.setView([currentLocation.lat, currentLocation.lng], 14);
-                        console.log('Location found:', currentLocation);
                     },
                     error => {
                         console.error('Location error:', error);
-                        alert('Could not get your location. Please enable GPS.');
                     }
                 );
             }
@@ -145,76 +477,321 @@
         
         async function findNearbyBuses() {
             if (!currentLocation) {
-                alert('Getting your location first...');
                 getUserLocation();
                 setTimeout(findNearbyBuses, 2000);
                 return;
             }
             
-            const contentDiv = document.getElementById('busListContent');
-            contentDiv.innerHTML = '<p>🔍 Searching for nearby buses...</p>';
-            document.getElementById('busList').classList.add('show');
+            showLoading(true);
             
             try {
                 const url = `/api/passengers/nearby-buses/?latitude=${currentLocation.lat}&longitude=${currentLocation.lng}&radius_km=10`;
-                console.log('Fetching:', url);
-                
                 const response = await fetch(url);
-                console.log('Status:', response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
                 const data = await response.json();
-                console.log('Data:', data);
+                
+                showLoading(false);
                 
                 if (data.nearby_buses && data.nearby_buses.length > 0) {
-                    let html = '<h3>🚍 Nearby Buses</h3>';
-                    data.nearby_buses.forEach(bus => {
-                        html += `
-                            <div class="bus-item" onclick="zoomToBus(${bus.bus_id})">
-                                <div><strong>🚌 ${bus.bus_number}</strong></div>
-                                <div>🛣️ ${bus.route_name}</div>
-                                <div>📍 ${bus.distance_km} km away</div>
-                                <div>⏱️ ETA: ${bus.eta_minutes} minutes</div>
-                                <div>🪑 ${bus.available_seats} seats available</div>
-                            </div>
-                        `;
-                    });
-                    contentDiv.innerHTML = html;
+                    displayNearbyBuses(data.nearby_buses);
+                    showNotification(`Found ${data.nearby_buses.length} buses near you!`, 'success');
                 } else {
-                    contentDiv.innerHTML = '<p>❌ No buses found within 10km</p>';
+                    showNotification('No buses found within 10km', 'info');
                 }
             } catch(error) {
+                showLoading(false);
                 console.error('Error:', error);
-                contentDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                showNotification('Error finding buses', 'error');
             }
         }
         
-        function zoomToBus(busId) {
-            const marker = busMarkers.get(busId);
-            if (marker) {
-                map.setView(marker.getLatLng(), 16);
-                marker.openPopup();
-                closeBusList();
+        function displayNearbyBuses(buses) {
+            const content = document.getElementById('sheetContent');
+            document.getElementById('sheetTitle').innerHTML = `🚍 Nearby Buses (${buses.length})`;
+            
+            let html = '';
+            buses.forEach(bus => {
+                const isMoving = bus.speed > 5;
+                html += `
+                    <div class="bus-card" onclick="showBusDetails(${bus.bus_id})">
+                        <div class="bus-card-header">
+                            <span class="bus-number">🚌 ${bus.bus_number}</span>
+                            <span class="bus-eta">⏱️ ${bus.eta_minutes} min</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; color: #6b7280;">
+                            <span>🛣️ ${bus.route_name}</span>
+                            ${isMoving ? '<span style="color: #10b981;">● Moving</span>' : ''}
+                        </div>
+                        <div class="bus-details" style="display: flex; gap: 15px; margin-top: 8px; font-size: 13px; color: #6b7280;">
+                            <span>📍 ${bus.distance_km} km</span>
+                            <span>⚡ ${bus.speed} km/h</span>
+                            <span>🪑 ${bus.available_seats} seats</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            content.innerHTML = html;
+            document.getElementById('bottomSheet').classList.add('active');
+        }
+        
+        async function showBusDetails(busId) {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`/api/buses/${busId}/`);
+                const bus = await response.json();
+                showLoading(false);
+                
+                const content = document.getElementById('sheetContent');
+                document.getElementById('sheetTitle').innerHTML = `🚌 ${bus.bus_number}`;
+                
+                content.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #2563eb;">${bus.bus_number}</div>
+                        <div style="color: #6b7280;">🛣️ ${bus.route_name}</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                        <div style="background: #f9fafb; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 11px; color: #6b7280;">Speed</div>
+                            <div style="font-size: 20px; font-weight: bold;">${bus.speed} <span style="font-size: 12px;">km/h</span></div>
+                        </div>
+                        <div style="background: #f9fafb; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 11px; color: #6b7280;">Available Seats</div>
+                            <div style="font-size: 20px; font-weight: bold;">${bus.available_seats} <span style="font-size: 12px;">/${bus.capacity}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="bookTrip(${busId})" style="flex: 1; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            📝 Book This Bus
+                        </button>
+                        <button onclick="closeSheet()" style="padding: 12px 16px; background: #e5e7eb; border: none; border-radius: 8px; cursor: pointer;">✕</button>
+                    </div>
+                `;
+                
+                document.getElementById('bottomSheet').classList.add('active');
+                map.setView([bus.current_lat, bus.current_lng], 15);
+                
+            } catch(error) {
+                showLoading(false);
+                console.error('Error:', error);
+                showNotification('Error loading bus details', 'error');
             }
         }
         
-        function centerLocation() {
+        function bookTrip(busId) {
+            document.getElementById('busSelect').value = busId;
+            closeSheet();
+            openModal();
+        }
+        
+        async function requestTrip() {
+            const pickup = document.getElementById('pickupInput').value;
+            const dropoff = document.getElementById('dropoffInput').value;
+            const busId = document.getElementById('busSelect').value;
+            
+            if (!currentLocation) {
+                showNotification('Please allow location access first', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/trips/request/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        passenger_id: 1,
+                        pickup_lat: currentLocation.lat,
+                        pickup_lng: currentLocation.lng,
+                        pickup_location: pickup,
+                        dropoff_location: dropoff,
+                        bus_id: busId || null,
+                    })
+                });
+                
+                const data = await response.json();
+                showLoading(false);
+                closeModal();
+                
+                if (response.ok) {
+                    currentTripId = data.trip_id;
+                    showNotification(`✅ ${data.message || 'Trip confirmed! Bus is on its way.'}`, 'success');
+                    
+                    // Show tracking button
+                    document.getElementById('trackingBtn').style.display = 'flex';
+                    document.getElementById('trackingBtn').classList.add('fab-tracking');
+                    
+                    // Start tracking the trip
+                    if (busId || data.bus_id) {
+                        const busToTrack = busId || data.bus_id;
+                        startTripTracking(currentTripId, busToTrack);
+                    }
+                    
+                } else {
+                    showNotification(`❌ ${data.error || 'Error requesting trip'}`, 'error');
+                }
+            } catch(error) {
+                showLoading(false);
+                console.error('Error:', error);
+                showNotification('Error requesting trip', 'error');
+            }
+        }
+        
+        async function startTripTracking(tripId, busId) {
+            try {
+                // Start trip tracking on server
+                const startResponse = await fetch('/api/trips/tracking/start/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        trip_id: tripId,
+                        bus_id: busId
+                    })
+                });
+                
+                const startData = await startResponse.json();
+                
+                if (startData.success) {
+                    showNotification('📍 Tracking started! Watching your bus.', 'success');
+                    
+                    // Start tracking interval
+                    if (tripTrackingInterval) clearInterval(tripTrackingInterval);
+                    
+                    tripTrackingInterval = setInterval(() => {
+                        updateTripTracking(tripId);
+                    }, 3000);
+                    
+                    // Also start bus movement simulation
+                    startBusMovement(busId, tripId);
+                }
+            } catch(error) {
+                console.error('Error starting trip tracking:', error);
+            }
+        }
+        
+        async function startBusMovement(busId, tripId) {
+            try {
+                const response = await fetch('/api/buses/movement/simulate/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bus_id: busId,
+                        trip_id: tripId
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    console.log('🚌 Bus movement started:', data);
+                }
+            } catch(error) {
+                console.error('Error starting bus movement:', error);
+            }
+        }
+        
+        async function updateTripTracking(tripId) {
+            try {
+                const response = await fetch(`/api/trips/${tripId}/tracking/`);
+                const data = await response.json();
+                
+                if (data.bus) {
+                    // Update bus marker on map
+                    const busData = {
+                        id: data.bus.id,
+                        bus_number: data.bus.number,
+                        current_lat: data.bus.current_lat,
+                        current_lng: data.bus.current_lng,
+                        speed: data.bus.speed,
+                        route_name: data.bus.route_name || 'Your Bus',
+                        available_seats: 10 // placeholder
+                    };
+                    
+                    updateBusMarker(busData);
+                    
+                    // Center map on bus if tracking
+                    if (isTracking) {
+                        map.setView([data.bus.current_lat, data.bus.current_lng], 16);
+                    }
+                    
+                    // Show ETA in notification
+                    if (data.eta_minutes) {
+                        showNotification(`⏱️ ETA: ${data.eta_minutes} minutes to destination`, 'info');
+                    }
+                }
+            } catch(error) {
+                console.error('Error updating trip tracking:', error);
+            }
+        }
+        
+        function toggleTripTracking() {
+            isTracking = !isTracking;
+            const btn = document.getElementById('trackingBtn');
+            
+            if (isTracking) {
+                btn.style.background = '#ef4444';
+                btn.innerHTML = '⏹️';
+                showNotification('🔴 Tracking mode ON - Following your bus', 'info');
+                
+                // Center on bus immediately
+                if (currentTripId) {
+                    updateTripTracking(currentTripId);
+                }
+            } else {
+                btn.style.background = '#10b981';
+                btn.innerHTML = '🚗';
+                showNotification('⏹️ Tracking paused', 'info');
+            }
+        }
+        
+        function centerOnMyLocation() {
             if (currentLocation) {
                 map.setView([currentLocation.lat, currentLocation.lng], 15);
+                showNotification('📍 Centered on your location', 'success');
             } else {
                 getUserLocation();
             }
         }
         
-        function closeBusList() {
-            document.getElementById('busList').classList.remove('show');
+        function openModal() {
+            document.getElementById('tripModal').classList.add('active');
         }
         
+        function closeModal() {
+            document.getElementById('tripModal').classList.remove('active');
+        }
+        
+        function closeSheet() {
+            document.getElementById('bottomSheet').classList.remove('active');
+        }
+        
+        function refreshData() {
+            loadBuses();
+            showNotification('🔄 Data refreshed!', 'success');
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + (type || 'info');
+            notification.style.display = 'block';
+            clearTimeout(notification.timeout);
+            notification.timeout = setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+        
+        // Initialize on load
         document.addEventListener('DOMContentLoaded', initMap);
-        setInterval(loadBuses, 30000);
+        
+        // Refresh buses every 15 seconds
+        setInterval(loadBuses, 15000);
     </script>
 </body>
-</html> 
+</html>

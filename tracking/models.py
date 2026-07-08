@@ -1,4 +1,3 @@
-# tracking/models.py
 from django.db import models
 from django.contrib.auth.models import User
 from channels.layers import get_channel_layer
@@ -18,11 +17,13 @@ class Bus(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='buses')
     current_lat = models.FloatField(default=0)
     current_lng = models.FloatField(default=0)
-    speed = models.FloatField(default=0)  # km/h
+    speed = models.FloatField(default=0)
     capacity = models.IntegerField(default=65)
     occupied_seats = models.IntegerField(default=0)
     last_update = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    driver_name = models.CharField(max_length=100, blank=True, null=True)
+    driver_phone = models.CharField(max_length=20, blank=True, null=True)
 
     @property
     def available_seats(self):
@@ -35,20 +36,23 @@ class Bus(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Send WebSocket update when bus location changes
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            'bus_updates',
-            {
-                'type': 'bus_update',
-                'bus_id': self.id,
-                'bus_number': self.bus_number,
-                'lat': self.current_lat,
-                'lng': self.current_lng,
-                'speed': self.speed,
-                'available_seats': self.available_seats,
-                'occupancy': self.occupancy_percentage
-            }
-        )
+        try:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                'bus_updates',
+                {
+                    'type': 'bus_update',
+                    'bus_id': self.id,
+                    'bus_number': self.bus_number,
+                    'lat': self.current_lat,
+                    'lng': self.current_lng,
+                    'speed': self.speed,
+                    'available_seats': self.available_seats,
+                    'occupancy': self.occupancy_percentage
+                }
+            )
+        except:
+            pass
 
     def __str__(self):
         return f"{self.bus_number} - {self.route.name}"
@@ -71,15 +75,20 @@ class Passenger(models.Model):
     current_lat = models.FloatField(null=True, blank=True)
     current_lng = models.FloatField(null=True, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
+    full_name = models.CharField(max_length=100, blank=True)
+    email = models.EmailField(blank=True)
+    notification_token = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return f"Passenger {self.user.username if self.user else self.id}"
+        return self.full_name or f"Passenger {self.user.username if self.user else self.id}"
 
 class Trip(models.Model):
     STATUS_CHOICES = [
         ('requested', 'Requested'),
         ('assigned', 'Assigned'),
         ('en_route', 'En Route'),
+        ('arrived', 'Arrived'),
+        ('in_progress', 'In Progress'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]
@@ -88,11 +97,69 @@ class Trip(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.SET_NULL, null=True, related_name='trips')
     pickup_lat = models.FloatField()
     pickup_lng = models.FloatField()
-    dropoff_lat = models.FloatField()
-    dropoff_lng = models.FloatField()
+    dropoff_lat = models.FloatField(null=True, blank=True)
+    dropoff_lng = models.FloatField(null=True, blank=True)
+    pickup_location = models.CharField(max_length=200, blank=True)
+    dropoff_location = models.CharField(max_length=200, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='requested')
     requested_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    estimated_arrival = models.DateTimeField(null=True, blank=True)
+    actual_arrival = models.DateTimeField(null=True, blank=True)
+    fare = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    rating = models.IntegerField(null=True, blank=True)
+    review = models.TextField(blank=True)
     
     def __str__(self):
         return f"Trip {self.id} - {self.status}"
+
+class Notification(models.Model):
+    passenger = models.ForeignKey(Passenger, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField(default=dict, blank=True)
+
+    def __str__(self):
+        return f"Notification for {self.passenger} - {self.title}"
+    
+    # Add to your models.py after the existing models
+
+class BusRoute(models.Model):
+    """Pre-defined bus routes with waypoints"""
+    name = models.CharField(max_length=100)
+    waypoints = models.JSONField()  # List of [lat, lng] coordinates
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
+
+class BusMovement(models.Model):
+    """Track bus movement history"""
+    bus = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='movements')
+    lat = models.FloatField()
+    lng = models.FloatField()
+    speed = models.FloatField(default=0)
+    heading = models.FloatField(default=0)  # Direction in degrees
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_simulated = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-timestamp']
+    
+    def __str__(self):
+        return f"{self.bus.bus_number} - {self.timestamp}"
+
+class TripTracking(models.Model):
+    """Track passenger's trip in real-time"""
+    trip = models.OneToOneField(Trip, on_delete=models.CASCADE, related_name='tracking')
+    current_lat = models.FloatField()
+    current_lng = models.FloatField()
+    distance_traveled = models.FloatField(default=0)  # in km
+    estimated_time_remaining = models.IntegerField(default=0)  # in minutes
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Tracking Trip {self.trip.id}"
