@@ -1,0 +1,69 @@
+route_id,agency_id,route_long_name,route_short_name,route_type,continuous_pickup,continuous_drop_off
+YuP4Ha1UThs5-VJ84nBI-,Big bus (Rosa-Coaster),Kasupe - Town (Lumumba),Bus ,3,1,1
+HH38N5pGrc9q2LNKMU6Qh,Big bus (Rosa-Coaster),Chazanga - Town (Millenium),Bus ,3,1,1
+hI1bkzcFn2AlrpBo50EuI,Big bus (Rosa-Coaster),Chainda - City Market,Bus ,3,1,1
+F7E3FJj05oKC0Mj1tshx5,Big bus (Rosa-Coaster),Chainda - Kulima Tower,Bus ,3,1,1
+D1l9RCFXU-boDIzysaYJ1,Big bus (Rosa-Coaster),Mandevu - Town (Millenium),Bus ,3,1,1
+ylrDiULSbiqLehSMQ_0Dn,Minibus (14-18 seater),Obama (Kamanga) - Town (Lumumba),Minibus ,3,1,1
+ee57M46UJt3RxHgJ_HpJj,Shared Taxi,Arcades Mall - Mass Media,Shared Taxi ,3,1,1
+RZq_6Mq4rftCSczTlOa5c,Minibus (14-18 seater),Maplot (Chipata) - Town (Millenium),Minibus ,3,1,1
+nqduW4TvmVFCESFuhuHce,Minibus (14-18 seater),Town (Lumumba) - Zingalume,Minibus ,3,1,1
+KlflVnFMOAtL6plTiIXlx,Minibus (14-18 seater),Lilanda - Town (Lumumba),Minibus ,3,1,1
+B18UPvTB69kLGp400SDch,Minibus (14-18 seater),Mbasela - Town (Lumumba),Minibus ,3,1,1
+6gY3s2amHt56dm1wpXuuK,Minibus (14-18 seater),Eden (Zingalume) - Town (Lumumba),Minibus ,3,1,1
+qn2e1Lttsogqo4r9xQyF3,Minibus (14-18 seater),Sekelela - Town (Lumumba),Minibus ,3,1,1
+xMM5c1UUVTF9u42tGNzBu,Shared Taxi,Hybrid - Mutendere,Shared Taxi ,3,1,1
+X3-oLpa4-IzVJtnAci5Bk,Minibus (14-18 seater),Kabanana - Town (Millenium),Minibus ,3,1,1
+HWRe5sQk3JBUrNCfW-smk,Minibus (14-18 seater),City Market - UTH Hospital,Minibus ,3,1,1
+LqxA3JEWeUhqFVlT5YICh,Minibus (14-18 seater),Kabanana - Kulima Tower,Minibus ,3,1,1
+Xgs5VIIHtCZURaP4Y052R,Minibus (14-18 seater),Lilanda - Town (Millenium),Minibus ,3,1,1
+NOWLXyqXYJgK39nRBjgMI,Minibus (14-18 seater),Kulima Tower - Lilanda,Minibus ,3,1,1
+ND4Vp2gXbca5bREUd3gbT,Minibus (14-18 seater),City Market - Obama (Kamanga),Minibus ,3,1,1
+FI1Yf35fAVVDlDM7LXzKA,Minibus (14-18 seater),Kulima Tower - Obama (Kamanga),Minibus ,3,1,1
+nYc8FB1nsQ-rX7GFvlOuS,Minibus (14-18 seater),Chelstone - Town (Millenium),Minibus ,3,1,1
+4ReV8MYi9lTSrXfGyKqGP,Minibus (14-18 seater),Town (Millenium) - Zanimuone,Minibus ,3,1,1
+5Kwf52yoSYwuQmbF0o_xf,Minibus (14-18 seater),City Market - Mutendere,Minibus ,3,1,1
+UP6rVbW36SKslTwu51sJN,Minibus (14-18 seater),City Market - Ngombe Mine-stone ,Minibus ,3,1,1
+DoAuoHV6PmKQraITZ7BJs,Minibus (14-18 seater),Chunga - City Market,Minibus ,3,1,1
+H6VZIP9yUqPHoiywp6l8K,Minibus (14-18 seater),City Market - Kwa Jack,Minibus ,3,1,1
+-w8bWxtF-ZwqHcqrqeSDf,Minibus (14-18 seater),Chelstone - City Market,Minibus ,3,1,1
+gWnAhfkLyRKslok1JIiaS,Minibus (14-18 seater),Kulima Tower - Mandevu,Minibus ,3,1,1
+ijcRpDPccKbkvrlo1E5PL,Minibus (14-18 seater),City Market - Garden Chilulu,Minibus ,3,1,1
+9ZY6LS-iQNcFB7rCrpCFb,Minibus (14-18 seater),Kulima Tower - UTH Hospital,Minibus ,3,1,1
+9zKYXkVaDAa93Vywp-T0e,Minibus (14-18 seater),City Market - Twin Park,Minibus ,3,1,1
+yYxWaihv27OET83gPGWz8,Minibus (14-18 seater),City Market - Middle West,Minibus ,3,1,1
+dtGTBCQIkm3l-N5f-1-az,Minibus (14-18 seater),Kulima Tower - Kwa Jack,Minibus ,3,1,1
+3HXE6FTOdOx46wO2kwax-,Minibus (14-18 seater),Chunga - Kulima Tower,Minibus ,3,1,1
+UPhOZvvZsOiTYyTqNn6qL,Shared Taxi,Kalingalinga - Munali,Shared Taxi ,3,1,1
+-FgwL1J9rKEqR_WKeo8Cb,Minibus (14-18 seater),City Market - City Shine,Minibus ,3,1,1
+Z9c8IQOpvI5_o2MG67rVO,Minibus (14-18 seater),Kulima Tower - Maplot (Chipata),Minibus ,3,1,1
+0mexu2mqG2elzcz_hPC50,Big bus (Rosa-Coaster),City Market - Zanimuone,Bus ,3,1,1
+qHGKK8FIHHzRafIbm5ApA,Minibus (14-18 seater),City Market - Shifwankula,Minibus ,3,1,1
+5uhH5zLsaKHtKIZ5M4q6h,Minibus (14-18 seater),Kulima Tower - Mutendere,Minibus ,3,1,1
+thv8sG_NuvVuFXEDfp3FQ,Minibus (14-18 seater),Chelstone - Kulima Tower,Minibus ,3,1,1
+9sa6fV_SIf6eACPjeJTg4,Minibus (14-18 seater),Garden Chilulu - Kulima Tower,Minibus ,3,1,1
+BiyhCeX9nzpcKFC4ambHk,Minibus (14-18 seater),Apex  - Kulima Tower,Minibus ,3,1,1
+aMx4ig8sTEnQNWNRP9O-7,Minibus (14-18 seater),Kulima Tower - Woodlands,Minibus ,3,1,1
+Rdi1ZP-9FgJJxbcqAFl2O,Minibus (14-18 seater),Daina Kaimba (Zingalume) - Kulima Tower,Minibus ,3,1,1
+KIHWQqnLUNBI1uS5748rh,Minibus (14-18 seater),Bauleni - Kulima Tower,Minibus ,3,1,1
+1nz9_axklMWp7IrZYcydu,Big bus (Rosa-Coaster),City Market - Villa Park,Bus ,3,1,1
+8luglkKZvpRxgYCe2uIBD,Minibus (14-18 seater),Kulima Tower - Lilayi,Minibus ,3,1,1
+QxN35sIhkK7AVDgCIm8GQ,Minibus (14-18 seater),Kulima Tower - Zanimuone,Minibus ,3,1,1
+djwDapT44iRs2bL6nf5fg,Minibus (14-18 seater),Ibex Hill - Kulima Tower,Minibus ,3,1,1
+c9rr4Ikuypoj5TnlmZvBi,Minibus (14-18 seater),Kulima Tower - Shantumbu,Minibus ,3,1,1
+fn_pYibbgXtLZTHI4Vvuu,Minibus (14-18 seater),Kulima Tower - Meanwood Mtumbi,Minibus ,3,1,1
+WhnQa6LRWnxrooC9PLbwu,Minibus (14-18 seater),Kulima Tower - Zesco Munyaule,Minibus ,3,1,1
+xtcyOgfMrgpSYkIt1cR0_,Minibus (14-18 seater),Kulima Tower - Linda,Minibus ,3,1,1
+XAk6FUUCWrqe60p2yuFHa,Minibus (14-18 seater),Kulima Tower - Makeni Konga,Minibus ,3,1,1
+4ui6vRZDpgPoXvVUa3grk,Minibus (14-18 seater),Kamwala South - Kulima Tower,Minibus ,3,1,1
+K3thA6jTIqdkt25rNVzr9,Minibus (14-18 seater),Chilanga - Kulima Tower,Minibus ,3,1,1
+Vf25mGCnww-bdFh0Q59Wv,Minibus (14-18 seater),Chelstone - PF,Minibus ,3,1,1
+9MSy2w4zMONgiM_ZCAq9d,Minibus (14-18 seater),Apex  - Kamwala,Minibus ,3,1,1
+oKoz1vo2vXapC0ed353QU,Minibus (14-18 seater),Kamwala - Mutendere,Minibus ,3,1,1
+kAtK5aKy3jXW0KTT4eX8X,Minibus (14-18 seater),Chilenje - Mutendere,Minibus ,3,1,1
+A7dGa6Ceo0lEBqYc_HwEI,Minibus (14-18 seater),Kamwala - Woodlands,Minibus ,3,1,1
+Bl-jZier2-sDSxf9ow-aI,Minibus (14-18 seater),Mutendere - UTH Hospital,Minibus ,3,1,1
+Xg28iTrqI6uSNN7kU2NJW,Minibus (14-18 seater),Kwa Jack - UTH Hospital,Minibus ,3,1,1
+PPZOKu_FVcyTP8WIduNDV,Big bus (Rosa-Coaster),City Market - Eden (Zingalume),Bus ,3,1,1
+yAz3xeOIoVHK4XYaEjQsH,Big bus (Rosa-Coaster),Kabanana - Town (Lumumba),Bus ,3,1,1
+e5peqUNc1fn5Oe5bjh9dk,Big bus (Rosa-Coaster),City Market - Kabanana,Bus ,3,1,1

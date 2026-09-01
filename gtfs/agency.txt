@@ -1,0 +1,4 @@
+agency_id,agency_name,agency_url,agency_timezone
+Big bus (Rosa-Coaster),Big bus (Rosa-Coaster),https://digitaltransport4africa.org/,Africa/Lusaka
+Shared Taxi,Shared Taxi,https://digitaltransport4africa.org/,Africa/Lusaka
+Minibus (14-18 seater),Minibus (14-18 seater),https://digitaltransport4africa.org/,Africa/Lusaka

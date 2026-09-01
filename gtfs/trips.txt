@@ -1,0 +1,409 @@
+route_id,service_id,trip_headsign,direction_id,shape_id,trip_id
+YuP4Ha1UThs5-VJ84nBI-,Ground_Daily,Town (Lumumba),1,ThmFZmBAJqT7tWIJmRJgp_Shape,ThmFZmBAJqT7tWIJmRJgp-08:00:00
+YuP4Ha1UThs5-VJ84nBI-,Ground_Daily,Town (Lumumba),1,ThmFZmBAJqT7tWIJmRJgp_Shape,ThmFZmBAJqT7tWIJmRJgp-11:00:00
+YuP4Ha1UThs5-VJ84nBI-,Ground_Daily,Town (Lumumba),1,ThmFZmBAJqT7tWIJmRJgp_Shape,ThmFZmBAJqT7tWIJmRJgp-15:00:00
+YuP4Ha1UThs5-VJ84nBI-,Ground_Daily,Kasupe,0,Hh5ETllmaQ0oGF_zAf4tn_Shape,Hh5ETllmaQ0oGF_zAf4tn-08:00:00
+YuP4Ha1UThs5-VJ84nBI-,Ground_Daily,Kasupe,0,Hh5ETllmaQ0oGF_zAf4tn_Shape,Hh5ETllmaQ0oGF_zAf4tn-11:00:00
+YuP4Ha1UThs5-VJ84nBI-,Ground_Daily,Kasupe,0,Hh5ETllmaQ0oGF_zAf4tn_Shape,Hh5ETllmaQ0oGF_zAf4tn-15:00:00
+HH38N5pGrc9q2LNKMU6Qh,Ground_Daily,Town (Millenium),1,sTRLNMgmDXb6xKKXDwDeQ_Shape,sTRLNMgmDXb6xKKXDwDeQ-08:00:00
+HH38N5pGrc9q2LNKMU6Qh,Ground_Daily,Town (Millenium),1,sTRLNMgmDXb6xKKXDwDeQ_Shape,sTRLNMgmDXb6xKKXDwDeQ-11:00:00
+HH38N5pGrc9q2LNKMU6Qh,Ground_Daily,Town (Millenium),1,sTRLNMgmDXb6xKKXDwDeQ_Shape,sTRLNMgmDXb6xKKXDwDeQ-15:00:00
+hI1bkzcFn2AlrpBo50EuI,Ground_Daily,City Market,1,TW83KwUKQ1p9NCfwBCNSl_Shape,TW83KwUKQ1p9NCfwBCNSl-08:00:00
+hI1bkzcFn2AlrpBo50EuI,Ground_Daily,City Market,1,TW83KwUKQ1p9NCfwBCNSl_Shape,TW83KwUKQ1p9NCfwBCNSl-11:00:00
+hI1bkzcFn2AlrpBo50EuI,Ground_Daily,City Market,1,TW83KwUKQ1p9NCfwBCNSl_Shape,TW83KwUKQ1p9NCfwBCNSl-15:00:00
+F7E3FJj05oKC0Mj1tshx5,Ground_Daily,Kulima Tower,1,LzBTMmwAK4v-SQDzGhmLZ_Shape,LzBTMmwAK4v-SQDzGhmLZ-08:00:00
+F7E3FJj05oKC0Mj1tshx5,Ground_Daily,Kulima Tower,1,LzBTMmwAK4v-SQDzGhmLZ_Shape,LzBTMmwAK4v-SQDzGhmLZ-11:00:00
+F7E3FJj05oKC0Mj1tshx5,Ground_Daily,Kulima Tower,1,LzBTMmwAK4v-SQDzGhmLZ_Shape,LzBTMmwAK4v-SQDzGhmLZ-15:00:00
+HH38N5pGrc9q2LNKMU6Qh,Ground_Daily,Chazanga,0,aaUcIUqazeF4NxP0_IY8o_Shape,aaUcIUqazeF4NxP0_IY8o-08:00:00
+HH38N5pGrc9q2LNKMU6Qh,Ground_Daily,Chazanga,0,aaUcIUqazeF4NxP0_IY8o_Shape,aaUcIUqazeF4NxP0_IY8o-11:00:00
+HH38N5pGrc9q2LNKMU6Qh,Ground_Daily,Chazanga,0,aaUcIUqazeF4NxP0_IY8o_Shape,aaUcIUqazeF4NxP0_IY8o-15:00:00
+D1l9RCFXU-boDIzysaYJ1,Ground_Daily,Mandevu,0,3wyzLWqwkFBT_EFPW3iXt_Shape,3wyzLWqwkFBT_EFPW3iXt-08:00:00
+D1l9RCFXU-boDIzysaYJ1,Ground_Daily,Mandevu,0,3wyzLWqwkFBT_EFPW3iXt_Shape,3wyzLWqwkFBT_EFPW3iXt-11:00:00
+D1l9RCFXU-boDIzysaYJ1,Ground_Daily,Mandevu,0,3wyzLWqwkFBT_EFPW3iXt_Shape,3wyzLWqwkFBT_EFPW3iXt-15:00:00
+hI1bkzcFn2AlrpBo50EuI,Ground_Daily,Chainda,0,15gI0fejCsRWNzoaByL95_Shape,15gI0fejCsRWNzoaByL95-08:00:00
+hI1bkzcFn2AlrpBo50EuI,Ground_Daily,Chainda,0,15gI0fejCsRWNzoaByL95_Shape,15gI0fejCsRWNzoaByL95-11:00:00
+hI1bkzcFn2AlrpBo50EuI,Ground_Daily,Chainda,0,15gI0fejCsRWNzoaByL95_Shape,15gI0fejCsRWNzoaByL95-15:00:00
+F7E3FJj05oKC0Mj1tshx5,Ground_Daily,Chainda,0,PFFPBEZ1dqA10v0FlKYiW_Shape,PFFPBEZ1dqA10v0FlKYiW-08:00:00
+F7E3FJj05oKC0Mj1tshx5,Ground_Daily,Chainda,0,PFFPBEZ1dqA10v0FlKYiW_Shape,PFFPBEZ1dqA10v0FlKYiW-11:00:00
+F7E3FJj05oKC0Mj1tshx5,Ground_Daily,Chainda,0,PFFPBEZ1dqA10v0FlKYiW_Shape,PFFPBEZ1dqA10v0FlKYiW-15:00:00
+ylrDiULSbiqLehSMQ_0Dn,Ground_Daily,Town (Lumumba),1,RhBszIOr5GKdQpBdXEUx__Shape,RhBszIOr5GKdQpBdXEUx_-08:00:00
+ylrDiULSbiqLehSMQ_0Dn,Ground_Daily,Town (Lumumba),1,RhBszIOr5GKdQpBdXEUx__Shape,RhBszIOr5GKdQpBdXEUx_-11:00:00
+ylrDiULSbiqLehSMQ_0Dn,Ground_Daily,Town (Lumumba),1,RhBszIOr5GKdQpBdXEUx__Shape,RhBszIOr5GKdQpBdXEUx_-15:00:00
+ee57M46UJt3RxHgJ_HpJj,Ground_Daily,Arcades Mall,1,-NKee7QYh0qeaGYLjIvNv_Shape,-NKee7QYh0qeaGYLjIvNv-08:00:00
+ee57M46UJt3RxHgJ_HpJj,Ground_Daily,Arcades Mall,1,-NKee7QYh0qeaGYLjIvNv_Shape,-NKee7QYh0qeaGYLjIvNv-11:00:00
+ee57M46UJt3RxHgJ_HpJj,Ground_Daily,Arcades Mall,1,-NKee7QYh0qeaGYLjIvNv_Shape,-NKee7QYh0qeaGYLjIvNv-15:00:00
+ee57M46UJt3RxHgJ_HpJj,Ground_Daily,Mass Media,0,fnhkt5-XSgY2kvZpT5Bip_Shape,fnhkt5-XSgY2kvZpT5Bip-08:00:00
+ee57M46UJt3RxHgJ_HpJj,Ground_Daily,Mass Media,0,fnhkt5-XSgY2kvZpT5Bip_Shape,fnhkt5-XSgY2kvZpT5Bip-11:00:00
+ee57M46UJt3RxHgJ_HpJj,Ground_Daily,Mass Media,0,fnhkt5-XSgY2kvZpT5Bip_Shape,fnhkt5-XSgY2kvZpT5Bip-15:00:00
+RZq_6Mq4rftCSczTlOa5c,Ground_Daily,Maplot (Chipata),0,DGlboO83sJFcNxsRMmxPY_Shape,DGlboO83sJFcNxsRMmxPY-08:00:00
+RZq_6Mq4rftCSczTlOa5c,Ground_Daily,Maplot (Chipata),0,DGlboO83sJFcNxsRMmxPY_Shape,DGlboO83sJFcNxsRMmxPY-11:00:00
+RZq_6Mq4rftCSczTlOa5c,Ground_Daily,Maplot (Chipata),0,DGlboO83sJFcNxsRMmxPY_Shape,DGlboO83sJFcNxsRMmxPY-15:00:00
+nqduW4TvmVFCESFuhuHce,Ground_Daily,Town (Lumumba),1,hWDdlZEi3ddx0MFBG78w6_Shape,hWDdlZEi3ddx0MFBG78w6-08:00:00
+nqduW4TvmVFCESFuhuHce,Ground_Daily,Town (Lumumba),1,hWDdlZEi3ddx0MFBG78w6_Shape,hWDdlZEi3ddx0MFBG78w6-11:00:00
+nqduW4TvmVFCESFuhuHce,Ground_Daily,Town (Lumumba),1,hWDdlZEi3ddx0MFBG78w6_Shape,hWDdlZEi3ddx0MFBG78w6-15:00:00
+KlflVnFMOAtL6plTiIXlx,Ground_Daily,Town (Lumumba),1,IwSyka0hgnhVD6HeiMv8K_Shape,IwSyka0hgnhVD6HeiMv8K-08:00:00
+KlflVnFMOAtL6plTiIXlx,Ground_Daily,Town (Lumumba),1,IwSyka0hgnhVD6HeiMv8K_Shape,IwSyka0hgnhVD6HeiMv8K-11:00:00
+KlflVnFMOAtL6plTiIXlx,Ground_Daily,Town (Lumumba),1,IwSyka0hgnhVD6HeiMv8K_Shape,IwSyka0hgnhVD6HeiMv8K-15:00:00
+B18UPvTB69kLGp400SDch,Ground_Daily,Town (Lumumba),1,ZytZYb09WGNBNtKf2Pu4i_Shape,ZytZYb09WGNBNtKf2Pu4i-08:00:00
+B18UPvTB69kLGp400SDch,Ground_Daily,Town (Lumumba),1,ZytZYb09WGNBNtKf2Pu4i_Shape,ZytZYb09WGNBNtKf2Pu4i-11:00:00
+B18UPvTB69kLGp400SDch,Ground_Daily,Town (Lumumba),1,ZytZYb09WGNBNtKf2Pu4i_Shape,ZytZYb09WGNBNtKf2Pu4i-15:00:00
+6gY3s2amHt56dm1wpXuuK,Ground_Daily,Town (Lumumba),1,8MYr21Ykqpgqtb_3h_YlU_Shape,8MYr21Ykqpgqtb_3h_YlU-08:00:00
+6gY3s2amHt56dm1wpXuuK,Ground_Daily,Town (Lumumba),1,8MYr21Ykqpgqtb_3h_YlU_Shape,8MYr21Ykqpgqtb_3h_YlU-11:00:00
+6gY3s2amHt56dm1wpXuuK,Ground_Daily,Town (Lumumba),1,8MYr21Ykqpgqtb_3h_YlU_Shape,8MYr21Ykqpgqtb_3h_YlU-15:00:00
+qn2e1Lttsogqo4r9xQyF3,Ground_Daily,Town (Lumumba),1,iQFT8im99h4QAqhPzJv3V_Shape,iQFT8im99h4QAqhPzJv3V-08:00:00
+qn2e1Lttsogqo4r9xQyF3,Ground_Daily,Town (Lumumba),1,iQFT8im99h4QAqhPzJv3V_Shape,iQFT8im99h4QAqhPzJv3V-11:00:00
+qn2e1Lttsogqo4r9xQyF3,Ground_Daily,Town (Lumumba),1,iQFT8im99h4QAqhPzJv3V_Shape,iQFT8im99h4QAqhPzJv3V-15:00:00
+xMM5c1UUVTF9u42tGNzBu,Ground_Daily,Mutendere,1,okX_kftXfSpqITxf1B9rB_Shape,okX_kftXfSpqITxf1B9rB-08:00:00
+xMM5c1UUVTF9u42tGNzBu,Ground_Daily,Mutendere,1,okX_kftXfSpqITxf1B9rB_Shape,okX_kftXfSpqITxf1B9rB-11:00:00
+xMM5c1UUVTF9u42tGNzBu,Ground_Daily,Mutendere,1,okX_kftXfSpqITxf1B9rB_Shape,okX_kftXfSpqITxf1B9rB-15:00:00
+nqduW4TvmVFCESFuhuHce,Ground_Daily,Zingalume,0,lUW1dBokgMGNxq2LxqKjr_Shape,lUW1dBokgMGNxq2LxqKjr-08:00:00
+nqduW4TvmVFCESFuhuHce,Ground_Daily,Zingalume,0,lUW1dBokgMGNxq2LxqKjr_Shape,lUW1dBokgMGNxq2LxqKjr-11:00:00
+nqduW4TvmVFCESFuhuHce,Ground_Daily,Zingalume,0,lUW1dBokgMGNxq2LxqKjr_Shape,lUW1dBokgMGNxq2LxqKjr-15:00:00
+X3-oLpa4-IzVJtnAci5Bk,Ground_Daily,Kabanana,0,669bKA9IoHjL87T1AZ421_Shape,669bKA9IoHjL87T1AZ421-08:00:00
+X3-oLpa4-IzVJtnAci5Bk,Ground_Daily,Kabanana,0,669bKA9IoHjL87T1AZ421_Shape,669bKA9IoHjL87T1AZ421-11:00:00
+X3-oLpa4-IzVJtnAci5Bk,Ground_Daily,Kabanana,0,669bKA9IoHjL87T1AZ421_Shape,669bKA9IoHjL87T1AZ421-15:00:00
+HWRe5sQk3JBUrNCfW-smk,Ground_Daily,City Market,1,IHFXZKQXG49GCnE2T-hQZ_Shape,IHFXZKQXG49GCnE2T-hQZ-08:00:00
+HWRe5sQk3JBUrNCfW-smk,Ground_Daily,City Market,1,IHFXZKQXG49GCnE2T-hQZ_Shape,IHFXZKQXG49GCnE2T-hQZ-11:00:00
+HWRe5sQk3JBUrNCfW-smk,Ground_Daily,City Market,1,IHFXZKQXG49GCnE2T-hQZ_Shape,IHFXZKQXG49GCnE2T-hQZ-15:00:00
+LqxA3JEWeUhqFVlT5YICh,Ground_Daily,Kabanana,0,3LJ7eXpaj0PsrQDZE3EDo_Shape,3LJ7eXpaj0PsrQDZE3EDo-08:00:00
+LqxA3JEWeUhqFVlT5YICh,Ground_Daily,Kabanana,0,3LJ7eXpaj0PsrQDZE3EDo_Shape,3LJ7eXpaj0PsrQDZE3EDo-11:00:00
+LqxA3JEWeUhqFVlT5YICh,Ground_Daily,Kabanana,0,3LJ7eXpaj0PsrQDZE3EDo_Shape,3LJ7eXpaj0PsrQDZE3EDo-15:00:00
+KlflVnFMOAtL6plTiIXlx,Ground_Daily,Lilanda,0,700QdAH9AXoYgf9ox9TSe_Shape,700QdAH9AXoYgf9ox9TSe-08:00:00
+KlflVnFMOAtL6plTiIXlx,Ground_Daily,Lilanda,0,700QdAH9AXoYgf9ox9TSe_Shape,700QdAH9AXoYgf9ox9TSe-11:00:00
+KlflVnFMOAtL6plTiIXlx,Ground_Daily,Lilanda,0,700QdAH9AXoYgf9ox9TSe_Shape,700QdAH9AXoYgf9ox9TSe-15:00:00
+Xgs5VIIHtCZURaP4Y052R,Ground_Daily,Lilanda,0,QTLuLO3VL5L795_0NOMQG_Shape,QTLuLO3VL5L795_0NOMQG-08:00:00
+Xgs5VIIHtCZURaP4Y052R,Ground_Daily,Lilanda,0,QTLuLO3VL5L795_0NOMQG_Shape,QTLuLO3VL5L795_0NOMQG-11:00:00
+Xgs5VIIHtCZURaP4Y052R,Ground_Daily,Lilanda,0,QTLuLO3VL5L795_0NOMQG_Shape,QTLuLO3VL5L795_0NOMQG-15:00:00
+NOWLXyqXYJgK39nRBjgMI,Ground_Daily,Lilanda,0,vMFutgrq1IFofWii2k8JO_Shape,vMFutgrq1IFofWii2k8JO-08:00:00
+NOWLXyqXYJgK39nRBjgMI,Ground_Daily,Lilanda,0,vMFutgrq1IFofWii2k8JO_Shape,vMFutgrq1IFofWii2k8JO-11:00:00
+NOWLXyqXYJgK39nRBjgMI,Ground_Daily,Lilanda,0,vMFutgrq1IFofWii2k8JO_Shape,vMFutgrq1IFofWii2k8JO-15:00:00
+B18UPvTB69kLGp400SDch,Ground_Daily,Mbasela,0,epv2iDpLsj3_nuHA1Dare_Shape,epv2iDpLsj3_nuHA1Dare-08:00:00
+B18UPvTB69kLGp400SDch,Ground_Daily,Mbasela,0,epv2iDpLsj3_nuHA1Dare_Shape,epv2iDpLsj3_nuHA1Dare-11:00:00
+B18UPvTB69kLGp400SDch,Ground_Daily,Mbasela,0,epv2iDpLsj3_nuHA1Dare_Shape,epv2iDpLsj3_nuHA1Dare-15:00:00
+6gY3s2amHt56dm1wpXuuK,Ground_Daily,Eden (Zingalume),0,vfGiHborLSJ8VvaM4MxbG_Shape,vfGiHborLSJ8VvaM4MxbG-08:00:00
+6gY3s2amHt56dm1wpXuuK,Ground_Daily,Eden (Zingalume),0,vfGiHborLSJ8VvaM4MxbG_Shape,vfGiHborLSJ8VvaM4MxbG-11:00:00
+6gY3s2amHt56dm1wpXuuK,Ground_Daily,Eden (Zingalume),0,vfGiHborLSJ8VvaM4MxbG_Shape,vfGiHborLSJ8VvaM4MxbG-15:00:00
+qn2e1Lttsogqo4r9xQyF3,Ground_Daily,Sekelela,0,LMuf1chFVDYrvUUcXZCrD_Shape,LMuf1chFVDYrvUUcXZCrD-08:00:00
+qn2e1Lttsogqo4r9xQyF3,Ground_Daily,Sekelela,0,LMuf1chFVDYrvUUcXZCrD_Shape,LMuf1chFVDYrvUUcXZCrD-11:00:00
+qn2e1Lttsogqo4r9xQyF3,Ground_Daily,Sekelela,0,LMuf1chFVDYrvUUcXZCrD_Shape,LMuf1chFVDYrvUUcXZCrD-15:00:00
+ND4Vp2gXbca5bREUd3gbT,Ground_Daily,Obama (Kamanga),0,J9Q7woWxbZPcWL_moaq7M_Shape,J9Q7woWxbZPcWL_moaq7M-08:00:00
+ND4Vp2gXbca5bREUd3gbT,Ground_Daily,Obama (Kamanga),0,J9Q7woWxbZPcWL_moaq7M_Shape,J9Q7woWxbZPcWL_moaq7M-11:00:00
+ND4Vp2gXbca5bREUd3gbT,Ground_Daily,Obama (Kamanga),0,J9Q7woWxbZPcWL_moaq7M_Shape,J9Q7woWxbZPcWL_moaq7M-15:00:00
+FI1Yf35fAVVDlDM7LXzKA,Ground_Daily,Obama (Kamanga),0,EHiHPwjr5jnMeR3S3qsZp_Shape,EHiHPwjr5jnMeR3S3qsZp-08:00:00
+FI1Yf35fAVVDlDM7LXzKA,Ground_Daily,Obama (Kamanga),0,EHiHPwjr5jnMeR3S3qsZp_Shape,EHiHPwjr5jnMeR3S3qsZp-11:00:00
+FI1Yf35fAVVDlDM7LXzKA,Ground_Daily,Obama (Kamanga),0,EHiHPwjr5jnMeR3S3qsZp_Shape,EHiHPwjr5jnMeR3S3qsZp-15:00:00
+X3-oLpa4-IzVJtnAci5Bk,Ground_Daily,Town (Millenium),1,E2ALybREsJP_CWbHbvK5O_Shape,E2ALybREsJP_CWbHbvK5O-08:00:00
+X3-oLpa4-IzVJtnAci5Bk,Ground_Daily,Town (Millenium),1,E2ALybREsJP_CWbHbvK5O_Shape,E2ALybREsJP_CWbHbvK5O-11:00:00
+X3-oLpa4-IzVJtnAci5Bk,Ground_Daily,Town (Millenium),1,E2ALybREsJP_CWbHbvK5O_Shape,E2ALybREsJP_CWbHbvK5O-15:00:00
+Xgs5VIIHtCZURaP4Y052R,Ground_Daily,Town (Millenium),1,eHb-xTjA7OzwzvwOCdRqT_Shape,eHb-xTjA7OzwzvwOCdRqT-08:00:00
+Xgs5VIIHtCZURaP4Y052R,Ground_Daily,Town (Millenium),1,eHb-xTjA7OzwzvwOCdRqT_Shape,eHb-xTjA7OzwzvwOCdRqT-11:00:00
+Xgs5VIIHtCZURaP4Y052R,Ground_Daily,Town (Millenium),1,eHb-xTjA7OzwzvwOCdRqT_Shape,eHb-xTjA7OzwzvwOCdRqT-15:00:00
+NOWLXyqXYJgK39nRBjgMI,Ground_Daily,Kulima Tower,1,p7yQZriSIS55VP8T1ofTZ_Shape,p7yQZriSIS55VP8T1ofTZ-08:00:00
+NOWLXyqXYJgK39nRBjgMI,Ground_Daily,Kulima Tower,1,p7yQZriSIS55VP8T1ofTZ_Shape,p7yQZriSIS55VP8T1ofTZ-11:00:00
+NOWLXyqXYJgK39nRBjgMI,Ground_Daily,Kulima Tower,1,p7yQZriSIS55VP8T1ofTZ_Shape,p7yQZriSIS55VP8T1ofTZ-15:00:00
+RZq_6Mq4rftCSczTlOa5c,Ground_Daily,Town (Millenium),1,bQsVOnPg9TWzkGfogKXq7_Shape,bQsVOnPg9TWzkGfogKXq7-08:00:00
+RZq_6Mq4rftCSczTlOa5c,Ground_Daily,Town (Millenium),1,bQsVOnPg9TWzkGfogKXq7_Shape,bQsVOnPg9TWzkGfogKXq7-11:00:00
+RZq_6Mq4rftCSczTlOa5c,Ground_Daily,Town (Millenium),1,bQsVOnPg9TWzkGfogKXq7_Shape,bQsVOnPg9TWzkGfogKXq7-15:00:00
+nYc8FB1nsQ-rX7GFvlOuS,Ground_Daily,Town (Millenium),1,OUktlYWEKI40lXv--3gHy_Shape,OUktlYWEKI40lXv--3gHy-08:00:00
+nYc8FB1nsQ-rX7GFvlOuS,Ground_Daily,Town (Millenium),1,OUktlYWEKI40lXv--3gHy_Shape,OUktlYWEKI40lXv--3gHy-11:00:00
+nYc8FB1nsQ-rX7GFvlOuS,Ground_Daily,Town (Millenium),1,OUktlYWEKI40lXv--3gHy_Shape,OUktlYWEKI40lXv--3gHy-15:00:00
+4ReV8MYi9lTSrXfGyKqGP,Ground_Daily,Town (Millenium),1,cA06rTfQtEgxby-YePh3Q_Shape,cA06rTfQtEgxby-YePh3Q-08:00:00
+4ReV8MYi9lTSrXfGyKqGP,Ground_Daily,Town (Millenium),1,cA06rTfQtEgxby-YePh3Q_Shape,cA06rTfQtEgxby-YePh3Q-11:00:00
+4ReV8MYi9lTSrXfGyKqGP,Ground_Daily,Town (Millenium),1,cA06rTfQtEgxby-YePh3Q_Shape,cA06rTfQtEgxby-YePh3Q-15:00:00
+D1l9RCFXU-boDIzysaYJ1,Ground_Daily,Town (Millenium),1,1uDTXh429bzotqczPhgBZ_Shape,1uDTXh429bzotqczPhgBZ-08:00:00
+D1l9RCFXU-boDIzysaYJ1,Ground_Daily,Town (Millenium),1,1uDTXh429bzotqczPhgBZ_Shape,1uDTXh429bzotqczPhgBZ-11:00:00
+D1l9RCFXU-boDIzysaYJ1,Ground_Daily,Town (Millenium),1,1uDTXh429bzotqczPhgBZ_Shape,1uDTXh429bzotqczPhgBZ-15:00:00
+5Kwf52yoSYwuQmbF0o_xf,Ground_Daily,City Market,1,YKJ-sjV2Q3p-hvMfAunLC_Shape,YKJ-sjV2Q3p-hvMfAunLC-08:00:00
+5Kwf52yoSYwuQmbF0o_xf,Ground_Daily,City Market,1,YKJ-sjV2Q3p-hvMfAunLC_Shape,YKJ-sjV2Q3p-hvMfAunLC-11:00:00
+5Kwf52yoSYwuQmbF0o_xf,Ground_Daily,City Market,1,YKJ-sjV2Q3p-hvMfAunLC_Shape,YKJ-sjV2Q3p-hvMfAunLC-15:00:00
+UP6rVbW36SKslTwu51sJN,Ground_Daily,City Market,1,qX2r5XTbmjZpGVc70zrzo_Shape,qX2r5XTbmjZpGVc70zrzo-08:00:00
+UP6rVbW36SKslTwu51sJN,Ground_Daily,City Market,1,qX2r5XTbmjZpGVc70zrzo_Shape,qX2r5XTbmjZpGVc70zrzo-11:00:00
+UP6rVbW36SKslTwu51sJN,Ground_Daily,City Market,1,qX2r5XTbmjZpGVc70zrzo_Shape,qX2r5XTbmjZpGVc70zrzo-15:00:00
+DoAuoHV6PmKQraITZ7BJs,Ground_Daily,City Market,1,3nOVFvbnwJdenRSzRyprf_Shape,3nOVFvbnwJdenRSzRyprf-08:00:00
+DoAuoHV6PmKQraITZ7BJs,Ground_Daily,City Market,1,3nOVFvbnwJdenRSzRyprf_Shape,3nOVFvbnwJdenRSzRyprf-11:00:00
+DoAuoHV6PmKQraITZ7BJs,Ground_Daily,City Market,1,3nOVFvbnwJdenRSzRyprf_Shape,3nOVFvbnwJdenRSzRyprf-15:00:00
+H6VZIP9yUqPHoiywp6l8K,Ground_Daily,City Market,1,IRlGEtkDSkAInI6DTAxMc_Shape,IRlGEtkDSkAInI6DTAxMc-08:00:00
+H6VZIP9yUqPHoiywp6l8K,Ground_Daily,City Market,1,IRlGEtkDSkAInI6DTAxMc_Shape,IRlGEtkDSkAInI6DTAxMc-11:00:00
+H6VZIP9yUqPHoiywp6l8K,Ground_Daily,City Market,1,IRlGEtkDSkAInI6DTAxMc_Shape,IRlGEtkDSkAInI6DTAxMc-15:00:00
+-w8bWxtF-ZwqHcqrqeSDf,Ground_Daily,City Market,1,V_ux2P9PBThjysXOaxjtK_Shape,V_ux2P9PBThjysXOaxjtK-08:00:00
+-w8bWxtF-ZwqHcqrqeSDf,Ground_Daily,City Market,1,V_ux2P9PBThjysXOaxjtK_Shape,V_ux2P9PBThjysXOaxjtK-11:00:00
+-w8bWxtF-ZwqHcqrqeSDf,Ground_Daily,City Market,1,V_ux2P9PBThjysXOaxjtK_Shape,V_ux2P9PBThjysXOaxjtK-15:00:00
+gWnAhfkLyRKslok1JIiaS,Ground_Daily,Kulima Tower,1,iZqWbRD0GF56B4rsMqc1H_Shape,iZqWbRD0GF56B4rsMqc1H-08:00:00
+gWnAhfkLyRKslok1JIiaS,Ground_Daily,Kulima Tower,1,iZqWbRD0GF56B4rsMqc1H_Shape,iZqWbRD0GF56B4rsMqc1H-11:00:00
+gWnAhfkLyRKslok1JIiaS,Ground_Daily,Kulima Tower,1,iZqWbRD0GF56B4rsMqc1H_Shape,iZqWbRD0GF56B4rsMqc1H-15:00:00
+ND4Vp2gXbca5bREUd3gbT,Ground_Daily,City Market,1,0Qt8-wYkoc-aGRz4cFgUD_Shape,0Qt8-wYkoc-aGRz4cFgUD-08:00:00
+ND4Vp2gXbca5bREUd3gbT,Ground_Daily,City Market,1,0Qt8-wYkoc-aGRz4cFgUD_Shape,0Qt8-wYkoc-aGRz4cFgUD-11:00:00
+ND4Vp2gXbca5bREUd3gbT,Ground_Daily,City Market,1,0Qt8-wYkoc-aGRz4cFgUD_Shape,0Qt8-wYkoc-aGRz4cFgUD-15:00:00
+ijcRpDPccKbkvrlo1E5PL,Ground_Daily,City Market,1,YGVDhYHj-xdBmJ9VxADkt_Shape,YGVDhYHj-xdBmJ9VxADkt-08:00:00
+ijcRpDPccKbkvrlo1E5PL,Ground_Daily,City Market,1,YGVDhYHj-xdBmJ9VxADkt_Shape,YGVDhYHj-xdBmJ9VxADkt-11:00:00
+ijcRpDPccKbkvrlo1E5PL,Ground_Daily,City Market,1,YGVDhYHj-xdBmJ9VxADkt_Shape,YGVDhYHj-xdBmJ9VxADkt-15:00:00
+9ZY6LS-iQNcFB7rCrpCFb,Ground_Daily,Kulima Tower,1,j2xHEbCrLUFugqItMiGdn_Shape,j2xHEbCrLUFugqItMiGdn-08:00:00
+9ZY6LS-iQNcFB7rCrpCFb,Ground_Daily,Kulima Tower,1,j2xHEbCrLUFugqItMiGdn_Shape,j2xHEbCrLUFugqItMiGdn-11:00:00
+9ZY6LS-iQNcFB7rCrpCFb,Ground_Daily,Kulima Tower,1,j2xHEbCrLUFugqItMiGdn_Shape,j2xHEbCrLUFugqItMiGdn-15:00:00
+9zKYXkVaDAa93Vywp-T0e,Ground_Daily,City Market,1,MbqHp0sk0A0uW6Kz48TkS_Shape,MbqHp0sk0A0uW6Kz48TkS-08:00:00
+9zKYXkVaDAa93Vywp-T0e,Ground_Daily,City Market,1,MbqHp0sk0A0uW6Kz48TkS_Shape,MbqHp0sk0A0uW6Kz48TkS-11:00:00
+9zKYXkVaDAa93Vywp-T0e,Ground_Daily,City Market,1,MbqHp0sk0A0uW6Kz48TkS_Shape,MbqHp0sk0A0uW6Kz48TkS-15:00:00
+yYxWaihv27OET83gPGWz8,Ground_Daily,City Market,1,siSieO5i5Z03A5xpt3B-U_Shape,siSieO5i5Z03A5xpt3B-U-08:00:00
+yYxWaihv27OET83gPGWz8,Ground_Daily,City Market,1,siSieO5i5Z03A5xpt3B-U_Shape,siSieO5i5Z03A5xpt3B-U-11:00:00
+yYxWaihv27OET83gPGWz8,Ground_Daily,City Market,1,siSieO5i5Z03A5xpt3B-U_Shape,siSieO5i5Z03A5xpt3B-U-15:00:00
+dtGTBCQIkm3l-N5f-1-az,Ground_Daily,Kulima Tower,1,PgilnD-PAFZZSIhV52dWt_Shape,PgilnD-PAFZZSIhV52dWt-08:00:00
+dtGTBCQIkm3l-N5f-1-az,Ground_Daily,Kulima Tower,1,PgilnD-PAFZZSIhV52dWt_Shape,PgilnD-PAFZZSIhV52dWt-11:00:00
+dtGTBCQIkm3l-N5f-1-az,Ground_Daily,Kulima Tower,1,PgilnD-PAFZZSIhV52dWt_Shape,PgilnD-PAFZZSIhV52dWt-15:00:00
+3HXE6FTOdOx46wO2kwax-,Ground_Daily,Kulima Tower,1,iQPmckml-YKfSIdLVEROH_Shape,iQPmckml-YKfSIdLVEROH-08:00:00
+3HXE6FTOdOx46wO2kwax-,Ground_Daily,Kulima Tower,1,iQPmckml-YKfSIdLVEROH_Shape,iQPmckml-YKfSIdLVEROH-11:00:00
+3HXE6FTOdOx46wO2kwax-,Ground_Daily,Kulima Tower,1,iQPmckml-YKfSIdLVEROH_Shape,iQPmckml-YKfSIdLVEROH-15:00:00
+UPhOZvvZsOiTYyTqNn6qL,Ground_Daily,Munali,0,OMdUHBfEo-Vn9xjSP5G7F_Shape,OMdUHBfEo-Vn9xjSP5G7F-08:00:00
+UPhOZvvZsOiTYyTqNn6qL,Ground_Daily,Munali,0,OMdUHBfEo-Vn9xjSP5G7F_Shape,OMdUHBfEo-Vn9xjSP5G7F-11:00:00
+UPhOZvvZsOiTYyTqNn6qL,Ground_Daily,Munali,0,OMdUHBfEo-Vn9xjSP5G7F_Shape,OMdUHBfEo-Vn9xjSP5G7F-15:00:00
+-FgwL1J9rKEqR_WKeo8Cb,Ground_Daily,City Market,1,Kk8L4JdTfWpWWaKWeagkF_Shape,Kk8L4JdTfWpWWaKWeagkF-08:00:00
+-FgwL1J9rKEqR_WKeo8Cb,Ground_Daily,City Market,1,Kk8L4JdTfWpWWaKWeagkF_Shape,Kk8L4JdTfWpWWaKWeagkF-11:00:00
+-FgwL1J9rKEqR_WKeo8Cb,Ground_Daily,City Market,1,Kk8L4JdTfWpWWaKWeagkF_Shape,Kk8L4JdTfWpWWaKWeagkF-15:00:00
+Z9c8IQOpvI5_o2MG67rVO,Ground_Daily,Kulima Tower,1,OHbyHa75_5S9a3ax8ZOOM_Shape,OHbyHa75_5S9a3ax8ZOOM-08:00:00
+Z9c8IQOpvI5_o2MG67rVO,Ground_Daily,Kulima Tower,1,OHbyHa75_5S9a3ax8ZOOM_Shape,OHbyHa75_5S9a3ax8ZOOM-11:00:00
+Z9c8IQOpvI5_o2MG67rVO,Ground_Daily,Kulima Tower,1,OHbyHa75_5S9a3ax8ZOOM_Shape,OHbyHa75_5S9a3ax8ZOOM-15:00:00
+0mexu2mqG2elzcz_hPC50,Ground_Daily,City Market,1,06wH71kW0uoWc-Qcyna8U_Shape,06wH71kW0uoWc-Qcyna8U-08:00:00
+0mexu2mqG2elzcz_hPC50,Ground_Daily,City Market,1,06wH71kW0uoWc-Qcyna8U_Shape,06wH71kW0uoWc-Qcyna8U-11:00:00
+0mexu2mqG2elzcz_hPC50,Ground_Daily,City Market,1,06wH71kW0uoWc-Qcyna8U_Shape,06wH71kW0uoWc-Qcyna8U-15:00:00
+qHGKK8FIHHzRafIbm5ApA,Ground_Daily,City Market,1,QHSYs7dG0xJ58g9KUaooR_Shape,QHSYs7dG0xJ58g9KUaooR-08:00:00
+qHGKK8FIHHzRafIbm5ApA,Ground_Daily,City Market,1,QHSYs7dG0xJ58g9KUaooR_Shape,QHSYs7dG0xJ58g9KUaooR-11:00:00
+qHGKK8FIHHzRafIbm5ApA,Ground_Daily,City Market,1,QHSYs7dG0xJ58g9KUaooR_Shape,QHSYs7dG0xJ58g9KUaooR-15:00:00
+UPhOZvvZsOiTYyTqNn6qL,Ground_Daily,Kalingalinga,1,roDWNGY5aZVs61zOmqn0__Shape,roDWNGY5aZVs61zOmqn0_-08:00:00
+UPhOZvvZsOiTYyTqNn6qL,Ground_Daily,Kalingalinga,1,roDWNGY5aZVs61zOmqn0__Shape,roDWNGY5aZVs61zOmqn0_-11:00:00
+UPhOZvvZsOiTYyTqNn6qL,Ground_Daily,Kalingalinga,1,roDWNGY5aZVs61zOmqn0__Shape,roDWNGY5aZVs61zOmqn0_-15:00:00
+LqxA3JEWeUhqFVlT5YICh,Ground_Daily,Kulima Tower,1,_ICqEZ-NSf-489ZBDzIZ__Shape,_ICqEZ-NSf-489ZBDzIZ_-08:00:00
+LqxA3JEWeUhqFVlT5YICh,Ground_Daily,Kulima Tower,1,_ICqEZ-NSf-489ZBDzIZ__Shape,_ICqEZ-NSf-489ZBDzIZ_-11:00:00
+LqxA3JEWeUhqFVlT5YICh,Ground_Daily,Kulima Tower,1,_ICqEZ-NSf-489ZBDzIZ__Shape,_ICqEZ-NSf-489ZBDzIZ_-15:00:00
+5uhH5zLsaKHtKIZ5M4q6h,Ground_Daily,Kulima Tower,1,T_C_Na8S8JVt7n7K4VHqD_Shape,T_C_Na8S8JVt7n7K4VHqD-08:00:00
+5uhH5zLsaKHtKIZ5M4q6h,Ground_Daily,Kulima Tower,1,T_C_Na8S8JVt7n7K4VHqD_Shape,T_C_Na8S8JVt7n7K4VHqD-11:00:00
+5uhH5zLsaKHtKIZ5M4q6h,Ground_Daily,Kulima Tower,1,T_C_Na8S8JVt7n7K4VHqD_Shape,T_C_Na8S8JVt7n7K4VHqD-15:00:00
+thv8sG_NuvVuFXEDfp3FQ,Ground_Daily,Kulima Tower,1,xXaNJ7j1jTjFVslLGv16G_Shape,xXaNJ7j1jTjFVslLGv16G-08:00:00
+thv8sG_NuvVuFXEDfp3FQ,Ground_Daily,Kulima Tower,1,xXaNJ7j1jTjFVslLGv16G_Shape,xXaNJ7j1jTjFVslLGv16G-11:00:00
+thv8sG_NuvVuFXEDfp3FQ,Ground_Daily,Kulima Tower,1,xXaNJ7j1jTjFVslLGv16G_Shape,xXaNJ7j1jTjFVslLGv16G-15:00:00
+FI1Yf35fAVVDlDM7LXzKA,Ground_Daily,Kulima Tower,1,fxNWCjFTxfECF-I_52QIq_Shape,fxNWCjFTxfECF-I_52QIq-08:00:00
+FI1Yf35fAVVDlDM7LXzKA,Ground_Daily,Kulima Tower,1,fxNWCjFTxfECF-I_52QIq_Shape,fxNWCjFTxfECF-I_52QIq-11:00:00
+FI1Yf35fAVVDlDM7LXzKA,Ground_Daily,Kulima Tower,1,fxNWCjFTxfECF-I_52QIq_Shape,fxNWCjFTxfECF-I_52QIq-15:00:00
+9sa6fV_SIf6eACPjeJTg4,Ground_Daily,Kulima Tower,1,zxju_67TfYEIp79IoG3pp_Shape,zxju_67TfYEIp79IoG3pp-08:00:00
+9sa6fV_SIf6eACPjeJTg4,Ground_Daily,Kulima Tower,1,zxju_67TfYEIp79IoG3pp_Shape,zxju_67TfYEIp79IoG3pp-11:00:00
+9sa6fV_SIf6eACPjeJTg4,Ground_Daily,Kulima Tower,1,zxju_67TfYEIp79IoG3pp_Shape,zxju_67TfYEIp79IoG3pp-15:00:00
+BiyhCeX9nzpcKFC4ambHk,Ground_Daily,Kulima Tower,1,Yd4JIWTj1JO1OdaWUKhUK_Shape,Yd4JIWTj1JO1OdaWUKhUK-08:00:00
+BiyhCeX9nzpcKFC4ambHk,Ground_Daily,Kulima Tower,1,Yd4JIWTj1JO1OdaWUKhUK_Shape,Yd4JIWTj1JO1OdaWUKhUK-11:00:00
+BiyhCeX9nzpcKFC4ambHk,Ground_Daily,Kulima Tower,1,Yd4JIWTj1JO1OdaWUKhUK_Shape,Yd4JIWTj1JO1OdaWUKhUK-15:00:00
+aMx4ig8sTEnQNWNRP9O-7,Ground_Daily,Kulima Tower,1,kmxsf9bN-LWxK-5FEESMd_Shape,kmxsf9bN-LWxK-5FEESMd-08:00:00
+aMx4ig8sTEnQNWNRP9O-7,Ground_Daily,Kulima Tower,1,kmxsf9bN-LWxK-5FEESMd_Shape,kmxsf9bN-LWxK-5FEESMd-11:00:00
+aMx4ig8sTEnQNWNRP9O-7,Ground_Daily,Kulima Tower,1,kmxsf9bN-LWxK-5FEESMd_Shape,kmxsf9bN-LWxK-5FEESMd-15:00:00
+Rdi1ZP-9FgJJxbcqAFl2O,Ground_Daily,Kulima Tower,1,jheoZXGhikqSVg9hfhHlP_Shape,jheoZXGhikqSVg9hfhHlP-08:00:00
+Rdi1ZP-9FgJJxbcqAFl2O,Ground_Daily,Kulima Tower,1,jheoZXGhikqSVg9hfhHlP_Shape,jheoZXGhikqSVg9hfhHlP-11:00:00
+Rdi1ZP-9FgJJxbcqAFl2O,Ground_Daily,Kulima Tower,1,jheoZXGhikqSVg9hfhHlP_Shape,jheoZXGhikqSVg9hfhHlP-15:00:00
+KIHWQqnLUNBI1uS5748rh,Ground_Daily,Kulima Tower,1,AB9k3NT0yOiDXlqCnfORd_Shape,AB9k3NT0yOiDXlqCnfORd-08:00:00
+KIHWQqnLUNBI1uS5748rh,Ground_Daily,Kulima Tower,1,AB9k3NT0yOiDXlqCnfORd_Shape,AB9k3NT0yOiDXlqCnfORd-11:00:00
+KIHWQqnLUNBI1uS5748rh,Ground_Daily,Kulima Tower,1,AB9k3NT0yOiDXlqCnfORd_Shape,AB9k3NT0yOiDXlqCnfORd-15:00:00
+1nz9_axklMWp7IrZYcydu,Ground_Daily,Villa Park,0,LgKUAEv6xZgIkl5t6kVLh_Shape,LgKUAEv6xZgIkl5t6kVLh-08:00:00
+1nz9_axklMWp7IrZYcydu,Ground_Daily,Villa Park,0,LgKUAEv6xZgIkl5t6kVLh_Shape,LgKUAEv6xZgIkl5t6kVLh-11:00:00
+1nz9_axklMWp7IrZYcydu,Ground_Daily,Villa Park,0,LgKUAEv6xZgIkl5t6kVLh_Shape,LgKUAEv6xZgIkl5t6kVLh-15:00:00
+8luglkKZvpRxgYCe2uIBD,Ground_Daily,Kulima Tower,1,N0UYJqhZd4mQK5-pNeGzd_Shape,N0UYJqhZd4mQK5-pNeGzd-08:00:00
+8luglkKZvpRxgYCe2uIBD,Ground_Daily,Kulima Tower,1,N0UYJqhZd4mQK5-pNeGzd_Shape,N0UYJqhZd4mQK5-pNeGzd-11:00:00
+8luglkKZvpRxgYCe2uIBD,Ground_Daily,Kulima Tower,1,N0UYJqhZd4mQK5-pNeGzd_Shape,N0UYJqhZd4mQK5-pNeGzd-15:00:00
+QxN35sIhkK7AVDgCIm8GQ,Ground_Daily,Kulima Tower,1,oBE94esICn3DpaBLxZZQZ_Shape,oBE94esICn3DpaBLxZZQZ-08:00:00
+QxN35sIhkK7AVDgCIm8GQ,Ground_Daily,Kulima Tower,1,oBE94esICn3DpaBLxZZQZ_Shape,oBE94esICn3DpaBLxZZQZ-11:00:00
+QxN35sIhkK7AVDgCIm8GQ,Ground_Daily,Kulima Tower,1,oBE94esICn3DpaBLxZZQZ_Shape,oBE94esICn3DpaBLxZZQZ-15:00:00
+djwDapT44iRs2bL6nf5fg,Ground_Daily,Kulima Tower,1,W_MfxbrW1rfEd9y4OneEq_Shape,W_MfxbrW1rfEd9y4OneEq-08:00:00
+djwDapT44iRs2bL6nf5fg,Ground_Daily,Kulima Tower,1,W_MfxbrW1rfEd9y4OneEq_Shape,W_MfxbrW1rfEd9y4OneEq-11:00:00
+djwDapT44iRs2bL6nf5fg,Ground_Daily,Kulima Tower,1,W_MfxbrW1rfEd9y4OneEq_Shape,W_MfxbrW1rfEd9y4OneEq-15:00:00
+c9rr4Ikuypoj5TnlmZvBi,Ground_Daily,Kulima Tower,1,wKcuko9LIvXZoXAhATSYo_Shape,wKcuko9LIvXZoXAhATSYo-08:00:00
+c9rr4Ikuypoj5TnlmZvBi,Ground_Daily,Kulima Tower,1,wKcuko9LIvXZoXAhATSYo_Shape,wKcuko9LIvXZoXAhATSYo-11:00:00
+c9rr4Ikuypoj5TnlmZvBi,Ground_Daily,Kulima Tower,1,wKcuko9LIvXZoXAhATSYo_Shape,wKcuko9LIvXZoXAhATSYo-15:00:00
+fn_pYibbgXtLZTHI4Vvuu,Ground_Daily,Kulima Tower,1,-uj9SgsF5slvLZZxwvyJ6_Shape,-uj9SgsF5slvLZZxwvyJ6-08:00:00
+fn_pYibbgXtLZTHI4Vvuu,Ground_Daily,Kulima Tower,1,-uj9SgsF5slvLZZxwvyJ6_Shape,-uj9SgsF5slvLZZxwvyJ6-11:00:00
+fn_pYibbgXtLZTHI4Vvuu,Ground_Daily,Kulima Tower,1,-uj9SgsF5slvLZZxwvyJ6_Shape,-uj9SgsF5slvLZZxwvyJ6-15:00:00
+WhnQa6LRWnxrooC9PLbwu,Ground_Daily,Kulima Tower,1,X4M4zyClSmboiGuyQp8qU_Shape,X4M4zyClSmboiGuyQp8qU-08:00:00
+WhnQa6LRWnxrooC9PLbwu,Ground_Daily,Kulima Tower,1,X4M4zyClSmboiGuyQp8qU_Shape,X4M4zyClSmboiGuyQp8qU-11:00:00
+WhnQa6LRWnxrooC9PLbwu,Ground_Daily,Kulima Tower,1,X4M4zyClSmboiGuyQp8qU_Shape,X4M4zyClSmboiGuyQp8qU-15:00:00
+xtcyOgfMrgpSYkIt1cR0_,Ground_Daily,Kulima Tower,1,HOohsYmMk9XkXm_exuedV_Shape,HOohsYmMk9XkXm_exuedV-08:00:00
+xtcyOgfMrgpSYkIt1cR0_,Ground_Daily,Kulima Tower,1,HOohsYmMk9XkXm_exuedV_Shape,HOohsYmMk9XkXm_exuedV-11:00:00
+xtcyOgfMrgpSYkIt1cR0_,Ground_Daily,Kulima Tower,1,HOohsYmMk9XkXm_exuedV_Shape,HOohsYmMk9XkXm_exuedV-15:00:00
+XAk6FUUCWrqe60p2yuFHa,Ground_Daily,Kulima Tower,1,A3PahwJX031yB1ngLsG_p_Shape,A3PahwJX031yB1ngLsG_p-08:00:00
+XAk6FUUCWrqe60p2yuFHa,Ground_Daily,Kulima Tower,1,A3PahwJX031yB1ngLsG_p_Shape,A3PahwJX031yB1ngLsG_p-11:00:00
+XAk6FUUCWrqe60p2yuFHa,Ground_Daily,Kulima Tower,1,A3PahwJX031yB1ngLsG_p_Shape,A3PahwJX031yB1ngLsG_p-15:00:00
+4ui6vRZDpgPoXvVUa3grk,Ground_Daily,Kulima Tower,1,FonXAdNYP2oAcAQiYHZWX_Shape,FonXAdNYP2oAcAQiYHZWX-08:00:00
+4ui6vRZDpgPoXvVUa3grk,Ground_Daily,Kulima Tower,1,FonXAdNYP2oAcAQiYHZWX_Shape,FonXAdNYP2oAcAQiYHZWX-11:00:00
+4ui6vRZDpgPoXvVUa3grk,Ground_Daily,Kulima Tower,1,FonXAdNYP2oAcAQiYHZWX_Shape,FonXAdNYP2oAcAQiYHZWX-15:00:00
+K3thA6jTIqdkt25rNVzr9,Ground_Daily,Kulima Tower,1,HMh8692n2eLhe7vqKQ0Wk_Shape,HMh8692n2eLhe7vqKQ0Wk-08:00:00
+K3thA6jTIqdkt25rNVzr9,Ground_Daily,Kulima Tower,1,HMh8692n2eLhe7vqKQ0Wk_Shape,HMh8692n2eLhe7vqKQ0Wk-11:00:00
+K3thA6jTIqdkt25rNVzr9,Ground_Daily,Kulima Tower,1,HMh8692n2eLhe7vqKQ0Wk_Shape,HMh8692n2eLhe7vqKQ0Wk-15:00:00
+Z9c8IQOpvI5_o2MG67rVO,Ground_Daily,Maplot (Chipata),0,XhaY3AEKvA3bDu5uzlNDf_Shape,XhaY3AEKvA3bDu5uzlNDf-08:00:00
+Z9c8IQOpvI5_o2MG67rVO,Ground_Daily,Maplot (Chipata),0,XhaY3AEKvA3bDu5uzlNDf_Shape,XhaY3AEKvA3bDu5uzlNDf-11:00:00
+Z9c8IQOpvI5_o2MG67rVO,Ground_Daily,Maplot (Chipata),0,XhaY3AEKvA3bDu5uzlNDf_Shape,XhaY3AEKvA3bDu5uzlNDf-15:00:00
+nYc8FB1nsQ-rX7GFvlOuS,Ground_Daily,Chelstone,0,D2sFBr_dC7yutcFtFbkwV_Shape,D2sFBr_dC7yutcFtFbkwV-08:00:00
+nYc8FB1nsQ-rX7GFvlOuS,Ground_Daily,Chelstone,0,D2sFBr_dC7yutcFtFbkwV_Shape,D2sFBr_dC7yutcFtFbkwV-11:00:00
+nYc8FB1nsQ-rX7GFvlOuS,Ground_Daily,Chelstone,0,D2sFBr_dC7yutcFtFbkwV_Shape,D2sFBr_dC7yutcFtFbkwV-15:00:00
+-w8bWxtF-ZwqHcqrqeSDf,Ground_Daily,Chelstone,0,KKN2KMHspXmfKeXAAlk3O_Shape,KKN2KMHspXmfKeXAAlk3O-08:00:00
+-w8bWxtF-ZwqHcqrqeSDf,Ground_Daily,Chelstone,0,KKN2KMHspXmfKeXAAlk3O_Shape,KKN2KMHspXmfKeXAAlk3O-11:00:00
+-w8bWxtF-ZwqHcqrqeSDf,Ground_Daily,Chelstone,0,KKN2KMHspXmfKeXAAlk3O_Shape,KKN2KMHspXmfKeXAAlk3O-15:00:00
+thv8sG_NuvVuFXEDfp3FQ,Ground_Daily,Chelstone,0,5bOc7XMXKax6UAS7AkkV-_Shape,5bOc7XMXKax6UAS7AkkV--08:00:00
+thv8sG_NuvVuFXEDfp3FQ,Ground_Daily,Chelstone,0,5bOc7XMXKax6UAS7AkkV-_Shape,5bOc7XMXKax6UAS7AkkV--11:00:00
+thv8sG_NuvVuFXEDfp3FQ,Ground_Daily,Chelstone,0,5bOc7XMXKax6UAS7AkkV-_Shape,5bOc7XMXKax6UAS7AkkV--15:00:00
+Vf25mGCnww-bdFh0Q59Wv,Ground_Daily,Chelstone,1,FgTeh1c7FrWri3UWcCMpC_Shape,FgTeh1c7FrWri3UWcCMpC-08:00:00
+Vf25mGCnww-bdFh0Q59Wv,Ground_Daily,Chelstone,1,FgTeh1c7FrWri3UWcCMpC_Shape,FgTeh1c7FrWri3UWcCMpC-11:00:00
+Vf25mGCnww-bdFh0Q59Wv,Ground_Daily,Chelstone,1,FgTeh1c7FrWri3UWcCMpC_Shape,FgTeh1c7FrWri3UWcCMpC-15:00:00
+4ReV8MYi9lTSrXfGyKqGP,Ground_Daily,Zanimuone,0,gwIvi5Aunoo1MUsa4xCD8_Shape,gwIvi5Aunoo1MUsa4xCD8-08:00:00
+4ReV8MYi9lTSrXfGyKqGP,Ground_Daily,Zanimuone,0,gwIvi5Aunoo1MUsa4xCD8_Shape,gwIvi5Aunoo1MUsa4xCD8-11:00:00
+4ReV8MYi9lTSrXfGyKqGP,Ground_Daily,Zanimuone,0,gwIvi5Aunoo1MUsa4xCD8_Shape,gwIvi5Aunoo1MUsa4xCD8-15:00:00
+9MSy2w4zMONgiM_ZCAq9d,Ground_Daily,Kamwala,1,RWwdNMWdvzEbJRNK74BnN_Shape,RWwdNMWdvzEbJRNK74BnN-08:00:00
+9MSy2w4zMONgiM_ZCAq9d,Ground_Daily,Kamwala,1,RWwdNMWdvzEbJRNK74BnN_Shape,RWwdNMWdvzEbJRNK74BnN-11:00:00
+9MSy2w4zMONgiM_ZCAq9d,Ground_Daily,Kamwala,1,RWwdNMWdvzEbJRNK74BnN_Shape,RWwdNMWdvzEbJRNK74BnN-15:00:00
+0mexu2mqG2elzcz_hPC50,Ground_Daily,Zanimuone,0,j0A8aldAm3c4BO57uRGjt_Shape,j0A8aldAm3c4BO57uRGjt-08:00:00
+0mexu2mqG2elzcz_hPC50,Ground_Daily,Zanimuone,0,j0A8aldAm3c4BO57uRGjt_Shape,j0A8aldAm3c4BO57uRGjt-11:00:00
+0mexu2mqG2elzcz_hPC50,Ground_Daily,Zanimuone,0,j0A8aldAm3c4BO57uRGjt_Shape,j0A8aldAm3c4BO57uRGjt-15:00:00
+QxN35sIhkK7AVDgCIm8GQ,Ground_Daily,Zanimuone,0,hiTWTPVQP-7_aqZg_vYEx_Shape,hiTWTPVQP-7_aqZg_vYEx-08:00:00
+QxN35sIhkK7AVDgCIm8GQ,Ground_Daily,Zanimuone,0,hiTWTPVQP-7_aqZg_vYEx_Shape,hiTWTPVQP-7_aqZg_vYEx-11:00:00
+QxN35sIhkK7AVDgCIm8GQ,Ground_Daily,Zanimuone,0,hiTWTPVQP-7_aqZg_vYEx_Shape,hiTWTPVQP-7_aqZg_vYEx-15:00:00
+gWnAhfkLyRKslok1JIiaS,Ground_Daily,Mandevu,0,7b58Eflh6FEpM1Xu_fctl_Shape,7b58Eflh6FEpM1Xu_fctl-08:00:00
+gWnAhfkLyRKslok1JIiaS,Ground_Daily,Mandevu,0,7b58Eflh6FEpM1Xu_fctl_Shape,7b58Eflh6FEpM1Xu_fctl-11:00:00
+gWnAhfkLyRKslok1JIiaS,Ground_Daily,Mandevu,0,7b58Eflh6FEpM1Xu_fctl_Shape,7b58Eflh6FEpM1Xu_fctl-15:00:00
+oKoz1vo2vXapC0ed353QU,Ground_Daily,Kamwala,1,lXsmdp4fxH_fTGQigtEvB_Shape,lXsmdp4fxH_fTGQigtEvB-08:00:00
+oKoz1vo2vXapC0ed353QU,Ground_Daily,Kamwala,1,lXsmdp4fxH_fTGQigtEvB_Shape,lXsmdp4fxH_fTGQigtEvB-11:00:00
+oKoz1vo2vXapC0ed353QU,Ground_Daily,Kamwala,1,lXsmdp4fxH_fTGQigtEvB_Shape,lXsmdp4fxH_fTGQigtEvB-15:00:00
+kAtK5aKy3jXW0KTT4eX8X,Ground_Daily,Mutendere,1,Fd1yKuouCaGgxRIdJHnTS_Shape,Fd1yKuouCaGgxRIdJHnTS-08:00:00
+kAtK5aKy3jXW0KTT4eX8X,Ground_Daily,Mutendere,1,Fd1yKuouCaGgxRIdJHnTS_Shape,Fd1yKuouCaGgxRIdJHnTS-11:00:00
+kAtK5aKy3jXW0KTT4eX8X,Ground_Daily,Mutendere,1,Fd1yKuouCaGgxRIdJHnTS_Shape,Fd1yKuouCaGgxRIdJHnTS-15:00:00
+A7dGa6Ceo0lEBqYc_HwEI,Ground_Daily,Kamwala,1,9KRPhdX5VEj8O5HJ_VfaK_Shape,9KRPhdX5VEj8O5HJ_VfaK-08:00:00
+A7dGa6Ceo0lEBqYc_HwEI,Ground_Daily,Kamwala,1,9KRPhdX5VEj8O5HJ_VfaK_Shape,9KRPhdX5VEj8O5HJ_VfaK-11:00:00
+A7dGa6Ceo0lEBqYc_HwEI,Ground_Daily,Kamwala,1,9KRPhdX5VEj8O5HJ_VfaK_Shape,9KRPhdX5VEj8O5HJ_VfaK-15:00:00
+kAtK5aKy3jXW0KTT4eX8X,Ground_Daily,Chilenje,0,YMAiXqtsN-rveq3V8AzwH_Shape,YMAiXqtsN-rveq3V8AzwH-08:00:00
+kAtK5aKy3jXW0KTT4eX8X,Ground_Daily,Chilenje,0,YMAiXqtsN-rveq3V8AzwH_Shape,YMAiXqtsN-rveq3V8AzwH-11:00:00
+kAtK5aKy3jXW0KTT4eX8X,Ground_Daily,Chilenje,0,YMAiXqtsN-rveq3V8AzwH_Shape,YMAiXqtsN-rveq3V8AzwH-15:00:00
+Bl-jZier2-sDSxf9ow-aI,Ground_Daily,UTH Hospital,0,ajMFTkhnYIiuRLL6SHZUl_Shape,ajMFTkhnYIiuRLL6SHZUl-08:00:00
+Bl-jZier2-sDSxf9ow-aI,Ground_Daily,UTH Hospital,0,ajMFTkhnYIiuRLL6SHZUl_Shape,ajMFTkhnYIiuRLL6SHZUl-11:00:00
+Bl-jZier2-sDSxf9ow-aI,Ground_Daily,UTH Hospital,0,ajMFTkhnYIiuRLL6SHZUl_Shape,ajMFTkhnYIiuRLL6SHZUl-15:00:00
+HWRe5sQk3JBUrNCfW-smk,Ground_Daily,UTH Hospital,0,NHo2gm6ylQClcY7_8eMAW_Shape,NHo2gm6ylQClcY7_8eMAW-08:00:00
+HWRe5sQk3JBUrNCfW-smk,Ground_Daily,UTH Hospital,0,NHo2gm6ylQClcY7_8eMAW_Shape,NHo2gm6ylQClcY7_8eMAW-11:00:00
+HWRe5sQk3JBUrNCfW-smk,Ground_Daily,UTH Hospital,0,NHo2gm6ylQClcY7_8eMAW_Shape,NHo2gm6ylQClcY7_8eMAW-15:00:00
+9ZY6LS-iQNcFB7rCrpCFb,Ground_Daily,UTH Hospital,0,-YYfMtOb4aSPSpmdQr9Pn_Shape,-YYfMtOb4aSPSpmdQr9Pn-08:00:00
+9ZY6LS-iQNcFB7rCrpCFb,Ground_Daily,UTH Hospital,0,-YYfMtOb4aSPSpmdQr9Pn_Shape,-YYfMtOb4aSPSpmdQr9Pn-11:00:00
+9ZY6LS-iQNcFB7rCrpCFb,Ground_Daily,UTH Hospital,0,-YYfMtOb4aSPSpmdQr9Pn_Shape,-YYfMtOb4aSPSpmdQr9Pn-15:00:00
+Xg28iTrqI6uSNN7kU2NJW,Ground_Daily,UTH Hospital,0,bxGtKEdn8-mXQLkMvku4z_Shape,bxGtKEdn8-mXQLkMvku4z-08:00:00
+Xg28iTrqI6uSNN7kU2NJW,Ground_Daily,UTH Hospital,0,bxGtKEdn8-mXQLkMvku4z_Shape,bxGtKEdn8-mXQLkMvku4z-11:00:00
+Xg28iTrqI6uSNN7kU2NJW,Ground_Daily,UTH Hospital,0,bxGtKEdn8-mXQLkMvku4z_Shape,bxGtKEdn8-mXQLkMvku4z-15:00:00
+9zKYXkVaDAa93Vywp-T0e,Ground_Daily,Twin Park,0,RFeGUye5I9QlM-LRvYRkb_Shape,RFeGUye5I9QlM-LRvYRkb-08:00:00
+9zKYXkVaDAa93Vywp-T0e,Ground_Daily,Twin Park,0,RFeGUye5I9QlM-LRvYRkb_Shape,RFeGUye5I9QlM-LRvYRkb-11:00:00
+9zKYXkVaDAa93Vywp-T0e,Ground_Daily,Twin Park,0,RFeGUye5I9QlM-LRvYRkb_Shape,RFeGUye5I9QlM-LRvYRkb-15:00:00
+5Kwf52yoSYwuQmbF0o_xf,Ground_Daily,Mutendere,0,XNaz043GaBsGc5xAt1vju_Shape,XNaz043GaBsGc5xAt1vju-08:00:00
+5Kwf52yoSYwuQmbF0o_xf,Ground_Daily,Mutendere,0,XNaz043GaBsGc5xAt1vju_Shape,XNaz043GaBsGc5xAt1vju-11:00:00
+5Kwf52yoSYwuQmbF0o_xf,Ground_Daily,Mutendere,0,XNaz043GaBsGc5xAt1vju_Shape,XNaz043GaBsGc5xAt1vju-15:00:00
+5uhH5zLsaKHtKIZ5M4q6h,Ground_Daily,Mutendere,0,Wowc6FBQMLjVjTfGJLkAI_Shape,Wowc6FBQMLjVjTfGJLkAI-08:00:00
+5uhH5zLsaKHtKIZ5M4q6h,Ground_Daily,Mutendere,0,Wowc6FBQMLjVjTfGJLkAI_Shape,Wowc6FBQMLjVjTfGJLkAI-11:00:00
+5uhH5zLsaKHtKIZ5M4q6h,Ground_Daily,Mutendere,0,Wowc6FBQMLjVjTfGJLkAI_Shape,Wowc6FBQMLjVjTfGJLkAI-15:00:00
+Bl-jZier2-sDSxf9ow-aI,Ground_Daily,Mutendere,1,dC_YcQgQcQz6j6DgPD2P6_Shape,dC_YcQgQcQz6j6DgPD2P6-08:00:00
+Bl-jZier2-sDSxf9ow-aI,Ground_Daily,Mutendere,1,dC_YcQgQcQz6j6DgPD2P6_Shape,dC_YcQgQcQz6j6DgPD2P6-11:00:00
+Bl-jZier2-sDSxf9ow-aI,Ground_Daily,Mutendere,1,dC_YcQgQcQz6j6DgPD2P6_Shape,dC_YcQgQcQz6j6DgPD2P6-15:00:00
+oKoz1vo2vXapC0ed353QU,Ground_Daily,Mutendere,0,MlpNXYSAbnjzu4pfB0JHl_Shape,MlpNXYSAbnjzu4pfB0JHl-08:00:00
+oKoz1vo2vXapC0ed353QU,Ground_Daily,Mutendere,0,MlpNXYSAbnjzu4pfB0JHl_Shape,MlpNXYSAbnjzu4pfB0JHl-11:00:00
+oKoz1vo2vXapC0ed353QU,Ground_Daily,Mutendere,0,MlpNXYSAbnjzu4pfB0JHl_Shape,MlpNXYSAbnjzu4pfB0JHl-15:00:00
+Xg28iTrqI6uSNN7kU2NJW,Ground_Daily,Kwa Jack,1,Tg2MiIqeHoQE1P6HiHb0e_Shape,Tg2MiIqeHoQE1P6HiHb0e-08:00:00
+Xg28iTrqI6uSNN7kU2NJW,Ground_Daily,Kwa Jack,1,Tg2MiIqeHoQE1P6HiHb0e_Shape,Tg2MiIqeHoQE1P6HiHb0e-11:00:00
+Xg28iTrqI6uSNN7kU2NJW,Ground_Daily,Kwa Jack,1,Tg2MiIqeHoQE1P6HiHb0e_Shape,Tg2MiIqeHoQE1P6HiHb0e-15:00:00
+UP6rVbW36SKslTwu51sJN,Ground_Daily,Ngombe Mine-stone ,0,ROqw1k7V4EBnUrttkLtZU_Shape,ROqw1k7V4EBnUrttkLtZU-08:00:00
+UP6rVbW36SKslTwu51sJN,Ground_Daily,Ngombe Mine-stone ,0,ROqw1k7V4EBnUrttkLtZU_Shape,ROqw1k7V4EBnUrttkLtZU-11:00:00
+UP6rVbW36SKslTwu51sJN,Ground_Daily,Ngombe Mine-stone ,0,ROqw1k7V4EBnUrttkLtZU_Shape,ROqw1k7V4EBnUrttkLtZU-15:00:00
+DoAuoHV6PmKQraITZ7BJs,Ground_Daily,Chunga,0,p9obkVAC0zJ1_zjZ7tmnp_Shape,p9obkVAC0zJ1_zjZ7tmnp-08:00:00
+DoAuoHV6PmKQraITZ7BJs,Ground_Daily,Chunga,0,p9obkVAC0zJ1_zjZ7tmnp_Shape,p9obkVAC0zJ1_zjZ7tmnp-11:00:00
+DoAuoHV6PmKQraITZ7BJs,Ground_Daily,Chunga,0,p9obkVAC0zJ1_zjZ7tmnp_Shape,p9obkVAC0zJ1_zjZ7tmnp-15:00:00
+3HXE6FTOdOx46wO2kwax-,Ground_Daily,Chunga,0,COHMr-rTcXbF-9Ot4_oRL_Shape,COHMr-rTcXbF-9Ot4_oRL-08:00:00
+3HXE6FTOdOx46wO2kwax-,Ground_Daily,Chunga,0,COHMr-rTcXbF-9Ot4_oRL_Shape,COHMr-rTcXbF-9Ot4_oRL-11:00:00
+3HXE6FTOdOx46wO2kwax-,Ground_Daily,Chunga,0,COHMr-rTcXbF-9Ot4_oRL_Shape,COHMr-rTcXbF-9Ot4_oRL-15:00:00
+H6VZIP9yUqPHoiywp6l8K,Ground_Daily,Kwa Jack,0,6-L5fZbBwgVE9ZpfholXT_Shape,6-L5fZbBwgVE9ZpfholXT-08:00:00
+H6VZIP9yUqPHoiywp6l8K,Ground_Daily,Kwa Jack,0,6-L5fZbBwgVE9ZpfholXT_Shape,6-L5fZbBwgVE9ZpfholXT-11:00:00
+H6VZIP9yUqPHoiywp6l8K,Ground_Daily,Kwa Jack,0,6-L5fZbBwgVE9ZpfholXT_Shape,6-L5fZbBwgVE9ZpfholXT-15:00:00
+dtGTBCQIkm3l-N5f-1-az,Ground_Daily,Kwa Jack,0,pKRn5tf18686NIgpCYKpz_Shape,pKRn5tf18686NIgpCYKpz-08:00:00
+dtGTBCQIkm3l-N5f-1-az,Ground_Daily,Kwa Jack,0,pKRn5tf18686NIgpCYKpz_Shape,pKRn5tf18686NIgpCYKpz-11:00:00
+dtGTBCQIkm3l-N5f-1-az,Ground_Daily,Kwa Jack,0,pKRn5tf18686NIgpCYKpz_Shape,pKRn5tf18686NIgpCYKpz-15:00:00
+ijcRpDPccKbkvrlo1E5PL,Ground_Daily,Garden Chilulu,0,XnsHdHiSDua_DZjnodaZG_Shape,XnsHdHiSDua_DZjnodaZG-08:00:00
+ijcRpDPccKbkvrlo1E5PL,Ground_Daily,Garden Chilulu,0,XnsHdHiSDua_DZjnodaZG_Shape,XnsHdHiSDua_DZjnodaZG-11:00:00
+ijcRpDPccKbkvrlo1E5PL,Ground_Daily,Garden Chilulu,0,XnsHdHiSDua_DZjnodaZG_Shape,XnsHdHiSDua_DZjnodaZG-15:00:00
+9sa6fV_SIf6eACPjeJTg4,Ground_Daily,Garden Chilulu,0,LBmDf9hMOD3jiYooMbe3R_Shape,LBmDf9hMOD3jiYooMbe3R-08:00:00
+9sa6fV_SIf6eACPjeJTg4,Ground_Daily,Garden Chilulu,0,LBmDf9hMOD3jiYooMbe3R_Shape,LBmDf9hMOD3jiYooMbe3R-11:00:00
+9sa6fV_SIf6eACPjeJTg4,Ground_Daily,Garden Chilulu,0,LBmDf9hMOD3jiYooMbe3R_Shape,LBmDf9hMOD3jiYooMbe3R-15:00:00
+yYxWaihv27OET83gPGWz8,Ground_Daily,Middle West,0,s1aNrZjrBNBTdSA6GXzZw_Shape,s1aNrZjrBNBTdSA6GXzZw-08:00:00
+yYxWaihv27OET83gPGWz8,Ground_Daily,Middle West,0,s1aNrZjrBNBTdSA6GXzZw_Shape,s1aNrZjrBNBTdSA6GXzZw-11:00:00
+yYxWaihv27OET83gPGWz8,Ground_Daily,Middle West,0,s1aNrZjrBNBTdSA6GXzZw_Shape,s1aNrZjrBNBTdSA6GXzZw-15:00:00
+WhnQa6LRWnxrooC9PLbwu,Ground_Daily,Zesco Munyaule,0,cQIn49bJ5Dwxq3lyj2Yvo_Shape,cQIn49bJ5Dwxq3lyj2Yvo-08:00:00
+WhnQa6LRWnxrooC9PLbwu,Ground_Daily,Zesco Munyaule,0,cQIn49bJ5Dwxq3lyj2Yvo_Shape,cQIn49bJ5Dwxq3lyj2Yvo-11:00:00
+WhnQa6LRWnxrooC9PLbwu,Ground_Daily,Zesco Munyaule,0,cQIn49bJ5Dwxq3lyj2Yvo_Shape,cQIn49bJ5Dwxq3lyj2Yvo-15:00:00
+-FgwL1J9rKEqR_WKeo8Cb,Ground_Daily,City Shine,0,_s9a8OtezIWSviwFhgKge_Shape,_s9a8OtezIWSviwFhgKge-08:00:00
+-FgwL1J9rKEqR_WKeo8Cb,Ground_Daily,City Shine,0,_s9a8OtezIWSviwFhgKge_Shape,_s9a8OtezIWSviwFhgKge-11:00:00
+-FgwL1J9rKEqR_WKeo8Cb,Ground_Daily,City Shine,0,_s9a8OtezIWSviwFhgKge_Shape,_s9a8OtezIWSviwFhgKge-15:00:00
+qHGKK8FIHHzRafIbm5ApA,Ground_Daily,Shifwankula,0,BLcWA4oqvE22RzRUW43vR_Shape,BLcWA4oqvE22RzRUW43vR-08:00:00
+qHGKK8FIHHzRafIbm5ApA,Ground_Daily,Shifwankula,0,BLcWA4oqvE22RzRUW43vR_Shape,BLcWA4oqvE22RzRUW43vR-11:00:00
+qHGKK8FIHHzRafIbm5ApA,Ground_Daily,Shifwankula,0,BLcWA4oqvE22RzRUW43vR_Shape,BLcWA4oqvE22RzRUW43vR-15:00:00
+xMM5c1UUVTF9u42tGNzBu,Ground_Daily,Hybrid,0,OcbT6awS1X-mJDt54_kr-_Shape,OcbT6awS1X-mJDt54_kr--08:00:00
+xMM5c1UUVTF9u42tGNzBu,Ground_Daily,Hybrid,0,OcbT6awS1X-mJDt54_kr-_Shape,OcbT6awS1X-mJDt54_kr--11:00:00
+xMM5c1UUVTF9u42tGNzBu,Ground_Daily,Hybrid,0,OcbT6awS1X-mJDt54_kr-_Shape,OcbT6awS1X-mJDt54_kr--15:00:00
+BiyhCeX9nzpcKFC4ambHk,Ground_Daily,Apex ,0,V7zJalATdqENaXRjxrk6c_Shape,V7zJalATdqENaXRjxrk6c-08:00:00
+BiyhCeX9nzpcKFC4ambHk,Ground_Daily,Apex ,0,V7zJalATdqENaXRjxrk6c_Shape,V7zJalATdqENaXRjxrk6c-11:00:00
+BiyhCeX9nzpcKFC4ambHk,Ground_Daily,Apex ,0,V7zJalATdqENaXRjxrk6c_Shape,V7zJalATdqENaXRjxrk6c-15:00:00
+9MSy2w4zMONgiM_ZCAq9d,Ground_Daily,Apex ,0,VwnWlwNU6IYc_eIUhIHxx_Shape,VwnWlwNU6IYc_eIUhIHxx-08:00:00
+9MSy2w4zMONgiM_ZCAq9d,Ground_Daily,Apex ,0,VwnWlwNU6IYc_eIUhIHxx_Shape,VwnWlwNU6IYc_eIUhIHxx-11:00:00
+9MSy2w4zMONgiM_ZCAq9d,Ground_Daily,Apex ,0,VwnWlwNU6IYc_eIUhIHxx_Shape,VwnWlwNU6IYc_eIUhIHxx-15:00:00
+aMx4ig8sTEnQNWNRP9O-7,Ground_Daily,Woodlands,0,dKMrvzbavs8tW9E7PWMM7_Shape,dKMrvzbavs8tW9E7PWMM7-08:00:00
+aMx4ig8sTEnQNWNRP9O-7,Ground_Daily,Woodlands,0,dKMrvzbavs8tW9E7PWMM7_Shape,dKMrvzbavs8tW9E7PWMM7-11:00:00
+aMx4ig8sTEnQNWNRP9O-7,Ground_Daily,Woodlands,0,dKMrvzbavs8tW9E7PWMM7_Shape,dKMrvzbavs8tW9E7PWMM7-15:00:00
+A7dGa6Ceo0lEBqYc_HwEI,Ground_Daily,Woodlands,0,9AfbWL6zN6M_a9mYxXvog_Shape,9AfbWL6zN6M_a9mYxXvog-08:00:00
+A7dGa6Ceo0lEBqYc_HwEI,Ground_Daily,Woodlands,0,9AfbWL6zN6M_a9mYxXvog_Shape,9AfbWL6zN6M_a9mYxXvog-11:00:00
+A7dGa6Ceo0lEBqYc_HwEI,Ground_Daily,Woodlands,0,9AfbWL6zN6M_a9mYxXvog_Shape,9AfbWL6zN6M_a9mYxXvog-15:00:00
+Rdi1ZP-9FgJJxbcqAFl2O,Ground_Daily,Daina Kaimba (Zingalume),0,Ly35drd9D3D1zmXpNJStI_Shape,Ly35drd9D3D1zmXpNJStI-08:00:00
+Rdi1ZP-9FgJJxbcqAFl2O,Ground_Daily,Daina Kaimba (Zingalume),0,Ly35drd9D3D1zmXpNJStI_Shape,Ly35drd9D3D1zmXpNJStI-11:00:00
+Rdi1ZP-9FgJJxbcqAFl2O,Ground_Daily,Daina Kaimba (Zingalume),0,Ly35drd9D3D1zmXpNJStI_Shape,Ly35drd9D3D1zmXpNJStI-15:00:00
+KIHWQqnLUNBI1uS5748rh,Ground_Daily,Bauleni,0,uT80vgu07ybwbcmX8S3WK_Shape,uT80vgu07ybwbcmX8S3WK-08:00:00
+KIHWQqnLUNBI1uS5748rh,Ground_Daily,Bauleni,0,uT80vgu07ybwbcmX8S3WK_Shape,uT80vgu07ybwbcmX8S3WK-11:00:00
+KIHWQqnLUNBI1uS5748rh,Ground_Daily,Bauleni,0,uT80vgu07ybwbcmX8S3WK_Shape,uT80vgu07ybwbcmX8S3WK-15:00:00
+8luglkKZvpRxgYCe2uIBD,Ground_Daily,Lilayi,0,Kx5LNWNoIuf-egOkEEVOZ_Shape,Kx5LNWNoIuf-egOkEEVOZ-08:00:00
+8luglkKZvpRxgYCe2uIBD,Ground_Daily,Lilayi,0,Kx5LNWNoIuf-egOkEEVOZ_Shape,Kx5LNWNoIuf-egOkEEVOZ-11:00:00
+8luglkKZvpRxgYCe2uIBD,Ground_Daily,Lilayi,0,Kx5LNWNoIuf-egOkEEVOZ_Shape,Kx5LNWNoIuf-egOkEEVOZ-15:00:00
+djwDapT44iRs2bL6nf5fg,Ground_Daily,Ibex Hill,0,OdURzz24PDBeaA3UsD1H3_Shape,OdURzz24PDBeaA3UsD1H3-08:00:00
+djwDapT44iRs2bL6nf5fg,Ground_Daily,Ibex Hill,0,OdURzz24PDBeaA3UsD1H3_Shape,OdURzz24PDBeaA3UsD1H3-11:00:00
+djwDapT44iRs2bL6nf5fg,Ground_Daily,Ibex Hill,0,OdURzz24PDBeaA3UsD1H3_Shape,OdURzz24PDBeaA3UsD1H3-15:00:00
+1nz9_axklMWp7IrZYcydu,Ground_Daily,City Market,1,2g7-KJY8vvzDzUDYDOLBh_Shape,2g7-KJY8vvzDzUDYDOLBh-08:00:00
+1nz9_axklMWp7IrZYcydu,Ground_Daily,City Market,1,2g7-KJY8vvzDzUDYDOLBh_Shape,2g7-KJY8vvzDzUDYDOLBh-11:00:00
+1nz9_axklMWp7IrZYcydu,Ground_Daily,City Market,1,2g7-KJY8vvzDzUDYDOLBh_Shape,2g7-KJY8vvzDzUDYDOLBh-15:00:00
+PPZOKu_FVcyTP8WIduNDV,Ground_Daily,City Market,1,MN0RmrME7jK5EAAI62o_N_Shape,MN0RmrME7jK5EAAI62o_N-08:00:00
+PPZOKu_FVcyTP8WIduNDV,Ground_Daily,City Market,1,MN0RmrME7jK5EAAI62o_N_Shape,MN0RmrME7jK5EAAI62o_N-11:00:00
+PPZOKu_FVcyTP8WIduNDV,Ground_Daily,City Market,1,MN0RmrME7jK5EAAI62o_N_Shape,MN0RmrME7jK5EAAI62o_N-15:00:00
+c9rr4Ikuypoj5TnlmZvBi,Ground_Daily,Shantumbu,0,yy51MxR_wbKnXGqIWv6wW_Shape,yy51MxR_wbKnXGqIWv6wW-08:00:00
+c9rr4Ikuypoj5TnlmZvBi,Ground_Daily,Shantumbu,0,yy51MxR_wbKnXGqIWv6wW_Shape,yy51MxR_wbKnXGqIWv6wW-11:00:00
+c9rr4Ikuypoj5TnlmZvBi,Ground_Daily,Shantumbu,0,yy51MxR_wbKnXGqIWv6wW_Shape,yy51MxR_wbKnXGqIWv6wW-15:00:00
+fn_pYibbgXtLZTHI4Vvuu,Ground_Daily,Meanwood Mtumbi,0,rXgU-KQ3tb_0N7IDmeP9F_Shape,rXgU-KQ3tb_0N7IDmeP9F-08:00:00
+fn_pYibbgXtLZTHI4Vvuu,Ground_Daily,Meanwood Mtumbi,0,rXgU-KQ3tb_0N7IDmeP9F_Shape,rXgU-KQ3tb_0N7IDmeP9F-11:00:00
+fn_pYibbgXtLZTHI4Vvuu,Ground_Daily,Meanwood Mtumbi,0,rXgU-KQ3tb_0N7IDmeP9F_Shape,rXgU-KQ3tb_0N7IDmeP9F-15:00:00
+xtcyOgfMrgpSYkIt1cR0_,Ground_Daily,Linda,0,a5Yeg59ZEKalsDV4v4Xoy_Shape,a5Yeg59ZEKalsDV4v4Xoy-08:00:00
+xtcyOgfMrgpSYkIt1cR0_,Ground_Daily,Linda,0,a5Yeg59ZEKalsDV4v4Xoy_Shape,a5Yeg59ZEKalsDV4v4Xoy-11:00:00
+xtcyOgfMrgpSYkIt1cR0_,Ground_Daily,Linda,0,a5Yeg59ZEKalsDV4v4Xoy_Shape,a5Yeg59ZEKalsDV4v4Xoy-15:00:00
+XAk6FUUCWrqe60p2yuFHa,Ground_Daily,Makeni Konga,0,uGlOGbER0Ag_Vaax_hL5Z_Shape,uGlOGbER0Ag_Vaax_hL5Z-08:00:00
+XAk6FUUCWrqe60p2yuFHa,Ground_Daily,Makeni Konga,0,uGlOGbER0Ag_Vaax_hL5Z_Shape,uGlOGbER0Ag_Vaax_hL5Z-11:00:00
+XAk6FUUCWrqe60p2yuFHa,Ground_Daily,Makeni Konga,0,uGlOGbER0Ag_Vaax_hL5Z_Shape,uGlOGbER0Ag_Vaax_hL5Z-15:00:00
+4ui6vRZDpgPoXvVUa3grk,Ground_Daily,Kamwala South,0,6yHurjhCH0GgkHmeq2M9o_Shape,6yHurjhCH0GgkHmeq2M9o-08:00:00
+4ui6vRZDpgPoXvVUa3grk,Ground_Daily,Kamwala South,0,6yHurjhCH0GgkHmeq2M9o_Shape,6yHurjhCH0GgkHmeq2M9o-11:00:00
+4ui6vRZDpgPoXvVUa3grk,Ground_Daily,Kamwala South,0,6yHurjhCH0GgkHmeq2M9o_Shape,6yHurjhCH0GgkHmeq2M9o-15:00:00
+yAz3xeOIoVHK4XYaEjQsH,Ground_Daily,Kabanana,0,EclDdjOyQRQQjjOmdA6YB_Shape,EclDdjOyQRQQjjOmdA6YB-08:00:00
+yAz3xeOIoVHK4XYaEjQsH,Ground_Daily,Kabanana,0,EclDdjOyQRQQjjOmdA6YB_Shape,EclDdjOyQRQQjjOmdA6YB-11:00:00
+yAz3xeOIoVHK4XYaEjQsH,Ground_Daily,Kabanana,0,EclDdjOyQRQQjjOmdA6YB_Shape,EclDdjOyQRQQjjOmdA6YB-15:00:00
+K3thA6jTIqdkt25rNVzr9,Ground_Daily,Chilanga,0,w7iujqumF-cBYwAMSTVHd_Shape,w7iujqumF-cBYwAMSTVHd-08:00:00
+K3thA6jTIqdkt25rNVzr9,Ground_Daily,Chilanga,0,w7iujqumF-cBYwAMSTVHd_Shape,w7iujqumF-cBYwAMSTVHd-11:00:00
+K3thA6jTIqdkt25rNVzr9,Ground_Daily,Chilanga,0,w7iujqumF-cBYwAMSTVHd_Shape,w7iujqumF-cBYwAMSTVHd-15:00:00
+Vf25mGCnww-bdFh0Q59Wv,Ground_Daily,PF,0,TJPwZ93ZCyTwJMsg-zMOs_Shape,TJPwZ93ZCyTwJMsg-zMOs-08:00:00
+Vf25mGCnww-bdFh0Q59Wv,Ground_Daily,PF,0,TJPwZ93ZCyTwJMsg-zMOs_Shape,TJPwZ93ZCyTwJMsg-zMOs-11:00:00
+Vf25mGCnww-bdFh0Q59Wv,Ground_Daily,PF,0,TJPwZ93ZCyTwJMsg-zMOs_Shape,TJPwZ93ZCyTwJMsg-zMOs-15:00:00
+yAz3xeOIoVHK4XYaEjQsH,Ground_Daily,Town (Lumumba),1,OdZp41HTIbEx_OBdQwsnx_Shape,OdZp41HTIbEx_OBdQwsnx-08:00:00
+yAz3xeOIoVHK4XYaEjQsH,Ground_Daily,Town (Lumumba),1,OdZp41HTIbEx_OBdQwsnx_Shape,OdZp41HTIbEx_OBdQwsnx-11:00:00
+yAz3xeOIoVHK4XYaEjQsH,Ground_Daily,Town (Lumumba),1,OdZp41HTIbEx_OBdQwsnx_Shape,OdZp41HTIbEx_OBdQwsnx-15:00:00
+e5peqUNc1fn5Oe5bjh9dk,Ground_Daily,Kabanana,0,Z85u38zXaizpXSBQTDYFr_Shape,Z85u38zXaizpXSBQTDYFr-08:00:00
+e5peqUNc1fn5Oe5bjh9dk,Ground_Daily,Kabanana,0,Z85u38zXaizpXSBQTDYFr_Shape,Z85u38zXaizpXSBQTDYFr-11:00:00
+e5peqUNc1fn5Oe5bjh9dk,Ground_Daily,Kabanana,0,Z85u38zXaizpXSBQTDYFr_Shape,Z85u38zXaizpXSBQTDYFr-15:00:00
+PPZOKu_FVcyTP8WIduNDV,Ground_Daily,Eden (Zingalume),0,KChFW6PMK6o44z3ochcaW_Shape,KChFW6PMK6o44z3ochcaW-08:00:00
+PPZOKu_FVcyTP8WIduNDV,Ground_Daily,Eden (Zingalume),0,KChFW6PMK6o44z3ochcaW_Shape,KChFW6PMK6o44z3ochcaW-11:00:00
+PPZOKu_FVcyTP8WIduNDV,Ground_Daily,Eden (Zingalume),0,KChFW6PMK6o44z3ochcaW_Shape,KChFW6PMK6o44z3ochcaW-15:00:00
+e5peqUNc1fn5Oe5bjh9dk,Ground_Daily,City Market,1,n5uap1tSVCMzRmTOycg2N_Shape,n5uap1tSVCMzRmTOycg2N-08:00:00
+e5peqUNc1fn5Oe5bjh9dk,Ground_Daily,City Market,1,n5uap1tSVCMzRmTOycg2N_Shape,n5uap1tSVCMzRmTOycg2N-11:00:00
+e5peqUNc1fn5Oe5bjh9dk,Ground_Daily,City Market,1,n5uap1tSVCMzRmTOycg2N_Shape,n5uap1tSVCMzRmTOycg2N-15:00:00
+ylrDiULSbiqLehSMQ_0Dn,Ground_Daily,Obama (Kamanga),0,0PQA7ZGcVMHPzcwkZvf-a_Shape,0PQA7ZGcVMHPzcwkZvf-a-08:00:00
+ylrDiULSbiqLehSMQ_0Dn,Ground_Daily,Obama (Kamanga),0,0PQA7ZGcVMHPzcwkZvf-a_Shape,0PQA7ZGcVMHPzcwkZvf-a-11:00:00
+ylrDiULSbiqLehSMQ_0Dn,Ground_Daily,Obama (Kamanga),0,0PQA7ZGcVMHPzcwkZvf-a_Shape,0PQA7ZGcVMHPzcwkZvf-a-15:00:00

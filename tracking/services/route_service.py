@@ -1,5 +1,5 @@
 from ..models import Bus, Passenger
-from .eta_service import calculate_distance, calculate_eta
+from .eta_service import calculate_eta
 
 
 def get_active_buses():
