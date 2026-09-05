@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Passenger Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f7fafc; color:#0f172a; }
+    .wrap { max-width:720px;margin:32px auto;padding:16px; }
+    .card{background:white;padding:20px;border-radius:12px;box-shadow:0 8px 20px rgba(2,6,23,0.06);} 
+    input{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid #e6edf3}
+    button{padding:10px 14px;border-radius:8px;background:#2563eb;color:white;border:none;margin-top:10px}
+    .actions{display:flex;gap:8px}
+    .error{color:#dc2626}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Passenger Portal</h1>
+      <p>Sign up or log in to track nearby buses and request pickups.</p>
+      {% if message %}<p>{{ message }}</p>{% endif %}
+      {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <label>Name</label>
+        <input name="name" placeholder="Your full name" required>
+
+        <div class="actions">
+          <button name="action" value="signup" type="submit">Create account</button>
+          <button name="action" value="login" type="submit">Log in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Passenger Profile</title>
+  <style>body{font-family:Arial, sans-serif;background:#f7fafc;color:#0f172a}.wrap{max-width:720px;margin:32px auto}.card{background:white;padding:20px;border-radius:12px}</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Welcome, {{ passenger.name }}</h1>
+      <p>Passenger ID: {{ passenger.id }}</p>
+      <p>Location: {{ passenger.latitude }}, {{ passenger.longitude }}</p>
+      <p>Status: {% if passenger.is_active %}Active{% else %}Idle{% endif %}</p>
+      <p><a href="/">Back to home</a></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+        <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f7fb; color: #1f2937; }
+        .app { max-width: 900px; margin: 0 auto; padding: 24px; }
+        .card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); margin-bottom: 16px; }
+        .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #e0f2fe; color: #075985; font-size: 12px; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+        .stat { background: #f8fafc; border-radius: 12px; padding: 14px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        button { margin-top: 14px; padding: 10px 16px; border: none; border-radius: 8px; background: #2563eb; color: white; cursor: pointer; }
+        .success { color: #047857; }
+        .error { color: #dc2626; }
+        ul { padding-left: 18px; }
+        .map-shell { border: 2px solid #93c5fd; border-radius: 16px; padding: 18px; background: linear-gradient(135deg, #eff6ff, #f8fafc); min-height: 280px; position: relative; }
+        .map-canvas { width: 100%; height: 250px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; }
+        .map-label { margin-top: 6px; color: #334155; font-size: 13px; }
+        .route-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+        .route-stop-item { background: #f0f9ff; border-left: 4px solid #0284c7; padding: 10px; border-radius: 6px; font-size: 12px; }
+        .stop-capacity { color: #0f766e; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="card">
+            <h1>Driver Dashboard</h1>
+            <p><strong>{{ driver.name }}</strong> is managing the route experience.</p>
+            <span class="pill">Assigned Bus #{{ bus.id|default:'None' }}</span>
+        </div>
+        </div>
+
+        <div class="card">
+            <h3>Trip Controls</h3>
+            <div id="tripControls">
+                <div style="margin-bottom:10px">
+                    <strong>Trip Status:</strong> <span id="tripStatus">{% if bus and bus.is_active %}Trip Active{% else %}Not Started{% endif %}</span>
+                </div>
+                <div>
+                    {% if bus and bus.is_active %}
+                        <button id="stopTripBtn" type="button" style="background:#dc2626;">Stop Trip</button>
+                        <button id="startTripBtn" type="button" style="display:none;">Start Trip</button>
+                    {% else %}
+                        <button id="startTripBtn" type="button">Start Trip</button>
+                        <button id="stopTripBtn" type="button" style="display:none;background:#dc2626;">Stop Trip</button>
+                    {% endif %}
+                </div>
+                <div id="tripMessage" style="margin-top:8px;color:#dc2626"></div>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h3>Route Status</h3>
+                <div class="stat">
+                    <strong>Route:</strong> {{ route.name|default:'No assigned route yet' }}
+                </div>
+                <div class="stat">
+                    <strong>Origin:</strong> {{ route.origin|default:'Not set' }}
+                </div>
+                <div class="stat">
+                    <strong>Destination:</strong> {{ route.destination|default:'Not set' }}
+                </div>
+                <div class="stat">
+                    <strong>Current Stop:</strong> {{ bus.current_stop_index|default:0 }}
+                </div>
+                <div class="stat">
+                    <strong>Speed:</strong> <span id="displaySpeed">{{ bus.speed|default:0 }}</span> km/h
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Update Bus Location</h3>
+                {% if status_message %}<p class="success">{{ status_message }}</p>{% endif %}
+                {% if error_message %}<p class="error">{{ error_message }}</p>{% endif %}
+                
+                <button type="button" id="locationToggle" style="margin-bottom: 14px; background: #2563eb; padding: 10px 16px; border: none; border-radius: 8px; color: white; cursor: pointer;">
+                    ▶ Start Tracking & Publish
+                </button>
+                <span id="locationStatus" style="margin-left: 10px; color: #666; font-size: 12px;"></span>
+                
+                <form method="post" id="locationForm">
+                    {% csrf_token %}
+                    <label for="lat">Latitude</label>
+                    <input id="lat" name="lat" type="number" step="0.0001" value="{{ bus.current_lat|default:'' }}" readonly placeholder="Auto-filled by device location">
+
+                    <label for="lng">Longitude</label>
+                    <input id="lng" name="lng" type="number" step="0.0001" value="{{ bus.current_lng|default:'' }}" readonly placeholder="Auto-filled by device location">
+
+                    <label for="speed">Speed (km/h)</label>
+                    <input id="speed" name="speed" type="number" step="0.1" value="{{ bus.speed|default:0 }}" required>
+
+                    <!-- Publishing is handled automatically when tracking is active -->
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Assigned Bus Information</h3>
+            <div class="grid">
+                        <div class="stat"><strong>Number plate:</strong> {{ bus.registration_number|default:'Not set' }}</div>
+                <div class="stat"><strong>Capacity:</strong> {{ bus.capacity|default:'Not set' }} passengers</div>
+                <div class="stat"><strong>Status:</strong> {% if bus.is_active %}Active{% else %}Inactive{% endif %}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Route Progress</h3>
+            <div class="stat">
+                <strong>Current Stop:</strong> <span id="rpCurrent">{% if current_stop %}{{ current_stop.name }}{% else %}Not at a stop{% endif %}</span>
+            </div>
+            <div class="stat">
+                <strong>Next Stop:</strong> <span id="rpNext">{% if next_stop %}{{ next_stop.name }}{% else %}{% if route %}No stops configured{% else %}No route assigned{% endif %}{% endif %}</span>
+            </div>
+            <div class="stat">
+                <strong>Distance to Current:</strong>
+                <span id="rpDistanceCurrent" data-meters="{% if distance_to_current_m %}{{ distance_to_current_m }}{% else %}{% endif %}">{% if distance_to_current_m is not None %}{{ distance_to_current_m }}{% else %}--{% endif %}</span>
+            </div>
+            <div class="stat">
+                <strong>Distance to Next:</strong>
+                <span id="rpDistanceNext" data-meters="{% if distance_to_next_m %}{{ distance_to_next_m }}{% else %}{% endif %}">{% if distance_to_next_m is not None %}{{ distance_to_next_m }}{% else %}--{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Live Bus Location & Route Map</h3>
+            <div class="map-shell">
+                <div id="leafletMap" class="map-canvas"></div>
+                <div class="map-label">
+                    <strong>📍 Position:</strong> <span id="mapLat">{{ bus.current_lat|default:'0' }}</span>, <span id="mapLng">{{ bus.current_lng|default:'0' }}</span>
+                </div>
+                <div class="map-label">
+                    <strong>🛑 Stop:</strong> <span id="mapStop">{{ current_stop.name|default:'Not at stop' }}</span>
+                </div>
+                <div class="map-label">
+                    <strong>👥 Passengers waiting:</strong> {{ active_passenger_count }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Route Stops & Area Capacity</h3>
+            {% if route and route.stop_set.all %}
+                <div class="route-info">
+                    {% for stop in route.stop_set.all %}
+                        <div class="route-stop-item">
+                            <strong>{{ stop.name }}</strong> (Stop {{ stop.order }})
+                            <br><span class="stop-capacity">Capacity: {{ bus.capacity }} pax</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No stops have been added to this route yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>Nearby Passenger Requests</h3>
+            {% if nearby_passengers %}
+                <ul>
+                    {% for passenger in nearby_passengers %}
+                        <li>{{ passenger.name }} — {{ passenger.distance_km }} km away</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No nearby passengers detected.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        // Basic bus and route data from server-rendered context
+        const stops = [
+            {% for stop in route.stop_set.all %}
+                { name: "{{ stop.name }}", lat: {{ stop.latitude }}, lng: {{ stop.longitude }}, order: {{ stop.order }} },
+            {% endfor %}
+        ];
+
+        {% if bus %}
+        const busId = {{ bus.id }};
+        const initialLat = {{ bus.current_lat|default:0 }};
+        const initialLng = {{ bus.current_lng|default:0 }};
+        const initialSpeed = {{ bus.speed|default:0 }};
+        {% else %}
+        const busId = null;
+        const initialLat = 0;
+        const initialLng = 0;
+        const initialSpeed = 0;
+        {% endif %}
+
+        // Initialize Leaflet map
+        const map = L.map('leafletMap', { center: [initialLat || 0, initialLng || 0], zoom: 14 });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Draw stops
+        const stopMarkers = [];
+        stops.forEach(s => {
+            const m = L.circleMarker([s.lat, s.lng], { radius: 6, color: '#0f766e', fillColor: '#0f766e', fillOpacity: 0.9 }).addTo(map);
+            m.bindPopup(`<strong>${s.name}</strong>`);
+            stopMarkers.push(m);
+        });
+
+        // Bus marker for assigned bus and live location marker for driver
+        let busMarker = null;
+        let liveMarker = null;
+
+        if (busId) {
+            busMarker = L.marker([initialLat, initialLng]).addTo(map).bindPopup(`Bus #${busId}`);
+            map.setView([initialLat, initialLng], 14);
+        } else {
+            liveMarker = L.marker([initialLat || 0, initialLng || 0], { autoPan: true }).addTo(map).bindPopup('Your live location');
+            map.setView([initialLat || 0, initialLng || 0], 14);
+        }
+
+        // Update map labels
+        function setMapPosition(lat, lng, speed) {
+            document.getElementById('mapLat').textContent = lat.toFixed(6);
+            document.getElementById('mapLng').textContent = lng.toFixed(6);
+            document.getElementById('displaySpeed').textContent = speed;
+            if (busMarker) {
+                busMarker.setLatLng([lat, lng]);
+                busMarker.bindPopup(`Bus #${busId} (${speed} km/h)`).openPopup();
+            } else {
+                if (!liveMarker) {
+                    liveMarker = L.marker([lat, lng], { autoPan: true }).addTo(map).bindPopup('Your live location');
+                } else {
+                    liveMarker.setLatLng([lat, lng]);
+                }
+                liveMarker.bindPopup(`Your live location (${speed} km/h)`).openPopup();
+                map.setView([lat, lng], 14);
+            }
+        }
+
+        // Poll backend for latest bus location
+        async function fetchBus() {
+            if (!busId) return;
+            try {
+                const res = await fetch(`/api/buses/${busId}/`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const lat = parseFloat(data.current_lat) || 0;
+                const lng = parseFloat(data.current_lng) || 0;
+                const speed = data.speed || 0;
+                // avoid overwriting fresher local data
+                if (data.last_updated) {
+                    const ts = new Date(data.last_updated).getTime();
+                    if (!lastServerTimestamp || ts > lastServerTimestamp) {
+                        lastServerTimestamp = ts;
+                        setMapPosition(lat, lng, speed);
+                    }
+                } else {
+                    setMapPosition(lat, lng, speed);
+                }
+                // also fetch stop-status to keep route progress up to date
+                try {
+                    const st = await fetch(`/buses/${busId}/stop-status/`);
+                    if (st.ok) {
+                        const sj = await st.json();
+                        const cur = sj.current_stop;
+                        const nxt = sj.next_stop;
+                        const dcur = sj.distance_to_current_m;
+                        const dnxt = sj.distance_to_next_m;
+                        const mapStopEl = document.getElementById('mapStop');
+                        const rpCur = document.getElementById('rpCurrent');
+                        const rpNext = document.getElementById('rpNext');
+                        const rpDcur = document.getElementById('rpDistanceCurrent');
+                        const rpDnxt = document.getElementById('rpDistanceNext');
+
+                        if (cur && cur.name) {
+                            mapStopEl.textContent = cur.name;
+                            rpCur.textContent = cur.name;
+                        } else {
+                            mapStopEl.textContent = 'Not at stop';
+                            rpCur.textContent = 'Not at a stop';
+                        }
+
+                        if (nxt && nxt.name) {
+                            rpNext.textContent = nxt.name;
+                        } else {
+                            rpNext.textContent = 'End of Route';
+                        }
+
+                        function fmtMeters(m) {
+                            if (m === null || m === undefined) return '--';
+                            if (m >= 1000) return (m/1000).toFixed(1) + ' km';
+                            return Math.round(m) + ' m';
+                        }
+
+                        rpDcur.textContent = fmtMeters(dcur);
+                        rpDnxt.textContent = fmtMeters(dnxt);
+                    }
+                } catch (e) {
+                    // ignore stop-status errors
+                }
+            } catch (err) {
+                console.warn('fetchBus error', err);
+            }
+        }
+
+        // Start polling every 5 seconds
+        setInterval(fetchBus, 5000);
+
+        // Format initial server-rendered distance elements to match fmtMeters rules
+        (function formatInitialDistances() {
+            function fmtMeters(m) {
+                if (m === null || m === undefined || m === '') return '--';
+                var n = Number(m);
+                if (!isFinite(n)) return '--';
+                if (n >= 1000) return (n/1000).toFixed(1) + ' km';
+                return Math.round(n) + ' m';
+            }
+
+            var elCur = document.getElementById('rpDistanceCurrent');
+            if (elCur) {
+                var m = elCur.getAttribute('data-meters');
+                if (m === null || m === '') elCur.textContent = '--';
+                else elCur.textContent = fmtMeters(m);
+            }
+            var elNext = document.getElementById('rpDistanceNext');
+            if (elNext) {
+                var m2 = elNext.getAttribute('data-meters');
+                if (m2 === null || m2 === '') elNext.textContent = '--';
+                else elNext.textContent = fmtMeters(m2);
+            }
+        })();
+
+        // driver and publishing capability flags (provided by server)
+        const driverId = {{ driver.id|default:'null' }};
+        const publishUrl = "{{ publish_url }}";
+        const canPublish = {{ can_publish|yesno:"true,false" }};
+        let lastLat = null;
+        let lastLng = null;
+        let lastTime = null;
+
+        // CSRF helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        let inFlightPublish = false;
+        let lastPublishTime = 0;
+        const PUBLISH_MIN_MS = 2000; // minimum interval between publishes
+        let lastServerTimestamp = null;
+
+        async function publishLocation(lat, lng, speed) {
+            if (!canPublish) {
+                locationStatus.textContent = 'Live location shown on map';
+                locationStatus.style.color = '#b45309';
+                return;
+            }
+
+            // basic frontend validation
+            if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(speed)) {
+                console.warn('publishLocation blocked: non-finite values', lat, lng, speed);
+                return;
+            }
+
+            // prevent automatic publishing of 0,0 coordinates
+            if (lat === 0 && lng === 0) {
+                console.warn('publishLocation blocked: coords 0,0');
+                locationStatus.textContent = 'Waiting for valid GPS fix';
+                locationStatus.style.color = '#b45309';
+                return;
+            }
+
+            const now = Date.now();
+            if (inFlightPublish) return;
+            if (now - lastPublishTime < PUBLISH_MIN_MS) return;
+
+            inFlightPublish = true;
+            try {
+                const res = await fetch(publishUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ lat: lat, lng: lng, speed: speed })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    locationStatus.textContent = `Publish failed: ${err.error || res.statusText}`;
+                    locationStatus.style.color = '#dc2626';
+                    return;
+                }
+
+                locationStatus.textContent = 'Published ✓';
+                locationStatus.style.color = '#16a34a';
+                lastPublishTime = Date.now();
+            } catch (e) {
+                console.warn('publishLocation error', e);
+                locationStatus.textContent = 'Publish error';
+                locationStatus.style.color = '#dc2626';
+            } finally {
+                inFlightPublish = false;
+            }
+        }
+
+        // Also update map when inputs change (driven by geolocation watcher)
+        const latInput = document.getElementById('lat');
+        const lngInput = document.getElementById('lng');
+        const speedInput = document.getElementById('speed');
+
+        function inputUpdateHandler() {
+            const lat = parseFloat(latInput.value) || 0;
+            const lng = parseFloat(lngInput.value) || 0;
+            const speed = parseFloat(speedInput.value) || 0;
+            setMapPosition(lat, lng, speed);
+            // update map center slightly if marker exists
+            if (busMarker) map.panTo([lat, lng]);
+        }
+
+        latInput.addEventListener('change', inputUpdateHandler);
+        lngInput.addEventListener('change', inputUpdateHandler);
+        speedInput.addEventListener('change', inputUpdateHandler);
+
+        // Keep legacy geolocation start/stop behavior
+        let trackingEnabled = false;
+        let watchId = null;
+        const locationToggle = document.getElementById('locationToggle');
+        const locationStatus = document.getElementById('locationStatus');
+
+        function handleLocationUpdate(position) {
+            const { latitude, longitude, accuracy } = position.coords;
+            const tNow = Date.now();
+
+            // compute speed from last position/time if available
+            let computedSpeed = parseFloat(initialSpeed) || 0;
+            if (lastLat !== null && lastLng !== null && lastTime !== null) {
+                const dKm = (function(lat1, lon1, lat2, lon2) {
+                    const R = 6371; // km
+                    const toRad = Math.PI/180;
+                    const dLat = (lat2 - lat1) * toRad;
+                    const dLon = (lon2 - lon1) * toRad;
+                    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*toRad) * Math.cos(lat2*toRad) * Math.sin(dLon/2) * Math.sin(dLon/2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    return R * c;
+                })(lastLat, lastLng, latitude, longitude);
+
+                const dtHours = (tNow - lastTime) / (1000*3600);
+                if (dtHours > 0) {
+                    computedSpeed = Math.round((dKm / dtHours) * 10) / 10; // km/h
+                }
+            }
+
+            latInput.value = latitude.toFixed(6);
+            lngInput.value = longitude.toFixed(6);
+            speedInput.value = computedSpeed.toFixed(1);
+            locationStatus.textContent = `📍 Accuracy: ${Math.round(accuracy)}m`;
+            inputUpdateHandler();
+
+            // update last positions
+            lastLat = latitude;
+            lastLng = longitude;
+            lastTime = tNow;
+
+            // publish automatically when possible
+            if (canPublish && driverId) {
+                publishLocation(latitude, longitude, computedSpeed);
+            } else {
+                locationStatus.textContent = 'Live location shown on map';
+                locationStatus.style.color = '#b45309';
+            }
+        }
+
+        function handleLocationError(error) {
+            const messages = {1: 'Location permission denied', 2: 'Position unavailable', 3: 'Request timed out'};
+            locationStatus.textContent = `❌ ${messages[error.code] || 'Location error'}`;
+            locationStatus.style.color = '#dc2626';
+        }
+
+        locationToggle.addEventListener('click', () => {
+            if (!trackingEnabled) {
+                if (!navigator.geolocation) { locationStatus.textContent = '❌ Geolocation not supported'; return; }
+                trackingEnabled = true;
+                locationToggle.textContent = '🔴 Stop Location Tracking';
+                locationToggle.style.background = '#dc2626';
+                locationStatus.textContent = '🟢 Requesting current device location...';
+                locationStatus.style.color = '#16a34a';
+
+                navigator.geolocation.getCurrentPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+                watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+            } else {
+                trackingEnabled = false;
+                locationToggle.textContent = '🟢 Start Location Tracking';
+                locationToggle.style.background = '#16a34a';
+                locationStatus.textContent = 'Tracking stopped';
+                locationStatus.style.color = '#666';
+                if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+            }
+        });
+
+        if (navigator.geolocation) {
+            locationToggle.click();
+        }
+
+        // Trip controls
+        const startTripBtn = document.getElementById('startTripBtn');
+        const stopTripBtn = document.getElementById('stopTripBtn');
+        const tripStatus = document.getElementById('tripStatus');
+        const tripMessage = document.getElementById('tripMessage');
+
+        async function postTripAction(action) {
+            if (!driverId) return;
+            const url = `/api/drivers/${driverId}/${action}-trip/`;
+            try {
+                const res = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, credentials: 'same-origin' });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    tripMessage.textContent = data.error || 'Trip action failed';
+                    return;
+                }
+                tripMessage.style.color = '#16a34a';
+                tripMessage.textContent = data.message || 'OK';
+                if (action === 'start') {
+                    tripStatus.textContent = 'Trip Active';
+                    startTripBtn.style.display = 'none';
+                    stopTripBtn.style.display = 'inline-block';
+                } else {
+                    tripStatus.textContent = 'Not Started';
+                    startTripBtn.style.display = 'inline-block';
+                    stopTripBtn.style.display = 'none';
+                }
+            } catch (e) {
+                tripMessage.textContent = 'Network error';
+            }
+        }
+
+        if (startTripBtn) startTripBtn.addEventListener('click', () => postTripAction('start'));
+        if (stopTripBtn) stopTripBtn.addEventListener('click', () => postTripAction('stop'));
+    </script>
+</body>
+</html>
