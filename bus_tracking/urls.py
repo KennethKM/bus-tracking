@@ -3,5 +3,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('tracking.urls')),  # Make sure this is pointing to tracking
+    path('', include('tracking.urls')),
 ]

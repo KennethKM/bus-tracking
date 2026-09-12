@@ -1,11 +1,12 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from .models import Bus
 
 class BusTrackingConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.bus_group_name = 'bus_updates'
         
-        # Join room group
         await self.channel_layer.group_add(
             self.bus_group_name,
             self.channel_name
@@ -14,7 +15,6 @@ class BusTrackingConsumer(AsyncWebsocketConsumer):
         await self.accept()
         print("✅ WebSocket connected!")
         
-        # Send a welcome message
         await self.send(text_data=json.dumps({
             'type': 'connection_established',
             'message': 'Connected to bus tracking!'
@@ -32,7 +32,6 @@ class BusTrackingConsumer(AsyncWebsocketConsumer):
             text_data_json = json.loads(text_data)
             print(f"📨 Received: {text_data_json}")
             
-            # Echo back the message
             await self.send(text_data=json.dumps({
                 'type': 'echo',
                 'received': text_data_json
@@ -49,5 +48,7 @@ class BusTrackingConsumer(AsyncWebsocketConsumer):
             'lng': event.get('lng'),
             'speed': event.get('speed'),
             'available_seats': event.get('available_seats'),
-            'occupancy': event.get('occupancy')
+            'occupancy': event.get('occupancy'),
+            'route_progress': event.get('route_progress'),
+            'direction': event.get('direction')
         }))
