@@ -6,13 +6,16 @@ from .distance_service import get_distance_to_current_stop
 def get_bus_status(bus):
 
     if bus.current_stop_time is None:
-        return "IN_TRANSIT"
+        return "IDLE"
 
     try:
         road_distance = get_distance_to_current_stop(bus)
 
     except RequestException:
         return "IN_TRANSIT"
+
+    if road_distance is None:
+        return "IDLE"
 
     if (
         road_distance <= 30
