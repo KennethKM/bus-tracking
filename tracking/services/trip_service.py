@@ -9,6 +9,37 @@ from tracking.models import (
 )
 
 
+
+
+def get_trip_for_route_and_destination(
+    route,
+    destination,
+):
+    for candidate_trip in Trip.objects.filter(
+    route=route,
+    trip_id__endswith="-08:00:00"
+    ):
+
+        last_stop_time = (
+            StopTime.objects
+            .filter(trip=candidate_trip)
+            .select_related("stop")
+            .order_by("-stop_sequence")
+            .first()
+        )
+
+        if (
+            last_stop_time and
+            last_stop_time.stop.stop_name == destination
+        ):
+            return candidate_trip
+
+    return None
+
+
+
+
+
 def start_trip(
     registration_number,
     route_id,
@@ -24,23 +55,10 @@ def start_trip(
         route_id=route_id
     )
 
-    trip = None
-
-    for candidate_trip in Trip.objects.filter(route=route):
-
-        last_stop_time = (
-            StopTime.objects
-            .filter(trip=candidate_trip)
-            .order_by("-stop_sequence")
-            .first()
-        )
-
-        if (
-            last_stop_time and
-            last_stop_time.stop.stop_name == destination
-        ):
-            trip = candidate_trip
-            break
+    trip = get_trip_for_route_and_destination(
+    route,
+    destination,
+)
 
     if trip is None:
         raise ValueError(

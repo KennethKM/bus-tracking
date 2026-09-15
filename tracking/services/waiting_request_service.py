@@ -1,46 +1,66 @@
-from ..models import WaitingRequest
-from ..models import WaitingRequest, Bus, Stop
+from ..models import WaitingRequest, Bus, StopTime
 
-def get_waiting_count(route_id, stop_id):
 
-    waiting_count = WaitingRequest.objects.filter(
-        route_id=route_id,
+def get_waiting_count(trip_id, stop_id):
+
+    return WaitingRequest.objects.filter(
+        trip_id=trip_id,
         stop_id=stop_id,
         status="WAITING"
     ).count()
 
-    return waiting_count
 
+def get_route_waiting_overview(registration_number):
 
+    bus = Bus.objects.select_related(
+        "current_trip__route"
+    ).get(
+        registration_number=registration_number
+    )
 
+    if bus.current_trip is None:
+        return {
+            "registration_number": bus.registration_number,
+            "trip_id": None,
+            "route_id": None,
+            "route": None,
+            "stops": []
+        }
 
-def get_route_waiting_overview(bus_id):
+    trip = bus.current_trip
+    route = trip.route
 
-    bus = Bus.objects.get(id=bus_id)
-
-    route = bus.route
-
-    stops = Stop.objects.filter(
-        route=route
-    ).order_by("order")
+    stop_times = (
+        StopTime.objects
+        .filter(trip=trip)
+        .select_related("stop")
+        .order_by("stop_sequence")
+    )
 
     results = []
 
-    for stop in stops:
+    for stop_time in stop_times:
+
+        stop = stop_time.stop
 
         waiting_count = WaitingRequest.objects.filter(
-            route=route,
+            trip=trip,
             stop=stop,
             status="WAITING"
         ).count()
 
         results.append({
-            "stop": stop.name,
+            "stop_id": stop.stop_id,
+            "stop_name": stop.stop_name,
+            "stop_sequence": stop_time.stop_sequence,
             "waiting_count": waiting_count
         })
 
     return {
-        "route": route.name,
+        "registration_number": bus.registration_number,
+        "trip_id": trip.trip_id,
+        "route_id": route.route_id,
+        "route": route.route_long_name,
         "stops": results
     }
 
@@ -48,17 +68,13 @@ def get_route_waiting_overview(bus_id):
 def mark_as_boarded(waiting_request_id):
 
     waiting_request = WaitingRequest.objects.get(
-        id=waiting_request_id
+        id=waiting_request_id,
+        status="WAITING"
     )
 
     waiting_request.status = "ON_BOARD"
-
-    waiting_request.save()
-
-    passenger = waiting_request.passenger
-
-    passenger.is_active = False
-
-    passenger.save()
+    waiting_request.save(
+        update_fields=["status"]
+    )
 
     return waiting_request

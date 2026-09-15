@@ -1,10 +1,11 @@
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-
-
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 
 
 from .models import (
@@ -37,9 +38,6 @@ from .services.location_service import (
 )
 
 
-from .services.route_service import (
-get_nearby_passengers
-)
 
 
 from .services.eta_service import (
@@ -54,8 +52,8 @@ from .services.waiting_request_service import (
 )
 
 from tracking.services.trip_service import (
-    
-    start_trip
+    start_trip,
+    get_trip_for_route_and_destination
 )
 
 
@@ -82,10 +80,59 @@ class PassengerViewSet(viewsets.ModelViewSet):
 
 
 class WaitingRequestViewSet(viewsets.ModelViewSet):
-
-    queryset = WaitingRequest.objects.all()
-
     serializer_class = WaitingRequestSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return WaitingRequest.objects.filter(
+            passenger=self.request.user.passenger_profile
+        )
+
+    def perform_create(self, serializer):
+        passenger = self.request.user.passenger_profile
+        serializer.save(passenger=passenger)
+        
+
+@api_view(["POST"])
+def register_passenger(request):
+    username = request.data.get("username", "").strip()
+    password = request.data.get("password", "")
+    name = request.data.get("name", "").strip()
+    email = request.data.get("email", "").strip()
+
+    if not username or not password or not name:
+        return Response(
+            {"error": "Username, password, and name are required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {"error": "Username already exists."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        email=email
+    )
+
+    Passenger.objects.create(
+        user=user,
+        name=name
+    )
+
+    return Response(
+        {
+            "message": "Passenger account created successfully.",
+            "username": user.username,
+            "name": name
+        },
+        status=status.HTTP_201_CREATED
+    )
+
+
 
 @api_view(["GET"])
 def driver_session(request, registration_number):
@@ -190,6 +237,70 @@ def route_destinations(request, route_id):
         ]
     )
 
+@api_view(["GET"])
+def trip_stops(request, route_id):
+
+    destination = request.GET.get(
+        "destination",
+        ""
+    ).strip()
+
+    if not destination:
+        return Response(
+            {"error": "Destination is required."},
+            status=400
+        )
+
+    route = get_object_or_404(
+        Route,
+        route_id=route_id
+    )
+
+    trip = get_trip_for_route_and_destination(
+        route,
+        destination,
+    )
+
+    if trip is None:
+        return Response(
+            {
+                "error": (
+                    "No trip ends at the selected destination."
+                )
+            },
+            status=404
+        )
+
+    stop_times = (
+        StopTime.objects
+        .filter(trip=trip)
+        .select_related("stop")
+        .order_by("stop_sequence")
+    )
+
+    return Response({
+        "trip_id": trip.trip_id,
+        "route_id": route.route_id,
+        "destination": destination,
+        "stops": [
+            {
+                "stop_id": stop_time.stop.stop_id,
+                "stop_name": stop_time.stop.stop_name,
+                "stop_sequence": stop_time.stop_sequence,
+            }
+            for stop_time in stop_times
+        ]
+
+    })
+
+
+
+
+
+
+
+
+
 
 @api_view(["GET"])
 def search_routes(request):
@@ -276,27 +387,7 @@ def update_bus_location(request, registration_number):
 
 
 
-@api_view(["GET"])
-def nearby_passengers(request, bus_id):
 
-    try:
-
-        bus = Bus.objects.get(id=bus_id)
-
-        nearby = get_nearby_passengers(
-            bus
-        )
-
-        return Response({
-            "bus_id": bus.id,
-            "nearby_passengers": nearby
-        })
-
-    except Bus.DoesNotExist:
-
-        return Response({
-            "error": "Bus not found"
-        }, status=404)
 
 
 
@@ -339,47 +430,63 @@ def bus_eta(request, bus_id, stop_id):
 
 
 @api_view(["GET"])
-def waiting_count(request, route_id, stop_id):
+def waiting_count(request, trip_id, stop_id):
 
     try:
+        trip = Trip.objects.select_related("route").get(
+            trip_id=trip_id
+        )
 
-        route = Route.objects.get(id=route_id)
+        stop = Stop.objects.get(
+            stop_id=stop_id
+        )
 
-        stop = Stop.objects.get(id=stop_id)
+        stop_on_trip = StopTime.objects.filter(
+            trip=trip,
+            stop=stop
+        ).exists()
+
+        if not stop_on_trip:
+            return Response(
+                {"error": "Stop is not served by this trip."},
+                status=400
+            )
 
         count = get_waiting_count(
-            route_id,
+            trip_id,
             stop_id
         )
 
         return Response({
-            "route_name": route.name,
-            "stop_name": stop.name,
+            "trip_id": trip.trip_id,
+            "route_id": trip.route.route_id,
+            "route_name": trip.route.route_long_name,
+            "stop_id": stop.stop_id,
+            "stop_name": stop.stop_name,
             "waiting_count": count
         })
 
-    except Route.DoesNotExist:
-
-        return Response({
-            "error": "Route not found"
-        }, status=404)
+    except Trip.DoesNotExist:
+        return Response(
+            {"error": "Trip not found"},
+            status=404
+        )
 
     except Stop.DoesNotExist:
-
-        return Response({
-            "error": "Stop not found"
-        }, status=404)
-
+        return Response(
+            {"error": "Stop not found"},
+            status=404
+        )
 
 
 
 @api_view(["GET"])
-def route_waiting_overview(request, bus_id):
+def route_waiting_overview(request, registration_number):
 
     try:
 
         overview = get_route_waiting_overview(
-            bus_id
+            registration_number
         )
 
         return Response(overview)
@@ -389,7 +496,62 @@ def route_waiting_overview(request, bus_id):
         return Response({
             "error": "Bus not found"
         }, status=404)
-    
+
+
+
+
+@api_view(["POST"])
+def login_passenger(request):
+    username = request.data.get("username", "").strip()
+    password = request.data.get("password", "")
+
+    if not username or not password:
+        return Response(
+            {"error": "Username and password are required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = authenticate(
+        request,
+        username=username,
+        password=password
+    )
+
+    if user is None:
+        return Response(
+            {"error": "Invalid username or password."},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    if not hasattr(user, "passenger_profile"):
+        return Response(
+            {"error": "This account is not a passenger account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    login(request, user)
+
+    passenger = user.passenger_profile
+
+    return Response({
+        "message": "Login successful.",
+        "passenger": {
+            "id": passenger.id,
+            "name": passenger.name,
+            "username": user.username,
+            "email": user.email,
+        }
+    })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout_passenger(request):
+    logout(request)
+
+    return Response({
+        "message": "Logout successful."
+    })
 
 @api_view(["POST"])
 def board_passenger(request, waiting_request_id):

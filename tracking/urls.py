@@ -14,12 +14,15 @@ from .views import (
     deactivate_bus,
     start_fresh,
     update_bus_location,
-    nearby_passengers,
     bus_eta,
     start_trip_view,
     waiting_count,
     route_waiting_overview,
-    board_passenger
+    board_passenger,
+    trip_stops,
+    register_passenger,
+    login_passenger,
+    logout_passenger,
 )
 
 router = DefaultRouter()
@@ -27,7 +30,11 @@ router.register(r'routes', RouteViewSet)
 router.register(r'stops', StopViewSet)
 router.register(r'buses', BusViewSet)
 router.register(r'passengers', PassengerViewSet)
-router.register(r'waiting-requests', WaitingRequestViewSet)
+router.register(
+    r'waiting-requests',
+    WaitingRequestViewSet,
+    basename='waiting-request'
+)
 
 
 urlpatterns = [
@@ -50,10 +57,7 @@ urlpatterns = [
     update_bus_location
     ),
 
-    path(
-        'buses/<int:bus_id>/nearby-passengers/',
-        nearby_passengers
-    ),
+    
 
     path(
     'buses/<int:bus_id>/eta/<int:stop_id>/',
@@ -61,15 +65,14 @@ urlpatterns = [
     ),
 
 
-
     path(
-        'routes/<int:route_id>/stops/<int:stop_id>/waiting-count/',
+        'trips/<str:trip_id>/stops/<int:stop_id>/waiting-count/',
         waiting_count
     ),
 
     path(
-        'buses/<int:bus_id>/waiting-overview/',
-        route_waiting_overview
+    "buses/<str:registration_number>/waiting-overview/",
+    route_waiting_overview
     ),
 
     path(
@@ -101,6 +104,30 @@ urlpatterns = [
     "routes/<str:route_id>/destinations/",
     route_destinations,
     name="route_destinations",
+    ),
+
+    path(
+    "routes/<str:route_id>/stops/",
+    trip_stops,
+    name="trip_stops",
+    ),
+
+    path(
+    "auth/register/",
+    register_passenger,
+    name="register-passenger"
+    ),
+
+    path(
+    "auth/login/",
+    login_passenger,
+    name="login-passenger"
+    ),
+
+    path(
+    "auth/logout/",
+    logout_passenger,
+    name="logout-passenger"
     ),
 
 ] + router.urls

@@ -5,6 +5,7 @@ from .models import (
     Bus,
     Passenger,
     WaitingRequest,
+    StopTime,
     Trip
 )
 
@@ -82,12 +83,48 @@ class BusSerializer(serializers.ModelSerializer):
 
 
 class PassengerSerializer(serializers.ModelSerializer):
+
+    username = serializers.CharField(
+        source="user.username",
+        read_only=True
+    )
+
+    email = serializers.EmailField(
+        source="user.email",
+        read_only=True
+    )
+
     class Meta:
         model = Passenger
-        fields = '__all__'
+        fields = [
+            "id",
+            "name",
+            "username",
+            "email",
+            "last_updated",
+        ]
+
+        read_only_fields = [
+            "id",
+            "username",
+            "email",
+            "last_updated",
+        ]
 
 
 class WaitingRequestSerializer(serializers.ModelSerializer):
+
+    passenger = serializers.PrimaryKeyRelatedField(
+      read_only=True
+    )
+    
+    trip = serializers.PrimaryKeyRelatedField(
+        queryset=Trip.objects.filter(
+            trip_id__endswith="-08:00:00"
+        )
+    )
+
+
 
     passenger_name = serializers.CharField(
         source="passenger.name",
@@ -95,12 +132,12 @@ class WaitingRequestSerializer(serializers.ModelSerializer):
     )
 
     route_name = serializers.CharField(
-    source="route.name",
-    read_only=True
+        source="trip.route.route_long_name",
+        read_only=True
     )
 
     stop_name = serializers.CharField(
-        source="stop.name",
+        source="stop.stop_name",
         read_only=True
     )
 
@@ -112,13 +149,50 @@ class WaitingRequestSerializer(serializers.ModelSerializer):
             "created_at",
             "deactivated_at",
             "passenger",
-            "route",
+            "trip",
             "stop",
             "passenger_name",
             "route_name",
             "stop_name",
         ]
 
+    def validate(self, attrs):
+
+        trip = attrs.get("trip")
+        stop = attrs.get("stop")
+
+        if trip is None:
+            raise serializers.ValidationError({
+                "trip": "A trip is required."
+            })
+
+        if stop is None:
+            raise serializers.ValidationError({
+                "stop": "A stop is required."
+            })
+
+        if not StopTime.objects.filter(
+            trip=trip,
+            stop=stop
+        ).exists():
+            raise serializers.ValidationError({
+                "stop": "This stop is not served by the selected trip."
+            })
+
+        passenger = attrs.get("passenger")
+
+        if (
+            passenger
+            and WaitingRequest.objects.filter(
+                passenger=passenger,
+                status__in=["WAITING", "ON_BOARD"]
+            ).exists()
+        ):
+            raise serializers.ValidationError({
+                "passenger": "Passenger already has an active trip."
+            })
+
+        return attrs
 
 
 

@@ -1,6 +1,6 @@
 from django.db import models, transaction
 from django.core.exceptions import ValidationError
-
+from django.contrib.auth.models import User
 
 
 class Route(models.Model):
@@ -188,9 +188,13 @@ class Bus(models.Model):
 
 
 class Passenger(models.Model):
+    user = models.OneToOneField(
+    User,
+    on_delete=models.CASCADE,
+    related_name="passenger_profile"
+    )
 
     name = models.CharField(max_length=100)
-
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -214,16 +218,16 @@ class WaitingRequest(models.Model):
     related_name="waiting_requests"
     )
 
-    route = models.ForeignKey(
-    Route,
-    on_delete=models.CASCADE,
-    related_name="waiting_requests"
+    trip = models.ForeignKey(
+        Trip,
+        on_delete=models.CASCADE,
+        related_name="waiting_requests"
     )
 
     stop = models.ForeignKey(
-    Stop,
-    on_delete=models.CASCADE,
-    related_name="waiting_requests"
+        Stop,
+        on_delete=models.CASCADE,
+        related_name="waiting_requests"
     )
 
     status = models.CharField(
