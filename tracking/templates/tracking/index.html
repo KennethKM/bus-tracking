@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Lusaka Bus Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+
+        #map { height: 100vh; width: 100%; }
+
+        .header {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: #2563eb; color: white;
+            padding: 12px 20px; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .header h1 { font-size: 18px; font-weight: 600; }
+        .header-actions { display: flex; gap: 10px; }
+        .header-btn {
+            background: rgba(255,255,255,0.2); border: none; color: white;
+            padding: 8px 14px; border-radius: 20px; cursor: pointer;
+            font-size: 14px; font-weight: 600;
+        }
+        .header-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .fab-container {
+            position: fixed; bottom: 100px; right: 20px;
+            z-index: 1000; display: flex; flex-direction: column; gap: 10px;
+        }
+        .fab {
+            width: 56px; height: 56px; border-radius: 50%;
+            border: none; background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            cursor: pointer; font-size: 22px; transition: all 0.3s;
+        }
+        .fab:hover { transform: scale(1.05); background: #2563eb; color: white; }
+        .fab-primary { background: #2563eb; color: white; }
+
+        .bottom-sheet {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; border-radius: 25px 25px 0 0;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000; max-height: 75vh; overflow-y: auto;
+        }
+        .bottom-sheet.active { transform: translateY(0); }
+        .sheet-handle {
+            width: 40px; height: 4px; background: #ddd;
+            border-radius: 2px; margin: 10px auto;
+        }
+        .sheet-header {
+            padding: 0 20px 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .sheet-header h3 { font-size: 18px; color: #1f2937; }
+        .sheet-close {
+            background: none; border: none; font-size: 24px;
+            cursor: pointer; color: #6b7280;
+        }
+        .sheet-content { padding: 20px; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 2000;
+            display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white; border-radius: 20px;
+            padding: 25px; max-width: 450px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal h2 { margin-bottom: 20px; color: #1f2937; font-size: 22px; }
+
+        .form-section {
+            margin-bottom: 18px; padding: 15px;
+            background: #f9fafb; border-radius: 12px;
+        }
+        .form-section label {
+            display: block; font-weight: 600;
+            color: #374151; margin-bottom: 8px; font-size: 14px;
+        }
+        .form-section input,
+        .form-section select {
+            width: 100%; padding: 12px;
+            border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; background: white;
+        }
+        .location-btn {
+            width: 100%; padding: 10px; margin-top: 8px;
+            background: #e5e7eb; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 14px; font-weight: 500;
+        }
+        .location-btn:hover { background: #d1d5db; }
+
+        .route-info {
+            background: #dbeafe; padding: 12px;
+            border-radius: 8px; margin-top: 8px;
+        }
+        .route-info strong {
+            color: #2563eb; font-size: 16px;
+            display: block; margin-bottom: 5px;
+        }
+        .stops-list {
+            margin-top: 8px; color: #6b7280; font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .available-bus-card {
+            background: white; border: 2px solid #e5e7eb;
+            border-radius: 12px; padding: 12px;
+            margin-bottom: 10px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .available-bus-card:hover {
+            border-color: #2563eb; transform: translateX(5px);
+        }
+        .available-bus-card.selected {
+            border-color: #10b981; background: #f0fdf4;
+        }
+        .bus-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 8px;
+        }
+        .bus-number {
+            font-weight: bold; color: #2563eb; font-size: 16px;
+        }
+        .bus-seats { color: #10b981; font-size: 13px; font-weight: 600; }
+        .bus-details {
+            display: flex; gap: 15px; font-size: 13px; color: #6b7280;
+        }
+
+        .request-btn {
+            width: 100%; padding: 16px;
+            background: #10b981; color: white;
+            border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 600;
+            cursor: pointer; margin-top: 10px;
+        }
+        .request-btn:hover { background: #059669; }
+        .cancel-btn {
+            width: 100%; padding: 14px;
+            background: #e5e7eb; color: #1f2937;
+            border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 600;
+            cursor: pointer; margin-top: 8px;
+        }
+        .cancel-btn:hover { background: #d1d5db; }
+
+        .notification {
+            position: fixed; top: 70px; left: 20px; right: 20px;
+            background: #1f2937; color: white;
+            padding: 14px 20px; border-radius: 12px;
+            z-index: 3000; display: none;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        @keyframes slideDown {
+            from { top: -100px; opacity: 0; }
+            to { top: 70px; opacity: 1; }
+        }
+        .notification.success { background: #10b981; }
+        .notification.error { background: #ef4444; }
+        .notification.info { background: #3b82f6; }
+
+        .loading {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white; padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 2000; display: none; text-align: center;
+        }
+        .loading.active { display: block; }
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 14px; }
+            .header-btn { padding: 6px 10px; font-size: 12px; }
+            .fab-container { bottom: 80px; }
+            .fab { width: 48px; height: 48px; font-size: 18px; }
+            .modal { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🚍 Lusaka Bus Tracker</h1>
+        <div class="header-actions">
+            <button class="header-btn" onclick="showActiveBuses()">🚌 Active Buses</button>
+            <button class="header-btn" onclick="openRideModal()">🚌 Plan Trip</button>
+            <button class="header-btn" onclick="showWaitingRequests()">📋 My Requests</button>
+            <button class="header-btn" onclick="refreshData()">🔄</button>
+        </div>
+    </div>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button class="fab" onclick="refreshData()" title="Refresh">🔄</button>
+    </div>
+
+    <!-- Bottom Sheet -->
+    <div class="bottom-sheet" id="bottomSheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <h3 id="sheetTitle">Active Buses</h3>
+            <button class="sheet-close" onclick="closeSheet()">&times;</button>
+        </div>
+        <div class="sheet-content" id="sheetContent">
+            <div style="text-align: center; padding: 20px; color: #6b7280;">
+                Active buses with live GPS locations will appear here.
+            </div>
+        </div>
+    </div>
+
+    <!-- Ride Request Modal -->
+    <div class="modal-overlay" id="rideModal">
+        <div class="modal">
+            {% csrf_token %}
+            <h2>🚌 Plan a Trip</h2>
+
+            <div class="form-section">
+                <label>🔐 Passenger Account</label>
+                <input type="text" id="authUsername" placeholder="Username" style="margin-bottom: 8px;">
+                <input type="password" id="authPassword" placeholder="Password" style="margin-bottom: 8px;">
+                <input type="text" id="authName" placeholder="Full name" style="margin-bottom: 8px;">
+                <input type="email" id="authEmail" placeholder="Email (optional)">
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button type="button" class="location-btn" onclick="registerPassenger()">Register</button>
+                    <button type="button" class="location-btn" onclick="loginPassenger()">Login</button>
+                    <button type="button" class="location-btn" onclick="logoutPassenger()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Route Search -->
+            <div class="form-section">
+                <label>🎯 Search route</label>
+                <input type="text"
+                       id="destinationSearch"
+                       placeholder="🔍 Search route names (e.g., Kanyama, Town, Chelston)..."
+                       oninput="searchRoutes()"
+                       style="margin-bottom: 8px;">
+                <select id="destinationSelect" onchange="onDestinationChange()">
+                    <option value="">Select a route...</option>
+                </select>
+            </div>
+
+            <!-- Trip Details -->
+            <div class="form-section" id="routeSection" style="display:none;">
+                <label>🛣️ Trip and stop details</label>
+                <div id="routeList"></div>
+            </div>
+
+            <button onclick="requestRide()" class="request-btn">🚗 Create Waiting Request</button>
+            <button class="cancel-btn" onclick="closeRideModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <script>
+        let map;
+        let busMarkers = new Map();
+        let state = {
+            passenger: null,
+            routeId: null,
+            tripId: null,
+            destination: null,
+            selectedStopId: null,
+            routes: [],
+            waitingRequests: [],
+            activeBuses: []
+        };
+
+        const busIcon = L.divIcon({
+            html: `<div style="background: #2563eb; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 16px;">🚌</div>`,
+            iconSize: [32, 32],
+            className: 'bus-marker'
+        });
+
+        const movingBusIcon = L.divIcon({
+            html: `<div style="background: #10b981; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #34d399; box-shadow: 0 0 20px rgba(16,185,129,0.5); font-size: 18px;">🚌</div>`,
+            iconSize: [36, 36],
+            className: 'bus-marker-moving'
+        });
+
+        function initMap() {
+            map = L.map('map').setView([-15.3875, 28.3228], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            loadBuses();
+            setInterval(loadBuses, 15000);
+        }
+
+        function setAuthState(passenger) {
+            state.passenger = passenger || null;
+            const authName = document.getElementById('authName');
+            if (authName) authName.value = passenger ? passenger.name || '' : '';
+        }
+
+        async function apiFetch(url, options = {}) {
+            const headers = { ...(options.headers || {}) };
+            if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+                headers['Content-Type'] = 'application/json';
+            }
+            const csrf = getCookie('csrftoken');
+            if (csrf) headers['X-CSRFToken'] = csrf;
+            return fetch(url, { credentials: 'same-origin', ...options, headers });
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            return parts.length === 2 ? parts.pop().split(';').shift() : null;
+        }
+
+        async function registerPassenger() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName').value.trim();
+            const email = document.getElementById('authEmail').value.trim();
+
+            if (!username || !password || !name) {
+                showNotification('Username, password, and name are required.', 'error');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const response = await apiFetch('/api/auth/register/', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password, name, email })
+                });
+                const data = await response.json();
+                showLoading(false);
+                if (!response.ok) {
+                    showNotification(data.error || 'Registration failed.', 'error');
+                    return;
+                }
+                showNotification('✅ Passenger registered. Please log in.', 'success');
+            } catch (error) {
+                showLoading(false);
+                showNotification('Unable to register passenger.', 'error');
+            }
+        }
+
+        async function loginPassenger() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            if (!username || !password) {
+                showNotification('Username and password are required.', 'error');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const response = await apiFetch('/api/auth/login/', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                showLoading(false);
+                if (!response.ok) {
+                    showNotification(data.error || 'Login failed.', 'error');
+                    return;
+                }
+                setAuthState(data.passenger);
+                showNotification(`Welcome, ${data.passenger.name}!`, 'success');
+                searchRoutes();
+                loadWaitingRequests();
+            } catch (error) {
+                showLoading(false);
+                showNotification('Unable to log in.', 'error');
+            }
+        }
+
+        async function logoutPassenger() {
+            try {
+                await apiFetch('/api/auth/logout/', { method: 'POST' });
+                setAuthState(null);
+                showNotification('Logged out successfully.', 'info');
+            } catch (error) {
+                showNotification('Logout request failed.', 'error');
+            }
+        }
+
+        async function searchRoutes() {
+            const query = document.getElementById('destinationSearch')?.value || '';
+            try {
+                const response = await apiFetch(`/api/routes/search/?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                const select = document.getElementById('destinationSelect');
+                if (!select) return;
+                state.routes = Array.isArray(data) ? data : [];
+                select.innerHTML = '<option value="">Select a route...</option>' + state.routes.map(route => `<option value="${route.route_id}">${route.route_long_name}</option>`).join('');
+            } catch (error) {
+                console.error('Route search error:', error);
+                showNotification('Unable to search routes with the current backend.', 'error');
+            }
+        }
+
+        function onDestinationChange() {
+            const routeId = document.getElementById('destinationSelect').value;
+            if (!routeId) {
+                state.routeId = null;
+                state.tripId = null;
+                state.selectedStopId = null;
+                document.getElementById('routeSection').style.display = 'none';
+                return;
+            }
+
+            state.routeId = routeId;
+            loadRouteDestinations(routeId);
+        }
+
+        async function loadRouteDestinations(routeId) {
+            try {
+                const response = await apiFetch(`/api/routes/${routeId}/destinations/`);
+                const data = await response.json();
+                const destinations = (Array.isArray(data) ? data : [])
+                    .map(item => item.destination)
+                    .filter(Boolean);
+                const routeList = document.getElementById('routeList');
+                if (!destinations.length) {
+                    document.getElementById('routeSection').style.display = 'block';
+                    routeList.innerHTML = '<div class="route-info"><strong>No destinations</strong><div>No GTFS destinations are available for this route.</div></div>';
+                    return;
+                }
+
+                const routeName = state.routes.find(route => route.route_id === routeId)?.route_long_name || routeId;
+                const destHtml = destinations.map(dest => `
+                    <button type="button" class="location-btn" style="margin-top:8px;" onclick="loadTripStops('${routeId}', '${dest.replace(/'/g, "\\'")}')">${dest}</button>
+                `).join('');
+
+                document.getElementById('routeSection').style.display = 'block';
+                routeList.innerHTML = `
+                    <div class="route-info">
+                        <strong>${routeName}</strong>
+                        <div>Select a destination:</div>
+                        ${destHtml}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Destination lookup error:', error);
+                showNotification('Route destinations could not be loaded from the current backend.', 'error');
+            }
+        }
+
+        async function loadTripStops(routeId, destination) {
+            try {
+                const response = await apiFetch(`/api/routes/${routeId}/stops/?destination=${encodeURIComponent(destination)}`);
+                const data = await response.json();
+                const stops = Array.isArray(data.stops) ? data.stops : [];
+                state.tripId = data.trip_id || null;
+                state.destination = destination || data.destination || null;
+                state.selectedStopId = null;
+
+                const routeList = document.getElementById('routeList');
+                if (!stops.length) {
+                    routeList.innerHTML = '<div class="route-info"><strong>No stops</strong><div>No GTFS stops were returned for this trip.</div></div>';
+                    return;
+                }
+
+                routeList.innerHTML = `
+                    <div class="route-info">
+                        <strong>${data.route_id || routeId}</strong>
+                        <div>${destination}</div>
+                        ${stops.map(stop => `
+                            <button type="button" class="location-btn" style="margin-top:8px; text-align:left;" onclick="selectStop(${stop.stop_id})">
+                                ${stop.stop_name}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Stop lookup error:', error);
+                showNotification('Stops for this trip could not be loaded.', 'error');
+            }
+        }
+
+        function selectStop(stopId) {
+            state.selectedStopId = stopId;
+            showNotification(`Selected boarding stop #${stopId}.`, 'info');
+        }
+
+        async function requestRide() {
+            if (!state.passenger) {
+                showNotification('Please log in before creating a waiting request.', 'error');
+                return;
+            }
+            if (!state.tripId || !state.selectedStopId) {
+                showNotification('Select a route, destination, and board stop first.', 'error');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const response = await apiFetch('/api/waiting-requests/', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        trip: state.tripId,
+                        stop: Number(state.selectedStopId)
+                    })
+                });
+                const data = await response.json();
+                showLoading(false);
+                if (!response.ok) {
+                    const detail = data?.detail || Object.values(data || {}).flat().join(', ') || 'Waiting request failed.';
+                    showNotification(detail, 'error');
+                    return;
+                }
+                showNotification(`✅ Waiting request created for ${state.destination}.`, 'success');
+                await loadWaitingRequests();
+                closeRideModal();
+            } catch (error) {
+                showLoading(false);
+                console.error('Waiting request error:', error);
+                showNotification('Unable to create waiting request.', 'error');
+            }
+        }
+
+        async function loadBuses() {
+            try {
+                const response = await apiFetch('/api/buses/');
+                if (!response.ok) return;
+                const buses = await response.json();
+                const activeBusIds = new Set();
+                state.activeBuses = (Array.isArray(buses) ? buses : [])
+                    .filter(bus => bus.is_active);
+                state.activeBuses
+                    .forEach(bus => {
+                        activeBusIds.add(bus.id);
+                        if (bus.current_lat != null && bus.current_lng != null) {
+                            updateBusMarker(bus);
+                        }
+                    });
+                busMarkers.forEach((marker, busId) => {
+                    if (!activeBusIds.has(busId)) {
+                        map.removeLayer(marker);
+                        busMarkers.delete(busId);
+                    }
+                });
+                if (document.getElementById('sheetTitle').textContent === 'Active Buses') {
+                    renderActiveBuses();
+                }
+            } catch (error) {
+                console.warn('Unable to load active bus locations:', error);
+            }
+        }
+
+        function updateBusMarker(bus) {
+            if (!bus || bus.current_lat == null || bus.current_lng == null) return;
+            const isMoving = bus.status === 'IN_TRANSIT' || (bus.speed || 0) > 0;
+            const icon = isMoving ? movingBusIcon : busIcon;
+            const popupContent = `
+                <div style="min-width: 200px;">
+                    <b style="font-size: 16px; color: #2563eb;">🚌 ${bus.registration_number}</b>
+                    ${isMoving ? '<span style="color: #10b981; font-size: 12px;"> ● Moving</span>' : ''}<br>
+                    <b>Status:</b> ${bus.status}<br>
+                    <b>Speed:</b> ${bus.speed} km/h<br>
+                    <b>Last update:</b> ${bus.last_updated ? new Date(bus.last_updated).toLocaleString() : 'Unavailable'}
+                </div>
+            `;
+
+            if (busMarkers.has(bus.id)) {
+                const marker = busMarkers.get(bus.id);
+                marker.setLatLng([bus.current_lat, bus.current_lng]);
+                marker.setIcon(icon);
+                marker.bindPopup(popupContent);
+            } else {
+                const marker = L.marker([bus.current_lat, bus.current_lng], { icon }).addTo(map);
+                marker.bindPopup(popupContent);
+                busMarkers.set(bus.id, marker);
+            }
+        }
+
+        function openRideModal() {
+            document.getElementById('rideModal').classList.add('active');
+            if (state.passenger) {
+                searchRoutes();
+            }
+        }
+
+        function closeRideModal() {
+            document.getElementById('rideModal').classList.remove('active');
+        }
+
+        function closeSheet() {
+            document.getElementById('bottomSheet').classList.remove('active');
+        }
+
+        function refreshData() {
+            loadBuses();
+            if (state.passenger) loadWaitingRequests();
+            showNotification('🔄 Data refreshed!', 'success');
+        }
+
+        function renderActiveBuses() {
+            const buses = state.activeBuses || [];
+            document.getElementById('sheetContent').innerHTML = buses.length
+                ? buses.map(bus => `
+                    <div class="available-bus-card">
+                        <div class="bus-header"><span class="bus-number">🚌 ${bus.registration_number}</span><span class="bus-seats">${bus.status}</span></div>
+                        <div class="bus-details">Speed: ${bus.speed || 0} km/h · ${bus.current_trip ? `Trip ${bus.current_trip}` : 'No trip assigned'}</div>
+                    </div>
+                `).join('')
+                : '<div style="text-align:center; padding:20px; color:#6b7280;">No active buses are reporting.</div>';
+        }
+
+            function showActiveBuses() {
+                document.getElementById('sheetTitle').textContent = 'Active Buses';
+                renderActiveBuses();
+                document.getElementById('bottomSheet').classList.add('active');
+            }
+
+        async function loadWaitingRequests() {
+            if (!state.passenger) return;
+            try {
+                const response = await apiFetch('/api/waiting-requests/');
+                if (!response.ok) return;
+                state.waitingRequests = await response.json();
+            } catch (error) {
+                console.warn('Unable to load waiting requests:', error);
+            }
+        }
+
+        async function showWaitingRequests() {
+            if (!state.passenger) {
+                showNotification('Please log in to view your waiting requests.', 'error');
+                return;
+            }
+            await loadWaitingRequests();
+            const requests = state.waitingRequests || [];
+            document.getElementById('sheetTitle').textContent = 'My Waiting Requests';
+            document.getElementById('sheetContent').innerHTML = requests.length
+                ? requests.map(request => `
+                    <div class="available-bus-card">
+                        <div class="bus-header"><span class="bus-number">${request.route_name || 'Route'}</span><span class="bus-seats">${request.status}</span></div>
+                        <div class="bus-details">${request.stop_name || 'Stop unavailable'} · ${request.created_at ? new Date(request.created_at).toLocaleString() : ''}</div>
+                    </div>
+                `).join('')
+                : '<div style="text-align:center; padding:20px; color:#6b7280;">No waiting requests yet.</div>';
+            document.getElementById('bottomSheet').classList.add('active');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + (type || 'info');
+            notification.style.display = 'block';
+            clearTimeout(notification.timeout);
+            notification.timeout = setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>
