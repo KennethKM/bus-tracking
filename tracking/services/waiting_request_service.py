@@ -1,5 +1,5 @@
 from ..models import WaitingRequest, Bus, StopTime
-
+from django.utils import timezone
 
 def get_waiting_count(trip_id, stop_id):
 
@@ -65,8 +65,8 @@ def get_route_waiting_overview(registration_number):
     }
 
 
-def mark_as_boarded(waiting_request_id):
 
+def mark_as_boarded(waiting_request_id):
     waiting_request = WaitingRequest.objects.get(
         id=waiting_request_id,
         status="WAITING"
@@ -75,6 +75,55 @@ def mark_as_boarded(waiting_request_id):
     waiting_request.status = "ON_BOARD"
     waiting_request.save(
         update_fields=["status"]
+    )
+
+    return waiting_request
+
+
+def cancel_waiting_request(waiting_request_id, passenger):
+    waiting_request = WaitingRequest.objects.get(
+        id=waiting_request_id,
+        passenger=passenger,
+        status="WAITING"
+    )
+
+    waiting_request.status = "CANCELLED"
+    waiting_request.deactivated_at = timezone.now()
+
+    waiting_request.save(
+        update_fields=["status", "deactivated_at"]
+    )
+
+    return waiting_request
+
+
+def complete_waiting_request(waiting_request_id):
+    waiting_request = WaitingRequest.objects.get(
+        id=waiting_request_id,
+        status="ON_BOARD"
+    )
+
+    waiting_request.status = "COMPLETED"
+    waiting_request.deactivated_at = timezone.now()
+
+    waiting_request.save(
+        update_fields=["status", "deactivated_at"]
+    )
+
+    return waiting_request
+
+
+def expire_waiting_request(waiting_request_id):
+    waiting_request = WaitingRequest.objects.get(
+        id=waiting_request_id,
+        status="WAITING"
+    )
+
+    waiting_request.status = "EXPIRED"
+    waiting_request.deactivated_at = timezone.now()
+
+    waiting_request.save(
+        update_fields=["status", "deactivated_at"]
     )
 
     return waiting_request

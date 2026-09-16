@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, serializers
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
@@ -48,8 +48,12 @@ from .services.eta_service import (
 from .services.waiting_request_service import (
     get_waiting_count,
     get_route_waiting_overview,
-    mark_as_boarded
+    mark_as_boarded,
+    cancel_waiting_request,
+    complete_waiting_request,
+    expire_waiting_request,
 )
+
 
 from tracking.services.trip_service import (
     start_trip,
@@ -90,8 +94,17 @@ class WaitingRequestViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         passenger = self.request.user.passenger_profile
+
+        if WaitingRequest.objects.filter(
+            passenger=passenger,
+            status__in=["WAITING", "ON_BOARD"]
+        ).exists():
+            raise serializers.ValidationError({
+                "passenger": "You already have an active waiting request."
+            })
+
         serializer.save(passenger=passenger)
-        
+
 
 @api_view(["POST"])
 def register_passenger(request):
@@ -544,6 +557,28 @@ def login_passenger(request):
     })
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def current_passenger(request):
+    if not hasattr(request.user, "passenger_profile"):
+        return Response(
+            {"error": "This account is not a passenger account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    passenger = request.user.passenger_profile
+
+    return Response({
+        "passenger": {
+            "id": passenger.id,
+            "name": passenger.name,
+            "username": request.user.username,
+            "email": request.user.email,
+        }
+    })
+
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_passenger(request):
@@ -575,7 +610,65 @@ def board_passenger(request, waiting_request_id):
         }, status=404)
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def cancel_waiting_request_view(request, waiting_request_id):
+    passenger = request.user.passenger_profile
 
+    try:
+        waiting_request = cancel_waiting_request(
+            waiting_request_id,
+            passenger
+        )
+
+        return Response({
+            "message": "Waiting request cancelled.",
+            "waiting_request_id": waiting_request.id,
+            "status": waiting_request.status
+        })
+
+    except WaitingRequest.DoesNotExist:
+        return Response({
+            "error": "Active waiting request not found."
+        }, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["POST"])
+def complete_waiting_request_view(request, waiting_request_id):
+    try:
+        waiting_request = complete_waiting_request(
+            waiting_request_id
+        )
+
+        return Response({
+            "message": "Passenger trip completed.",
+            "waiting_request_id": waiting_request.id,
+            "status": waiting_request.status
+        })
+
+    except WaitingRequest.DoesNotExist:
+        return Response({
+            "error": "On-board waiting request not found."
+        }, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["POST"])
+def expire_waiting_request_view(request, waiting_request_id):
+    try:
+        waiting_request = expire_waiting_request(
+            waiting_request_id
+        )
+
+        return Response({
+            "message": "Waiting request expired.",
+            "waiting_request_id": waiting_request.id,
+            "status": waiting_request.status
+        })
+
+    except WaitingRequest.DoesNotExist:
+        return Response({
+            "error": "Active waiting request not found."
+        }, status=status.HTTP_404_NOT_FOUND)
 
 
 

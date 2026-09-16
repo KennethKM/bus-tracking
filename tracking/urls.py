@@ -19,9 +19,13 @@ from .views import (
     waiting_count,
     route_waiting_overview,
     board_passenger,
+    cancel_waiting_request_view,
+    complete_waiting_request_view,
+    expire_waiting_request_view,
     trip_stops,
     register_passenger,
     login_passenger,
+    current_passenger,
     logout_passenger,
 )
 
@@ -80,6 +84,24 @@ urlpatterns = [
         board_passenger
     ),
 
+    path(
+    'waiting-requests/<int:waiting_request_id>/cancel/',
+    cancel_waiting_request_view,
+    name='cancel-waiting-request'
+    ),
+
+    path(
+        'waiting-requests/<int:waiting_request_id>/complete/',
+        complete_waiting_request_view,
+        name='complete-waiting-request'
+    ),
+
+    path(
+        'waiting-requests/<int:waiting_request_id>/expire/',
+        expire_waiting_request_view,
+        name='expire-waiting-request'
+    ),
+
      path(
     "buses/<str:registration_number>/driver-session/",
     driver_session
@@ -122,6 +144,12 @@ urlpatterns = [
     "auth/login/",
     login_passenger,
     name="login-passenger"
+    ),
+
+    path(
+        "auth/me/",
+        current_passenger,
+        name="current-passenger"
     ),
 
     path(

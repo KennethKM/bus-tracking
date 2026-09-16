@@ -313,9 +313,10 @@
 
         function initMap() {
             map = L.map('map').setView([-15.3875, 28.3228], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
+            L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
 
             loadBuses();
             setInterval(loadBuses, 15000);
@@ -492,24 +493,34 @@
 
                 routeList.innerHTML = `
                     <div class="route-info">
-                        <strong>${data.route_id || routeId}</strong>
+                        <strong>
+                            ${state.routes.find(route => route.route_id === routeId)?.route_long_name || 'Selected Route'}
+                        </strong>
+
                         <div>${destination}</div>
+
                         ${stops.map(stop => `
-                            <button type="button" class="location-btn" style="margin-top:8px; text-align:left;" onclick="selectStop(${stop.stop_id})">
+                            <button
+                                type="button"
+                                class="location-btn"
+                                style="margin-top:8px; text-align:left;"
+                                onclick="selectStop(${stop.stop_id}, '${stop.stop_name.replace(/'/g, "\\'")}')"
+                            >
                                 ${stop.stop_name}
                             </button>
                         `).join('')}
                     </div>
                 `;
+                
             } catch (error) {
                 console.error('Stop lookup error:', error);
                 showNotification('Stops for this trip could not be loaded.', 'error');
             }
         }
 
-        function selectStop(stopId) {
+        function selectStop(stopId, stopName) {
             state.selectedStopId = stopId;
-            showNotification(`Selected boarding stop #${stopId}.`, 'info');
+            showNotification(`Selected boarding stop: ${stopName}`, 'info');
         }
 
         async function requestRide() {
@@ -653,6 +664,43 @@
             }
         }
 
+
+
+
+        async function cancelWaitingRequest(waitingRequestId) {
+            try {
+                const response = await apiFetch(
+                    `/api/waiting-requests/${waitingRequestId}/cancel/`,
+                    {
+                        method: 'POST'
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showNotification(
+                        data.error || 'Unable to cancel waiting request.',
+                        'error'
+                    );
+                    return;
+                }
+
+                showNotification('Trip cancelled.', 'success');
+
+                await loadWaitingRequests();
+                await showWaitingRequests();
+
+            } catch (error) {
+                console.error('Unable to cancel waiting request:', error);
+                showNotification(
+                    'Unable to cancel waiting request.',
+                    'error'
+                );
+            }
+        }
+
+
         async function showWaitingRequests() {
             if (!state.passenger) {
                 showNotification('Please log in to view your waiting requests.', 'error');
@@ -664,9 +712,28 @@
             document.getElementById('sheetContent').innerHTML = requests.length
                 ? requests.map(request => `
                     <div class="available-bus-card">
-                        <div class="bus-header"><span class="bus-number">${request.route_name || 'Route'}</span><span class="bus-seats">${request.status}</span></div>
-                        <div class="bus-details">${request.stop_name || 'Stop unavailable'} · ${request.created_at ? new Date(request.created_at).toLocaleString() : ''}</div>
+                        <div class="bus-header">
+                            <span class="bus-number">${request.route_name || 'Route'}</span>
+                            <span class="bus-seats">${request.status}</span>
+                        </div>
+
+                        <div class="bus-details">
+                            ${request.stop_name || 'Stop unavailable'} ·
+                            ${request.created_at ? new Date(request.created_at).toLocaleString() : ''}
+                        </div>
+
+                        ${request.status === 'WAITING' ? `
+                            <button
+                                type="button"
+                                class="location-btn"
+                                style="margin-top:10px;"
+                                onclick="cancelWaitingRequest(${request.id})"
+                            >
+                                Cancel Trip
+                            </button>
+                        ` : ''}
                     </div>
+                
                 `).join('')
                 : '<div style="text-align:center; padding:20px; color:#6b7280;">No waiting requests yet.</div>';
             document.getElementById('bottomSheet').classList.add('active');
@@ -686,8 +753,29 @@
                 notification.style.display = 'none';
             }, 4000);
         }
+        async function restorePassengerSession() {
+            try {
+                const response = await apiFetch('/api/auth/me/');
 
-        document.addEventListener('DOMContentLoaded', initMap);
+                if (!response.ok) {
+                    setAuthState(null);
+                    return;
+                }
+
+                const data = await response.json();
+                setAuthState(data.passenger);
+
+                await searchRoutes();
+                await loadWaitingRequests();
+            } catch (error) {
+                console.warn('Unable to restore passenger session:', error);
+                setAuthState(null);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', async () => {
+            initMap();
+            await restorePassengerSession();
+        });
     </script>
 </body>
 </html>
