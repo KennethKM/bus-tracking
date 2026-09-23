@@ -27,6 +27,10 @@ from .views import (
     login_passenger,
     current_passenger,
     logout_passenger,
+    login_driver,
+    current_driver,
+    driver_assigned_buses,
+    logout_driver
 )
 
 router = DefaultRouter()
@@ -156,6 +160,31 @@ urlpatterns = [
     "auth/logout/",
     logout_passenger,
     name="logout-passenger"
+    ),
+
+
+    path(
+    "auth/driver/login/",
+    login_driver,
+    name="login-driver"
+    ),
+
+    path(
+        "auth/driver/me/",
+        current_driver,
+        name="current-driver"
+    ),
+
+    path(
+        "auth/driver/buses/",
+        driver_assigned_buses,
+        name="driver-assigned-buses"
+    ),
+
+    path(
+        "auth/driver/logout/",
+        logout_driver,
+        name="logout-driver"
     ),
 
 ] + router.urls

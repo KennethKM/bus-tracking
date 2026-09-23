@@ -15,7 +15,9 @@ from .models import (
     Passenger,
     WaitingRequest,
     Trip,
-    StopTime
+    StopTime,
+    Driver,
+    DriverBusAssignment,
 )
 
 
@@ -106,6 +108,42 @@ class WaitingRequestViewSet(viewsets.ModelViewSet):
         serializer.save(passenger=passenger)
 
 
+def get_authorized_bus_for_driver(request, registration_number):
+    bus = get_object_or_404(
+        Bus,
+        registration_number=registration_number
+    )
+
+    if not hasattr(request.user, "driver_profile"):
+        return None, Response(
+            {"error": "This account is not a driver account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    driver = request.user.driver_profile
+
+    if not driver.is_active:
+        return None, Response(
+            {"error": "This driver account is inactive."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    assignment_exists = DriverBusAssignment.objects.filter(
+        driver=driver,
+        bus=bus,
+        is_active=True
+    ).exists()
+
+    if not assignment_exists:
+        return None, Response(
+            {"error": "You are not authorized to operate this bus."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    return bus, None
+
+
+
 @api_view(["POST"])
 def register_passenger(request):
     username = request.data.get("username", "").strip()
@@ -161,12 +199,16 @@ def driver_session(request, registration_number):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def activate_bus(request, registration_number):
 
-    bus = get_object_or_404(
-        Bus,
-        registration_number=registration_number
+    bus, authorization_error = get_authorized_bus_for_driver(
+        request,
+        registration_number
     )
+
+    if authorization_error:
+        return authorization_error
 
     bus.activate()
 
@@ -177,14 +219,17 @@ def activate_bus(request, registration_number):
         status=status.HTTP_200_OK
     )
 
-
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def deactivate_bus(request, registration_number):
 
-    bus = get_object_or_404(
-        Bus,
-        registration_number=registration_number
+    bus, authorization_error = get_authorized_bus_for_driver(
+        request,
+        registration_number
     )
+
+    if authorization_error:
+        return authorization_error
 
     bus.deactivate()
 
@@ -195,14 +240,17 @@ def deactivate_bus(request, registration_number):
         status=status.HTTP_200_OK
     )
 
-
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def start_fresh(request, registration_number):
 
-    bus = get_object_or_404(
-        Bus,
-        registration_number=registration_number
+    bus, authorization_error = get_authorized_bus_for_driver(
+        request,
+        registration_number
     )
+
+    if authorization_error:
+        return authorization_error
 
     bus.start_fresh()
 
@@ -338,6 +386,7 @@ def search_routes(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def start_trip_view(request):
 
     serializer = StartTripSerializer(
@@ -348,8 +397,20 @@ def start_trip_view(request):
         raise_exception=True
     )
 
+    registration_number = serializer.validated_data[
+        "registration_number"
+    ]
+
+    _, authorization_error = get_authorized_bus_for_driver(
+        request,
+        registration_number
+    )
+
+    if authorization_error:
+        return authorization_error
+
     bus = start_trip(
-        registration_number=serializer.validated_data["registration_number"],
+        registration_number=registration_number,
         route_id=serializer.validated_data["route_id"],
         destination=serializer.validated_data["destination"],
     )
@@ -369,10 +430,18 @@ def start_trip_view(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def update_bus_location(request, registration_number):
 
-    try:
+    _, authorization_error = get_authorized_bus_for_driver(
+        request,
+        registration_number
+    )
 
+    if authorization_error:
+        return authorization_error
+
+    try:
         bus = save_bus_location(
             registration_number,
             request.data.get("lat"),
@@ -390,10 +459,9 @@ def update_bus_location(request, registration_number):
         })
 
     except Bus.DoesNotExist:
-
         return Response(
             {"error": "Bus not found"},
-            status=404
+            status=status.HTTP_404_NOT_FOUND
         )
     
 
@@ -631,6 +699,143 @@ def cancel_waiting_request_view(request, waiting_request_id):
         return Response({
             "error": "Active waiting request not found."
         }, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(["POST"])
+def login_driver(request):
+    username = request.data.get("username", "").strip()
+    password = request.data.get("password", "")
+
+    if not username or not password:
+        return Response(
+            {"error": "Username and password are required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = authenticate(
+        request,
+        username=username,
+        password=password
+    )
+
+    if user is None:
+        return Response(
+            {"error": "Invalid username or password."},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    if not hasattr(user, "driver_profile"):
+        return Response(
+            {"error": "This account is not a driver account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    driver = user.driver_profile
+
+    if not driver.is_active:
+        return Response(
+            {"error": "This driver account is inactive."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    login(request, user)
+
+    return Response({
+        "message": "Driver login successful.",
+        "driver": {
+            "id": driver.id,
+            "name": user.get_full_name().strip() or user.username,
+            "username": user.username,
+            "email": user.email,
+        }
+    })
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def current_driver(request):
+    if not hasattr(request.user, "driver_profile"):
+        return Response(
+            {"error": "This account is not a driver account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    driver = request.user.driver_profile
+
+    if not driver.is_active:
+        return Response(
+            {"error": "This driver account is inactive."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    return Response({
+        "driver": {
+            "id": driver.id,
+            "name": request.user.get_full_name().strip() or request.user.username,
+            "username": request.user.username,
+            "email": request.user.email,
+        }
+    })
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def driver_assigned_buses(request):
+    if not hasattr(request.user, "driver_profile"):
+        return Response(
+            {"error": "This account is not a driver account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    driver = request.user.driver_profile
+
+    if not driver.is_active:
+        return Response(
+            {"error": "This driver account is inactive."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    assignments = (
+        DriverBusAssignment.objects
+        .filter(
+            driver=driver,
+            is_active=True
+        )
+        .select_related("bus")
+        .order_by("bus__registration_number")
+    )
+
+    return Response({
+        "driver_id": driver.id,
+        "buses": [
+            {
+                "id": assignment.bus.id,
+                "registration_number": assignment.bus.registration_number,
+                "status": assignment.bus.status,
+                "is_active": assignment.bus.is_active,
+            }
+            for assignment in assignments
+        ]
+    })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout_driver(request):
+    if not hasattr(request.user, "driver_profile"):
+        return Response(
+            {"error": "This account is not a driver account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    logout(request)
+
+    return Response({
+        "message": "Driver logout successful."
+    })
+
+
 
 
 @api_view(["POST"])
