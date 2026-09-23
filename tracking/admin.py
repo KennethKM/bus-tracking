@@ -4,7 +4,9 @@ from .models import (
     Stop,
     Bus,
     Passenger,
-    WaitingRequest
+    WaitingRequest,
+    Driver,
+    DriverBusAssignment
 )
 
 
@@ -14,3 +16,5 @@ admin.site.register(Stop)
 admin.site.register(Bus)
 admin.site.register(Passenger)
 admin.site.register(WaitingRequest)
+admin.site.register(Driver)
+admin.site.register(DriverBusAssignment)

@@ -187,6 +187,59 @@ class Bus(models.Model):
     
 
 
+class Driver(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="driver_profile"
+    )
+
+
+    is_active = models.BooleanField(
+        default=True
+    )
+
+    def __str__(self):
+        return self.user.get_full_name().strip() or self.user.username
+
+
+class DriverBusAssignment(models.Model):
+    driver = models.ForeignKey(
+        Driver,
+        on_delete=models.CASCADE,
+        related_name="bus_assignments"
+    )
+
+    bus = models.ForeignKey(
+        Bus,
+        on_delete=models.CASCADE,
+        related_name="driver_assignments"
+    )
+
+    is_active = models.BooleanField(
+        default=True
+    )
+
+    assigned_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["driver", "bus"],
+                name="unique_driver_bus_assignment"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.driver} - "
+            f"{self.bus.registration_number}"
+        )
+
+
+
 class Passenger(models.Model):
     user = models.OneToOneField(
     User,
