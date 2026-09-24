@@ -66,16 +66,15 @@ def get_route_waiting_overview(registration_number):
 
 
 
-def mark_as_boarded(waiting_request_id):
+def mark_as_boarded(waiting_request_id, passenger):
     waiting_request = WaitingRequest.objects.get(
         id=waiting_request_id,
+        passenger=passenger,
         status="WAITING"
     )
 
     waiting_request.status = "ON_BOARD"
-    waiting_request.save(
-        update_fields=["status"]
-    )
+    waiting_request.save(update_fields=["status"])
 
     return waiting_request
 
@@ -97,9 +96,10 @@ def cancel_waiting_request(waiting_request_id, passenger):
     return waiting_request
 
 
-def complete_waiting_request(waiting_request_id):
+def complete_waiting_request(waiting_request_id, passenger):
     waiting_request = WaitingRequest.objects.get(
         id=waiting_request_id,
+        passenger=passenger,
         status="ON_BOARD"
     )
 

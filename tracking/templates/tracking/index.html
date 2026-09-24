@@ -665,7 +665,70 @@
         }
 
 
+        async function markAsBoarded(waitingRequestId) {
+            try {
+                const response = await apiFetch(
+                    `/api/waiting-requests/${waitingRequestId}/board/`,
+                    {
+                        method: 'POST'
+                    }
+                );
 
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showNotification(
+                        data.error || 'Unable to mark the request as boarded.',
+                        'error'
+                    );
+                    return;
+                }
+
+                showNotification('You have been marked as boarded.', 'success');
+
+                await loadWaitingRequests();
+                await showWaitingRequests();
+
+            } catch (error) {
+                console.error('Unable to mark request as boarded:', error);
+                showNotification(
+                    'Unable to mark the request as boarded.',
+                    'error'
+                );
+            }
+        }
+
+
+        async function completeWaitingRequest(waitingRequestId) {
+            try {
+                const response = await apiFetch(
+                    `/api/waiting-requests/${waitingRequestId}/complete/`,
+                    { method: 'POST' }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showNotification(
+                        data.error || 'Unable to complete the trip.',
+                        'error'
+                    );
+                    return;
+                }
+
+                showNotification(
+                    'Trip completed. You can now request another ride.',
+                    'success'
+                );
+
+                await loadWaitingRequests();
+                await showWaitingRequests();
+
+            } catch (error) {
+                console.error('Unable to complete trip:', error);
+                showNotification('Unable to complete the trip.', 'error');
+            }
+        }
 
         async function cancelWaitingRequest(waitingRequestId) {
             try {
@@ -725,11 +788,31 @@
                         ${request.status === 'WAITING' ? `
                             <button
                                 type="button"
-                                class="location-btn"
+                                class="request-btn"
                                 style="margin-top:10px;"
+                                onclick="markAsBoarded(${request.id})"
+                            >
+                                Mark as Boarded
+                            </button>
+
+                            <button
+                                type="button"
+                                class="location-btn"
+                                style="margin-top:8px;"
                                 onclick="cancelWaitingRequest(${request.id})"
                             >
                                 Cancel Trip
+                            </button>
+                        ` : ''}
+
+                        ${request.status === 'ON_BOARD' ? `
+                            <button
+                                type="button"
+                                class="request-btn"
+                                style="margin-top:10px;"
+                                onclick="completeWaitingRequest(${request.id})"
+                            >
+                                Complete Trip
                             </button>
                         ` : ''}
                     </div>

@@ -99,7 +99,17 @@ class WaitingRequestViewSet(viewsets.ModelViewSet):
 
         if WaitingRequest.objects.filter(
             passenger=passenger,
-            status__in=["WAITING", "ON_BOARD"]
+            status="ON_BOARD"
+        ).exists():
+            raise serializers.ValidationError({
+                "passenger": (
+                    "You cannot place a waiting request while you are on board."
+                )
+            })
+
+        if WaitingRequest.objects.filter(
+            passenger=passenger,
+            status="WAITING"
         ).exists():
             raise serializers.ValidationError({
                 "passenger": "You already have an active waiting request."
@@ -657,25 +667,31 @@ def logout_passenger(request):
     })
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def board_passenger(request, waiting_request_id):
+    if not hasattr(request.user, "passenger_profile"):
+        return Response(
+            {"error": "This account is not a passenger account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
     try:
-
         waiting_request = mark_as_boarded(
-            waiting_request_id
+            waiting_request_id,
+            request.user.passenger_profile
         )
 
         return Response({
-            "message": "Passenger boarded",
+            "message": "Passenger marked as boarded.",
             "waiting_request_id": waiting_request.id,
             "status": waiting_request.status
         })
 
     except WaitingRequest.DoesNotExist:
-
-        return Response({
-            "error": "Waiting request not found"
-        }, status=404)
+        return Response(
+            {"error": "Active waiting request not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @api_view(["POST"])
@@ -839,22 +855,31 @@ def logout_driver(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def complete_waiting_request_view(request, waiting_request_id):
+    if not hasattr(request.user, "passenger_profile"):
+        return Response(
+            {"error": "This account is not a passenger account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
     try:
         waiting_request = complete_waiting_request(
-            waiting_request_id
+            waiting_request_id,
+            request.user.passenger_profile
         )
 
         return Response({
-            "message": "Passenger trip completed.",
+            "message": "Trip completed.",
             "waiting_request_id": waiting_request.id,
             "status": waiting_request.status
         })
 
     except WaitingRequest.DoesNotExist:
-        return Response({
-            "error": "On-board waiting request not found."
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "On-board waiting request not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @api_view(["POST"])
