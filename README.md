@@ -1,4 +1,4 @@
-Paste this directly into `README.md`:
+
 
 ````markdown
 # Bus Tracking System
