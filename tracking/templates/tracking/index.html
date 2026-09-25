@@ -566,7 +566,12 @@
                 const buses = await response.json();
                 const activeBusIds = new Set();
                 state.activeBuses = (Array.isArray(buses) ? buses : [])
-                    .filter(bus => bus.is_active);
+                    .filter(bus =>
+                        bus.is_active === true &&
+                        ["IN_TRANSIT", "AT_STOP"].includes(bus.status) &&
+                        bus.current_lat != null &&
+                        bus.current_lng != null
+                    );
                 state.activeBuses
                     .forEach(bus => {
                         activeBusIds.add(bus.id);
