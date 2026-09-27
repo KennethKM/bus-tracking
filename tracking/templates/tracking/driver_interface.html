@@ -38,6 +38,7 @@
         <div class="card">
             <h3>Trip Controls</h3>
             <div id="tripControls">
+                {% if bus %}
                 <div style="margin-bottom:10px">
                     <strong>Trip Status:</strong> <span id="tripStatus">{% if bus and bus.is_active %}Trip Active{% else %}Not Started{% endif %}</span>
                 </div>
@@ -50,6 +51,12 @@
                         <button id="stopTripBtn" type="button" style="display:none;background:#dc2626;">Stop Trip</button>
                     {% endif %}
                 </div>
+                {% else %}
+                <div style="margin-bottom:10px">
+                    <strong>Trip Status:</strong> <span id="tripStatus">No bus assigned</span>
+                </div>
+                <div id="noBusTripMessage" style="color:#92400e;">No bus assigned. Trip controls unavailable.</div>
+                {% endif %}
                 <div id="tripMessage" style="margin-top:8px;color:#dc2626"></div>
             </div>
         </div>
@@ -57,7 +64,7 @@
             <div class="card">
                 <h3>Route Status</h3>
                 <div class="stat">
-                    <strong>Route:</strong> {{ route.name|default:'No assigned route yet' }}
+                    <strong>Route:</strong> <span id="routeStatusName">{{ route.name|default:'No assigned route yet' }}</span>
                 </div>
                 <div class="stat">
                     <strong>Origin:</strong> {{ route.origin|default:'Not set' }}
@@ -66,7 +73,7 @@
                     <strong>Destination:</strong> {{ route.destination|default:'Not set' }}
                 </div>
                 <div class="stat">
-                    <strong>Current Stop:</strong> {{ bus.current_stop_index|default:0 }}
+                    <strong>Current Stop:</strong> <span id="routeStatusCurrent">{% if current_stop %}{{ current_stop.name }}{% else %}Not at a stop{% endif %}</span>
                 </div>
                 <div class="stat">
                     <strong>Speed:</strong> <span id="displaySpeed">{{ bus.speed|default:0 }}</span> km/h
@@ -100,21 +107,51 @@
         </div>
 
         <div class="card">
-            <h3>Assigned Bus Information</h3>
-            <div class="grid">
-                        <div class="stat"><strong>Number plate:</strong> {{ bus.registration_number|default:'Not set' }}</div>
-                <div class="stat"><strong>Capacity:</strong> {{ bus.capacity|default:'Not set' }} passengers</div>
-                <div class="stat"><strong>Status:</strong> {% if bus.is_active %}Active{% else %}Inactive{% endif %}</div>
-            </div>
+            <h3>Route Request</h3>
+            {% if driver and driver.assigned_bus %}
+                <div class="stat">
+                    <strong>Approved Route:</strong>
+                    <span id="approvedStatus">{% if approved_route %}{{ approved_route.name }}{% else %}No approved route.{% endif %}</span>
+                </div>
+                <div class="stat">
+                    <strong>Status:</strong>
+                    <span id="routeReqStatus">{% if approved_request %}APPROVED{% elif pending_request %}PENDING{% else %}No approved route.{% endif %}</span>
+                </div>
+
+                <label for="routeSelect">Select Route</label>
+                <select id="routeSelect" style="width:100%; padding:10px; margin-top:6px; border:1px solid #cbd5e1; border-radius:8px;">
+                    <option value="">Choose a route</option>
+                    {% for route_option in routes %}
+                        <option value="{{ route_option.id }}">{{ route_option.name }}{% if route_option.origin and route_option.destination %} ({{ route_option.origin }} - {{ route_option.destination }}){% endif %}</option>
+                    {% endfor %}
+                </select>
+                <button id="requestRouteBtn" type="button">Request Route</button>
+                <div id="routeRequestMessage" style="margin-top:8px; color:#16a34a; min-height:20px;"></div>
+            {% else %}
+                <p>No assigned bus for this driver. Route requests are unavailable until a bus is assigned.</p>
+            {% endif %}
         </div>
 
         <div class="card">
+            <h3>Assigned Bus Information</h3>
+            {% if bus %}
+            <div class="grid">
+                        <div class="stat"><strong>Number plate:</strong> {{ bus.registration_number|default:'Not set' }}</div>
+                <div class="stat"><strong>Capacity:</strong> {{ bus.capacity|default:'Not set' }} passengers</div>
+                <div class="stat"><strong>Status:</strong> <span id="busActiveStatus">{% if bus.is_active %}Active{% else %}Inactive{% endif %}</span></div>
+            </div>
+            {% else %}
+            <div class="stat" id="noAssignedBus">No assigned bus yet</div>
+            {% endif %}
+        </div>
+
+        <div class="card" id="routeProgressBlock">
             <h3>Route Progress</h3>
             <div class="stat">
                 <strong>Current Stop:</strong> <span id="rpCurrent">{% if current_stop %}{{ current_stop.name }}{% else %}Not at a stop{% endif %}</span>
             </div>
             <div class="stat">
-                <strong>Next Stop:</strong> <span id="rpNext">{% if next_stop %}{{ next_stop.name }}{% else %}{% if route %}No stops configured{% else %}No route assigned{% endif %}{% endif %}</span>
+                <strong>Next Stop:</strong> <span id="rpNext">{% if next_stop %}{{ next_stop.name }}{% else %}{% if route %}No stops configured{% else %}No route selected{% endif %}{% endif %}</span>
             </div>
             <div class="stat">
                 <strong>Distance to Current:</strong>
@@ -211,6 +248,7 @@
         // Bus marker for assigned bus and live location marker for driver
         let busMarker = null;
         let liveMarker = null;
+        let simulationActive = false;
 
         if (busId) {
             busMarker = L.marker([initialLat, initialLng]).addTo(map).bindPopup(`Bus #${busId}`);
@@ -243,20 +281,27 @@
         async function fetchBus() {
             if (!busId) return;
             try {
-                const res = await fetch(`/api/buses/${busId}/`);
+                const res = await fetch(`/buses/${busId}/`);
                 if (!res.ok) return;
                 const data = await res.json();
                 const lat = parseFloat(data.current_lat) || 0;
                 const lng = parseFloat(data.current_lng) || 0;
                 const speed = data.speed || 0;
+                // Keep Assigned Bus Status in sync with authoritative backend state.
+                if (typeof data.is_active !== 'undefined') {
+                    const busStatusEl = document.getElementById('busActiveStatus');
+                    if (busStatusEl) busStatusEl.textContent = data.is_active ? 'Active' : 'Inactive';
+                }
                 // avoid overwriting fresher local data
                 if (data.last_updated) {
                     const ts = new Date(data.last_updated).getTime();
                     if (!lastServerTimestamp || ts > lastServerTimestamp) {
                         lastServerTimestamp = ts;
-                        setMapPosition(lat, lng, speed);
+                        if (!simulationActive) {
+                            setMapPosition(lat, lng, speed);
+                        }
                     }
-                } else {
+                } else if (!simulationActive) {
                     setMapPosition(lat, lng, speed);
                 }
                 // also fetch stop-status to keep route progress up to date
@@ -273,13 +318,16 @@
                         const rpNext = document.getElementById('rpNext');
                         const rpDcur = document.getElementById('rpDistanceCurrent');
                         const rpDnxt = document.getElementById('rpDistanceNext');
+                        const routeStatusCurrent = document.getElementById('routeStatusCurrent');
 
                         if (cur && cur.name) {
                             mapStopEl.textContent = cur.name;
                             rpCur.textContent = cur.name;
+                            if (routeStatusCurrent) routeStatusCurrent.textContent = cur.name;
                         } else {
                             mapStopEl.textContent = 'Not at stop';
                             rpCur.textContent = 'Not at a stop';
+                            if (routeStatusCurrent) routeStatusCurrent.textContent = 'Not at a stop';
                         }
 
                         if (nxt && nxt.name) {
@@ -307,6 +355,8 @@
 
         // Start polling every 5 seconds
         setInterval(fetchBus, 5000);
+        // Immediate sync so Route Status / Route Progress never show stale page-load state.
+        fetchBus();
 
         // Format initial server-rendered distance elements to match fmtMeters rules
         (function formatInitialDistances() {
@@ -423,6 +473,7 @@
         const speedInput = document.getElementById('speed');
 
         function inputUpdateHandler() {
+            if (simulationActive) return;
             const lat = parseFloat(latInput.value) || 0;
             const lng = parseFloat(lngInput.value) || 0;
             const speed = parseFloat(speedInput.value) || 0;
@@ -438,10 +489,36 @@
         // Keep legacy geolocation start/stop behavior
         let trackingEnabled = false;
         let watchId = null;
+        let resumeGpsAfterSimulation = false;
         const locationToggle = document.getElementById('locationToggle');
         const locationStatus = document.getElementById('locationStatus');
+        const geolocationOptions = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
+
+        function requestBrowserLocation() {
+            if (!navigator.geolocation || watchId !== null) return;
+            navigator.geolocation.getCurrentPosition(handleLocationUpdate, handleLocationError, geolocationOptions);
+            watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, geolocationOptions);
+        }
+
+        function pauseBrowserLocationForSimulation() {
+            simulationActive = true;
+            resumeGpsAfterSimulation = trackingEnabled;
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+        }
+
+        function resumeBrowserLocationAfterSimulation() {
+            simulationActive = false;
+            if (resumeGpsAfterSimulation && trackingEnabled) {
+                requestBrowserLocation();
+            }
+            resumeGpsAfterSimulation = false;
+        }
 
         function handleLocationUpdate(position) {
+            if (simulationActive) return;
             const { latitude, longitude, accuracy } = position.coords;
             const tNow = Date.now();
 
@@ -499,15 +576,14 @@
                 locationStatus.textContent = '🟢 Requesting current device location...';
                 locationStatus.style.color = '#16a34a';
 
-                navigator.geolocation.getCurrentPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
-                watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+                requestBrowserLocation();
             } else {
                 trackingEnabled = false;
                 locationToggle.textContent = '🟢 Start Location Tracking';
                 locationToggle.style.background = '#16a34a';
                 locationStatus.textContent = 'Tracking stopped';
                 locationStatus.style.color = '#666';
-                if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+                if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
             }
         });
 
@@ -523,7 +599,12 @@
 
         async function postTripAction(action) {
             if (!driverId) return;
-            const url = `/api/drivers/${driverId}/${action}-trip/`;
+            if (action === 'start' && !busId) {
+                tripMessage.style.color = '#dc2626';
+                tripMessage.textContent = 'No bus assigned. Trip controls unavailable.';
+                return;
+            }
+            const url = `/drivers/${driverId}/${action}-trip/`;
             try {
                 const res = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, credentials: 'same-origin' });
                 const data = await res.json().catch(() => ({}));
@@ -533,14 +614,22 @@
                 }
                 tripMessage.style.color = '#16a34a';
                 tripMessage.textContent = data.message || 'OK';
+                // Authoritative bus state comes from backend, not button clicks.
+                if (typeof data.is_active !== 'undefined') {
+                    const busStatusEl = document.getElementById('busActiveStatus');
+                    if (busStatusEl) busStatusEl.textContent = data.is_active ? 'Active' : 'Inactive';
+                }
                 if (action === 'start') {
                     tripStatus.textContent = 'Trip Active';
                     startTripBtn.style.display = 'none';
                     stopTripBtn.style.display = 'inline-block';
+                    // Immediately resync live stop displays (no 5s wait).
+                    fetchBus();
                 } else {
                     tripStatus.textContent = 'Not Started';
                     startTripBtn.style.display = 'inline-block';
                     stopTripBtn.style.display = 'none';
+                    fetchBus();
                 }
             } catch (e) {
                 tripMessage.textContent = 'Network error';
@@ -549,6 +638,234 @@
 
         if (startTripBtn) startTripBtn.addEventListener('click', () => postTripAction('start'));
         if (stopTripBtn) stopTripBtn.addEventListener('click', () => postTripAction('stop'));
+
+        const routeRequestBtn = document.getElementById('requestRouteBtn');
+        const routeSelect = document.getElementById('routeSelect');
+        const routeRequestMessage = document.getElementById('routeRequestMessage');
+
+        if (routeRequestBtn && routeSelect) {
+            routeRequestBtn.addEventListener('click', async () => {
+                const routeId = routeSelect.value;
+                if (!routeId) {
+                    routeRequestMessage.textContent = 'Please select a route first.';
+                    routeRequestMessage.style.color = '#dc2626';
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/drivers/${driverId}/route-requests/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ route_id: Number(routeId) })
+                    });
+
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        routeRequestMessage.textContent = data.error || 'Route request failed.';
+                        routeRequestMessage.style.color = '#dc2626';
+                        return;
+                    }
+
+                    routeRequestMessage.textContent = 'Route request submitted. Status: Pending Admin Approval';
+                    routeRequestMessage.style.color = '#16a34a';
+                    routeSelect.value = '';
+                } catch (e) {
+                    routeRequestMessage.textContent = 'Network error while submitting route request.';
+                    routeRequestMessage.style.color = '#dc2626';
+                }
+            });
+        }
+
+        // Simulation controls (client-side deterministic simulation using GTFS shapes)
+        {% if approved_route %}
+        const simStartBtn = document.createElement('button');
+        simStartBtn.id = 'startSimBtn';
+        simStartBtn.type = 'button';
+        simStartBtn.textContent = 'Start Simulation';
+        simStartBtn.style.marginLeft = '10px';
+        simStartBtn.style.background = '#0ea5e9';
+
+        const simStopBtn = document.createElement('button');
+        simStopBtn.id = 'stopSimBtn';
+        simStopBtn.type = 'button';
+        simStopBtn.textContent = 'Stop Simulation';
+        simStopBtn.style.marginLeft = '8px';
+        simStopBtn.style.background = '#ef4444';
+        simStopBtn.style.display = 'none';
+
+        // attach to trip controls area
+        const tripControls = document.getElementById('tripControls');
+        if (tripControls) {
+            tripControls.appendChild(simStartBtn);
+            tripControls.appendChild(simStopBtn);
+        }
+
+        let simInterval = null;
+        let simPolyline = null;
+        let simMarker = null;
+        let simShape = null;
+        const SIM_TICK_MS = 1000; // update every second
+        const SIM_SPEED_MPS = 8.33; // ~30 km/h in m/s (adjustable)
+
+        function haversine(aLat, aLng, bLat, bLng) {
+            const R = 6371000; // meters
+            const toRad = Math.PI/180;
+            const dLat = (bLat - aLat) * toRad;
+            const dLon = (bLng - aLng) * toRad;
+            const lat1 = aLat * toRad;
+            const lat2 = bLat * toRad;
+            const sinDlat = Math.sin(dLat/2);
+            const sinDlon = Math.sin(dLon/2);
+            const a = sinDlat*sinDlat + Math.cos(lat1)*Math.cos(lat2)*sinDlon*sinDlon;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function computeSegments(shape) {
+            const segs = [];
+            for (let i=0;i<shape.length-1;i++) {
+                const a = shape[i];
+                const b = shape[i+1];
+                const d = haversine(a[0], a[1], b[0], b[1]);
+                segs.push({ from: a, to: b, dist: d });
+            }
+            return segs;
+        }
+
+        async function startSimulation() {
+            if (!busId) { alert('No bus assigned. Simulation unavailable.'); return; }
+            if (!publishUrl || publishUrl === '__NONE__') { alert('No bus assigned. Simulation unavailable.'); return; }
+            pauseBrowserLocationForSimulation();
+            // load shapes JSON
+            try {
+                const res = await fetch('/static/tracking/route_shapes.json');
+                if (!res.ok) {
+                    alert('No shapes available. Run generate_route_shapes command.');
+                    resumeBrowserLocationAfterSimulation();
+                    return;
+                }
+                const shapes = await res.json();
+                const routeKey = String({{ approved_route.id }});
+                if (!shapes[routeKey] || !shapes[routeKey].shape) {
+                    alert('No shape for this route');
+                    resumeBrowserLocationAfterSimulation();
+                    return;
+                }
+                simShape = shapes[routeKey].shape;
+            } catch (e) {
+                console.warn('startSimulation load error', e);
+                alert('Failed to load shapes');
+                resumeBrowserLocationAfterSimulation();
+                return;
+            }
+
+            if (simPolyline) { map.removeLayer(simPolyline); simPolyline = null; }
+            simPolyline = L.polyline(simShape, { color: '#0284c7', weight: 4, opacity: 0.6 }).addTo(map);
+            const segs = computeSegments(simShape);
+            // prepare marker
+            if (simMarker) { map.removeLayer(simMarker); simMarker = null; }
+            simMarker = L.marker(simShape[0]).addTo(map).bindPopup('Simulated Bus').openPopup();
+            map.fitBounds(simPolyline.getBounds(), { padding: [30,30] });
+
+            // simulation variables
+            let segIndex = 0;
+            let segOffset = 0; // meters along current segment
+
+            simStartBtn.style.display = 'none';
+            simStopBtn.style.display = 'inline-block';
+
+            simInterval = setInterval(async () => {
+                if (!segs.length) return;
+                const seg = segs[segIndex];
+                segOffset += SIM_TICK_MS/1000 * SIM_SPEED_MPS;
+                // advance segments
+                while (segIndex < segs.length && segOffset > segs[segIndex].dist) {
+                    segOffset -= segs[segIndex].dist;
+                    segIndex += 1;
+                }
+                if (segIndex >= segs.length) {
+                    // reached end: explicitly publish final shape point, then
+                    // finish the trip server-side (complete matching APPROVED
+                    // request + deactivate bus) before ending the simulation.
+                    const endPt = simShape[simShape.length - 1];
+                    try {
+                        simMarker.setLatLng([endPt[0], endPt[1]]);
+                        setMapPosition(endPt[0], endPt[1], Math.round(SIM_SPEED_MPS * 3.6));
+                        await publishLocation(endPt[0], endPt[1], Math.round(SIM_SPEED_MPS * 3.6));
+                    } catch (e) {
+                        // swallow publish errors; still attempt finish below
+                    }
+                    try {
+                        const fres = await fetch(`/drivers/${driverId}/finish-trip/`, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, credentials: 'same-origin' });
+                        const fdata = await fres.json().catch(() => ({}));
+                        if (fres.ok && typeof fdata.is_active !== 'undefined') {
+                            const busStatusEl = document.getElementById('busActiveStatus');
+                            if (busStatusEl) busStatusEl.textContent = fdata.is_active ? 'Active' : 'Inactive';
+                        }
+                        if (fres.ok) {
+                            tripStatus.textContent = 'Not Started';
+                            startTripBtn.style.display = 'inline-block';
+                            stopTripBtn.style.display = 'none';
+                            // No APPROVED request remains: reset active-route
+                            // displays to default empty state (bus stays assigned).
+                            const routeStatusName = document.getElementById('routeStatusName');
+                            if (routeStatusName) routeStatusName.textContent = 'No assigned route yet';
+                            const approvedStatus = document.getElementById('approvedStatus');
+                            if (approvedStatus) approvedStatus.textContent = 'No approved route.';
+                            const routeReqStatus = document.getElementById('routeReqStatus');
+                            if (routeReqStatus) routeReqStatus.textContent = 'No approved route.';
+                            const rpCur = document.getElementById('rpCurrent');
+                            if (rpCur) rpCur.textContent = 'Not at a stop';
+                            const rpNext = document.getElementById('rpNext');
+                            if (rpNext) rpNext.textContent = 'No route selected';
+                            const routeStatusCurrent = document.getElementById('routeStatusCurrent');
+                            if (routeStatusCurrent) routeStatusCurrent.textContent = 'Not at a stop';
+                        }
+                    } catch (e) {
+                        console.warn('finishTrip error', e);
+                    }
+                    clearInterval(simInterval);
+                    simInterval = null;
+                    simStopBtn.style.display = 'none';
+                    simStartBtn.style.display = 'inline-block';
+                    resumeBrowserLocationAfterSimulation();
+                    fetchBus();
+                    return;
+                }
+                const curSeg = segs[segIndex];
+                const frac = curSeg.dist > 0 ? (segOffset / curSeg.dist) : 0;
+                const lat = curSeg.from[0] + (curSeg.to[0] - curSeg.from[0]) * frac;
+                const lng = curSeg.from[1] + (curSeg.to[1] - curSeg.from[1]) * frac;
+
+                // update marker and map
+                simMarker.setLatLng([lat, lng]);
+                setMapPosition(lat, lng, Math.round(SIM_SPEED_MPS * 3.6));
+
+                // publish to server so progression logic runs server-side
+                try {
+                    await publishLocation(lat, lng, Math.round(SIM_SPEED_MPS * 3.6));
+                } catch (e) {
+                    // swallow
+                }
+            }, SIM_TICK_MS);
+        }
+
+        function stopSimulation() {
+            if (simInterval) { clearInterval(simInterval); simInterval = null; }
+            if (simMarker) { map.removeLayer(simMarker); simMarker = null; }
+            if (simPolyline) { map.removeLayer(simPolyline); simPolyline = null; }
+            simStartBtn.style.display = 'inline-block';
+            simStopBtn.style.display = 'none';
+            resumeBrowserLocationAfterSimulation();
+        }
+
+        simStartBtn.addEventListener('click', startSimulation);
+        simStopBtn.addEventListener('click', stopSimulation);
+        {% endif %}
     </script>
 </body>
 </html>

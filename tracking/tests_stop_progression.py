@@ -25,6 +25,27 @@ class StopProgressionTests(TestCase):
         bus.refresh_from_db()
         self.assertEqual(bus.current_stop_index, 1)
 
+    def test_active_bus_reaches_intermediate_stop_advances(self):
+        self._make_stop(1, -15.0000, 28.0000)
+        self._make_stop(2, -15.0005, 28.0000)
+        self._make_stop(3, -15.0010, 28.0000)
+        bus = Bus.objects.create(
+            route=self.route,
+            current_lat=-15.0000,
+            current_lng=28.0000,
+            speed=0,
+            current_stop_index=0,
+            is_active=True,
+        )
+
+        # Stop 2 is current while Stop 3 is also returned as next.
+        bus.current_lat = -15.0005
+        bus.save(update_fields=['current_lat'])
+        advance_bus_stop_progress(bus)
+
+        bus.refresh_from_db()
+        self.assertEqual(bus.current_stop_index, 1)
+
     def test_active_bus_not_near_next_no_change(self):
         s0 = self._make_stop(1, 0.0, 0.0)
         s1 = self._make_stop(2, 0.01, 0.0)

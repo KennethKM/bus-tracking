@@ -46,7 +46,20 @@ def advance_bus_stop_progress(bus) -> Optional[object]:
                 return i
         return None
 
-    # Prefer checking next_stop distance if present
+    # Detection reports both an arrived current stop and its following stop.
+    # Process the arrival first so the following stop cannot block advancement.
+    cur_idx = find_index(current_stop)
+    if cur_idx is not None and cur_idx == curr_idx + 1:
+        try:
+            dcur = float(dist_to_current)
+        except Exception:
+            return bus
+        if dcur <= ARRIVAL_THRESHOLD_M:
+            bus.current_stop_index = cur_idx
+            bus.save(update_fields=['current_stop_index'])
+            return bus
+
+    # Otherwise, preserve the existing next-stop safeguard.
     next_idx = find_index(next_stop)
     if next_idx is not None:
         # only allow single-step forward
@@ -59,17 +72,5 @@ def advance_bus_stop_progress(bus) -> Optional[object]:
                 bus.current_stop_index = next_idx
                 bus.save(update_fields=['current_stop_index'])
         return bus
-
-    # If detection reported current_stop (i.e., bus is at a stop), and that
-    # stop is the next logical stop, advance as well.
-    cur_idx = find_index(current_stop)
-    if cur_idx is not None and cur_idx == curr_idx + 1:
-        try:
-            dcur = float(dist_to_current)
-        except Exception:
-            return bus
-        if dcur <= ARRIVAL_THRESHOLD_M:
-            bus.current_stop_index = cur_idx
-            bus.save(update_fields=['current_stop_index'])
 
     return bus

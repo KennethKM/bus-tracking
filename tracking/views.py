@@ -3,10 +3,11 @@ from django.http import HttpResponseForbidden
 from django.conf import settings
 from django.contrib.auth import get_user_model, login as auth_login
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Route, Stop, Bus, BusLocation, Passenger, Driver
+from .models import Route, Stop, Bus, BusLocation, Passenger, Driver, RouteRequest
 
 from .services.location_service import (
     save_bus_location,
@@ -17,6 +18,7 @@ from .services.location_service import (
 from .services.trip_service import (
     start_trip_for_driver,
     stop_trip_for_driver,
+    finish_trip_at_shape_end,
 )
 
 
@@ -38,6 +40,7 @@ from .serializers import (
     BusSerializer,
     PassengerSerializer,
     DriverSerializer,
+    RouteRequestSerializer,
     LocationSerializer
 )
 from .services.stop_detection_service import determine_current_and_next_stop
@@ -268,8 +271,36 @@ def driver_interface(request, driver_id):
     nearby_passengers = []
     active_passenger_count = 0
     current_stop = None
+    next_stop = None
+    distance_to_current_m = None
+    distance_to_next_m = None
+    candidate_index = None
     status_message = None
     error_message = None
+    routes = Route.objects.all().order_by('name')
+    approved_request = None
+    pending_request = None
+    approved_route = None
+    display_route = None
+
+    if driver:
+        approved_request = RouteRequest.objects.filter(
+            driver=driver,
+            status=RouteRequest.STATUS_APPROVED
+        ).order_by('-approved_at').first()
+        pending_request = RouteRequest.objects.filter(
+            driver=driver,
+            status=RouteRequest.STATUS_PENDING
+        ).order_by('-requested_at').first()
+        # APPROVED request is the source of truth for the active route display.
+        # Bus.route is intentionally preserved after completion, so never fall
+        # back to it for approved/display route information.
+        if approved_request is not None:
+            approved_route = approved_request.route
+            display_route = approved_request.route
+        else:
+            approved_route = None
+            display_route = None
 
     if not driver:
         driver = Driver(id=driver_id, name=f"Driver {driver_id}", is_active=True)
@@ -287,18 +318,15 @@ def driver_interface(request, driver_id):
         except (TypeError, ValueError) as exc:
             error_message = str(exc) or "Please enter valid coordinates."
 
-    if bus:
+    if bus and display_route is not None:
         nearby_passengers = get_nearby_passengers(bus)
         active_passenger_count = len(nearby_passengers)
-        route_stops = Stop.objects.filter(route=bus.route).order_by('order')
+        route_stops = Stop.objects.filter(route=display_route).order_by('order')
         if bus.current_stop_index < len(route_stops):
-            # default current_stop from stored index (used as a fallback)
             current_stop = route_stops[bus.current_stop_index]
 
-        # read-only detection of current/next stop to display
         try:
             det = determine_current_and_next_stop(bus) or {}
-            # override current_stop with detected value (may be None)
             current_stop = det.get('current_stop')
             next_stop = det.get('next_stop')
             distance_to_current_m = det.get('distance_to_current_m')
@@ -316,7 +344,12 @@ def driver_interface(request, driver_id):
         {
             "driver": driver,
             "bus": bus,
-            "route": bus.route if bus else None,
+            "route": display_route,
+            "routes": routes,
+            "approved_route": approved_route,
+            "approved_request": approved_request,
+            "pending_request": pending_request,
+            "has_active_route": display_route is not None,
             "nearby_passengers": nearby_passengers,
             "active_passenger_count": active_passenger_count,
             "current_stop": current_stop,
@@ -390,6 +423,105 @@ def assign_driver_bus(request, driver_id):
 
 
 @api_view(["POST"])
+def request_route_for_driver(request, driver_id):
+    route_id = request.data.get("route_id")
+    try:
+        driver = Driver.objects.get(id=driver_id)
+    except Driver.DoesNotExist:
+        return Response({"error": "Driver not found"}, status=404)
+
+    if not driver.assigned_bus:
+        return Response({"error": "Driver has no assigned bus"}, status=400)
+
+    try:
+        route = Route.objects.get(id=route_id)
+    except Route.DoesNotExist:
+        return Response({"error": "Route not found"}, status=404)
+
+    existing = RouteRequest.objects.filter(
+        driver=driver,
+        route=route,
+        status=RouteRequest.STATUS_PENDING
+    ).first()
+    if existing:
+        return Response({
+            "error": "A pending request for this route already exists",
+            "route_request_id": existing.id,
+            "status": existing.status,
+            "driver_id": driver.id,
+            "route_id": route.id,
+        }, status=409)
+
+    route_request = RouteRequest.objects.create(
+        driver=driver,
+        route=route,
+        bus=driver.assigned_bus,
+        status=RouteRequest.STATUS_PENDING,
+    )
+
+    return Response({
+        "message": "Route request submitted",
+        "route_request_id": route_request.id,
+        "driver_id": driver.id,
+        "bus_id": driver.assigned_bus.id,
+        "route_id": route.id,
+        "status": route_request.status,
+    }, status=201)
+
+
+@api_view(["POST"])
+def approve_route_request(request, request_id):
+    try:
+        route_request = RouteRequest.objects.get(id=request_id)
+    except RouteRequest.DoesNotExist:
+        return Response({"error": "Route request not found"}, status=404)
+
+    if route_request.status != RouteRequest.STATUS_PENDING:
+        return Response({"error": "Only pending requests can be approved"}, status=400)
+
+    route_request.status = RouteRequest.STATUS_APPROVED
+    route_request.approved_at = timezone.now()
+    if route_request.bus:
+        route_request.bus.route = route_request.route
+        route_request.bus.save(update_fields=['route'])
+    route_request.save(update_fields=['status', 'approved_at'])
+
+    return Response({
+        "message": "Route request approved",
+        "route_request_id": route_request.id,
+        "driver_id": route_request.driver.id,
+        "bus_id": route_request.bus.id,
+        "route_id": route_request.route.id,
+        "status": route_request.status,
+        "approved_at": route_request.approved_at.isoformat() if route_request.approved_at else None,
+    })
+
+
+@api_view(["POST"])
+def reject_route_request(request, request_id):
+    try:
+        route_request = RouteRequest.objects.get(id=request_id)
+    except RouteRequest.DoesNotExist:
+        return Response({"error": "Route request not found"}, status=404)
+
+    if route_request.status != RouteRequest.STATUS_PENDING:
+        return Response({"error": "Only pending requests can be rejected"}, status=400)
+
+    route_request.status = RouteRequest.STATUS_REJECTED
+    route_request.approved_at = None
+    route_request.save(update_fields=['status', 'approved_at'])
+
+    return Response({
+        "message": "Route request rejected",
+        "route_request_id": route_request.id,
+        "driver_id": route_request.driver.id,
+        "bus_id": route_request.bus.id,
+        "route_id": route_request.route.id,
+        "status": route_request.status,
+    })
+
+
+@api_view(["POST"])
 def start_trip_view(request, driver_id):
     try:
         result = start_trip_for_driver(driver_id)
@@ -409,6 +541,20 @@ def stop_trip_view(request, driver_id):
         result = stop_trip_for_driver(driver_id)
         return Response({
             "message": "Trip stopped",
+            **result
+        })
+    except Driver.DoesNotExist:
+        return Response({"error": "Driver not found"}, status=404)
+    except ValueError as exc:
+        return Response({"error": str(exc)}, status=400)
+
+
+@api_view(["POST"])
+def finish_trip_view(request, driver_id):
+    try:
+        result = finish_trip_at_shape_end(driver_id)
+        return Response({
+            "message": "Trip finished at shape end",
             **result
         })
     except Driver.DoesNotExist:

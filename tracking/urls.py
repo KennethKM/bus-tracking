@@ -17,6 +17,9 @@ from .views import (
     assign_driver_bus,
     update_driver_location_view,
     driver_interface,
+    request_route_for_driver,
+    approve_route_request,
+    reject_route_request,
 )
 
 
@@ -89,6 +92,12 @@ urlpatterns = [
     ),
 
     path(
+        'drivers/<int:driver_id>/finish-trip/',
+        __import__('tracking.views', fromlist=['finish_trip_view']).finish_trip_view,
+        name='finish_trip'
+    ),
+
+    path(
         'buses/<int:bus_id>/stop-status/',
         __import__('tracking.views', fromlist=['bus_stop_status']).bus_stop_status,
         name='bus_stop_status'
@@ -99,6 +108,24 @@ urlpatterns = [
         'dev/login-admin/',
         __import__('tracking.views', fromlist=['dev_auto_login_admin']).dev_auto_login_admin,
         name='dev_auto_login_admin'
+    ),
+
+    path(
+        'drivers/<int:driver_id>/route-requests/',
+        request_route_for_driver,
+        name='request_route_for_driver'
+    ),
+
+    path(
+        'route-requests/<int:request_id>/approve/',
+        approve_route_request,
+        name='approve_route_request'
+    ),
+
+    path(
+        'route-requests/<int:request_id>/reject/',
+        reject_route_request,
+        name='reject_route_request'
     ),
 
     path(
