@@ -43,7 +43,8 @@ from .services.location_service import (
 
 
 from .services.eta_service import (
-    calculate_eta
+    calculate_eta,
+    calculate_waiting_request_eta,
 )
 
 
@@ -196,16 +197,26 @@ def register_passenger(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def driver_session(request, registration_number):
 
-    bus = get_object_or_404(
-        Bus,
-        registration_number=registration_number
+    bus, authorization_error = get_authorized_bus_for_driver(
+        request,
+        registration_number
     )
 
-    serializer = DriverSessionSerializer(bus)
+    if authorization_error:
+        return authorization_error
 
-    return Response(serializer.data)
+    serializer = DriverSessionSerializer(bus)
+    session_data = serializer.data
+    session_data.update({
+        "lat": bus.current_lat,
+        "lng": bus.current_lng,
+        "speed": bus.speed,
+    })
+
+    return Response(session_data)
 
 
 @api_view(["POST"])
@@ -513,6 +524,25 @@ def bus_eta(request, bus_id, stop_id):
         return Response({
             "error": "Stop not found"
         }, status=404)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def waiting_request_eta(request, waiting_request_id):
+    if not hasattr(request.user, "passenger_profile"):
+        return Response(
+            {"error": "This account is not a passenger account."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    waiting_request = get_object_or_404(
+        WaitingRequest,
+        id=waiting_request_id,
+        passenger=request.user.passenger_profile,
+    )
+    eta_minutes = calculate_waiting_request_eta(waiting_request)
+
+    return Response({"eta_minutes": eta_minutes})
 
 
 

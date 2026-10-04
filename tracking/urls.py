@@ -15,6 +15,7 @@ from .views import (
     start_fresh,
     update_bus_location,
     bus_eta,
+    waiting_request_eta,
     start_trip_view,
     waiting_count,
     route_waiting_overview,
@@ -86,6 +87,12 @@ urlpatterns = [
     path(
         'waiting-requests/<int:waiting_request_id>/board/',
         board_passenger
+    ),
+
+    path(
+        'waiting-requests/<int:waiting_request_id>/eta/',
+        waiting_request_eta,
+        name='waiting-request-eta'
     ),
 
     path(

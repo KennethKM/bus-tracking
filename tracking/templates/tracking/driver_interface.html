@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <style>
+        :root { color-scheme: light; --blue: #2563eb; --ink: #172033; --muted: #64748b; --line: #dbe3ef; --panel: #fff; --page: #f3f6fb; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 Arial, sans-serif; }
+        .app { max-width: 1080px; margin: auto; padding: 24px; }
+        header, .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 8px 24px #1720330a; }
+        header { padding: 22px 24px; margin-bottom: 16px; }
+        h1, h2, p { margin-top: 0; }
+        h1 { margin-bottom: 4px; font-size: 1.65rem; }
+        h2 { font-size: 1.1rem; margin-bottom: 14px; }
+        .subtle, .hint { color: var(--muted); }
+        .card { padding: 20px; margin-bottom: 16px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+        label { display: block; margin: 12px 0 5px; font-weight: 700; }
+        input, select, button { font: inherit; }
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: var(--ink); }
+        button { border: 0; border-radius: 8px; padding: 10px 14px; margin: 8px 6px 0 0; background: var(--blue); color: white; font-weight: 700; cursor: pointer; }
+        button.secondary { background: #0f766e; }
+        button.danger { background: #b91c1c; }
+        button:disabled { opacity: .55; cursor: not-allowed; }
+        .message { min-height: 1.5em; margin: 10px 0 0; }
+        .error { color: #b91c1c; }
+        .success { color: #047857; }
+        .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-size: .85rem; font-weight: 700; }
+        .hidden { display: none !important; }
+        .map { height: 340px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+        .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+        .metric { padding: 12px; background: #f8fafc; border-radius: 9px; overflow-wrap: anywhere; }
+        .metric strong { display: block; color: var(--muted); font-size: .82rem; }
+        ul { padding-left: 22px; }
+        @media (max-width: 560px) { .app { padding: 12px; } .metrics { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>Driver Dashboard</h1>
+            <p id="driverSummary" class="subtle">Sign in to view your assigned buses and manage a trip.</p>
+            <span id="busBadge" class="pill">No bus selected</span>
+            <span id="vehicleStatus" class="pill">Status unavailable</span>
+        </header>
+
+        <section class="card" id="loginCard">
+            <h2>Driver login</h2>
+            <form id="loginForm">
+                {% csrf_token %}
+                <label for="username">Username</label>
+                <input id="username" name="username" autocomplete="username" required>
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
+                <button type="submit">Sign in</button>
+            </form>
+            <p id="authMessage" class="message" aria-live="polite"></p>
+        </section>
+
+        <div id="dashboard" class="hidden">
+            <section class="card">
+                <h2>Assigned bus</h2>
+                <label for="busSelect">Choose one of your assigned buses</label>
+                <select id="busSelect"><option value="">Select an assigned bus</option></select>
+                <p id="busMessage" class="message" aria-live="polite"></p>
+                <button id="activateBtn" type="button" class="secondary">Activate</button>
+                <button id="deactivateBtn" type="button" class="danger">Deactivate</button>
+                <button id="resetBtn" type="button">Reset operational state</button>
+                <button id="logoutBtn" type="button" class="danger">Log out</button>
+            </section>
+
+            <div class="grid">
+                <section class="card">
+                    <h2>Start a trip</h2>
+                    <label for="routeSelect">Route</label>
+                    <select id="routeSelect"><option value="">Select a route</option></select>
+                    <label for="destinationSelect">Destination</label>
+                    <select id="destinationSelect" disabled><option value="">Select a destination</option></select>
+                    <button id="startTripBtn" type="button">Start trip</button>
+                    <p id="tripMessage" class="message" aria-live="polite"></p>
+                    <div id="tripDetails" class="hint">Trip information is provided by the backend.</div>
+                </section>
+
+                <section class="card">
+                    <h2>Waiting requests by stop</h2>
+                    <div id="waitingOverview" class="hint" aria-live="polite">Select an assigned bus to load its waiting overview.</div>
+                </section>
+            </div>
+
+            <section class="card">
+                <h2>GPS tracking</h2>
+                <p class="hint">Location is read from this device and sent for the selected assigned bus.</p>
+                <button id="trackingBtn" type="button">Start GPS tracking</button>
+                <p id="locationMessage" class="message" aria-live="polite">Tracking is stopped.</p>
+                <div class="metrics">
+                    <div class="metric"><strong>Location</strong><span id="locationValue">Not reported</span></div>
+                    <div class="metric"><strong>Speed (km/h)</strong><span id="speedValue">Not reported</span></div>
+                    <div class="metric"><strong>Vehicle status</strong><span id="locationStatusValue">Not reported</span></div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Live bus location</h2>
+                <div id="map" class="map" role="application" aria-label="Map showing the latest backend-reported bus location"></div>
+                <p id="mapMessage" class="hint">No backend-reported location is available yet.</p>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        const API = '/api';
+        const state = { driver: null, buses: [], selectedBus: '', routes: [], destinations: [], watchId: null, map: null, marker: null, publishing: false };
+        const $ = (id) => document.getElementById(id);
+
+        function cookie(name) {
+            const prefix = `${name}=`;
+            const item = document.cookie.split(';').map((part) => part.trim()).find((part) => part.startsWith(prefix));
+            return item ? decodeURIComponent(item.slice(prefix.length)) : '';
+        }
+
+        function message(id, text, kind = '') {
+            const el = $(id);
+            el.textContent = text || '';
+            el.className = `message ${kind}`;
+        }
+
+        function errorText(payload, fallback) {
+            if (!payload) return fallback;
+            if (typeof payload.error === 'string') return payload.error;
+            if (typeof payload.detail === 'string') return payload.detail;
+            if (typeof payload.message === 'string') return payload.message;
+            return fallback;
+        }
+
+        async function api(path, options = {}) {
+            const method = (options.method || 'GET').toUpperCase();
+            const headers = { Accept: 'application/json', ...(options.headers || {}) };
+            if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+            const csrf = cookie('csrftoken');
+            if (csrf && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) headers['X-CSRFToken'] = csrf;
+            const response = await fetch(`${API}${path}`, {
+                method,
+                credentials: 'same-origin',
+                headers,
+                body: options.body === undefined ? undefined : JSON.stringify(options.body),
+            });
+            const data = await response.json().catch(() => null);
+            if (!response.ok) {
+                const error = new Error(errorText(data, `Request failed (${response.status}).`));
+                error.status = response.status;
+                throw error;
+            }
+            return data;
+        }
+
+        function showApiError(id, error, action) {
+            if (error.status === 401) {
+                message(id, 'Your driver session has expired or authentication is required. Please sign in again.', 'error');
+            } else if (error.status === 403) {
+                message(id, `Access denied: you are not authorized to ${action}. Verify your driver login and, for bus operations, the bus assignment.`, 'error');
+            } else {
+                message(id, error.message || 'The request could not be completed.', 'error');
+            }
+        }
+
+        function showDashboard(driver) {
+            state.driver = driver;
+            $('driverSummary').textContent = `${driver.name || driver.username} — authenticated driver`;
+            $('loginCard').classList.add('hidden');
+            $('dashboard').classList.remove('hidden');
+            requestAnimationFrame(() => {
+                if (state.map) state.map.invalidateSize({ pan: false });
+            });
+        }
+
+        function resetDashboard() {
+            stopTracking();
+            state.driver = null;
+            state.buses = [];
+            state.selectedBus = '';
+            state.routes = [];
+            state.destinations = [];
+            $('dashboard').classList.add('hidden');
+            $('loginCard').classList.remove('hidden');
+            $('driverSummary').textContent = 'Sign in to view your assigned buses and manage a trip.';
+            $('busBadge').textContent = 'No bus selected';
+            $('vehicleStatus').textContent = 'Status unavailable';
+            $('busSelect').innerHTML = '<option value="">Select an assigned bus</option>';
+            $('routeSelect').innerHTML = '<option value="">Select a route</option>';
+            $('destinationSelect').innerHTML = '<option value="">Select a destination</option>';
+            $('destinationSelect').disabled = true;
+            $('waitingOverview').textContent = 'Select an assigned bus to load its waiting overview.';
+            $('tripDetails').textContent = 'Trip information is provided by the backend.';
+            $('locationValue').textContent = 'Not reported';
+            $('speedValue').textContent = 'Not reported';
+            $('locationStatusValue').textContent = 'Not reported';
+            $('mapMessage').textContent = 'No backend-reported location is available yet.';
+            if (state.marker) { state.map.removeLayer(state.marker); state.marker = null; }
+        }
+
+        async function loadCurrentDriver() {
+            try {
+                const result = await api('/auth/driver/me/');
+                if (!result.driver) throw new Error('The driver profile was not returned by the server.');
+                showDashboard(result.driver);
+                message('authMessage', '', '');
+                await Promise.all([loadAssignedBuses(), loadRoutes()]);
+            } catch (error) {
+                if (error.status === 401 || error.status === 403) {
+                    resetDashboard();
+                    message('authMessage', '', '');
+                } else {
+                    showApiError('authMessage', error, 'load the authenticated driver');
+                }
+            }
+        }
+
+        async function login(event) {
+            event.preventDefault();
+            message('authMessage', 'Signing in…');
+            try {
+                const result = await api('/auth/driver/login/', {
+                    method: 'POST',
+                    body: { username: $('username').value.trim(), password: $('password').value },
+                });
+                if (!result.driver) throw new Error('The login response did not include a driver profile.');
+                showDashboard(result.driver);
+                $('password').value = '';
+                message('authMessage', '', '');
+                await Promise.all([loadAssignedBuses(), loadRoutes()]);
+            } catch (error) {
+                if (error.status === 401) message('authMessage', 'Sign-in failed: the username or password is incorrect.', 'error');
+                else if (error.status === 403) message('authMessage', error.message || 'This account is not an active driver account.', 'error');
+                else message('authMessage', error.message || 'Unable to sign in. Check the connection and try again.', 'error');
+            }
+        }
+
+        async function loadAssignedBuses(preserveMessage = false) {
+            try {
+                const result = await api('/auth/driver/buses/');
+                state.buses = Array.isArray(result.buses) ? result.buses : [];
+                const select = $('busSelect');
+                select.replaceChildren(new Option('Select an assigned bus', ''));
+                state.buses.forEach((bus) => {
+                    if (!bus.registration_number) return;
+                    select.add(new Option(bus.registration_number, bus.registration_number));
+                });
+                if (!state.buses.some((bus) => bus.registration_number === state.selectedBus)) {
+                    state.selectedBus = state.buses[0]?.registration_number || '';
+                }
+                select.value = state.selectedBus;
+                await chooseBus(state.selectedBus);
+                if (!preserveMessage) {
+                    if (!state.buses.length) message('busMessage', 'No buses are currently assigned to this driver.', '');
+                    else message('busMessage', '', '');
+                }
+            } catch (error) {
+                showApiError('busMessage', error, 'load assigned buses');
+            }
+        }
+
+        async function chooseBus(registrationNumber) {
+            state.selectedBus = registrationNumber || '';
+            $('busBadge').textContent = state.selectedBus || 'No bus selected';
+            const bus = state.buses.find((item) => item.registration_number === state.selectedBus);
+            $('vehicleStatus').textContent = bus ? `Status: ${bus.status}` : 'Status unavailable';
+            $('waitingOverview').textContent = state.selectedBus ? 'Loading waiting overview…' : 'Select an assigned bus to load its waiting overview.';
+            $('tripDetails').textContent = 'Trip information is provided by the backend.';
+            if (!state.selectedBus) return;
+            await Promise.all([loadBusSession(), loadWaitingOverview()]);
+        }
+
+        async function loadBusSession() {
+            if (!state.selectedBus) return;
+            try {
+                const result = await api(`/buses/${encodeURIComponent(state.selectedBus)}/driver-session/`);
+                $('vehicleStatus').textContent = `Status: ${result.status || 'Unavailable'}`;
+                const details = [];
+                if (result.route) details.push(`Route: ${result.route}`);
+                if (result.destination) details.push(`Destination: ${result.destination}`);
+                if (result.last_stop) details.push(`Current target stop: ${result.last_stop}`);                if (result.last_updated) details.push(`Last updated: ${result.last_updated}`);
+                $('tripDetails').textContent = details.length ? details.join(' · ') : 'No resumable trip is reported by the backend.';
+                if (result.lat !== null && result.lat !== undefined && result.lng !== null && result.lng !== undefined) {
+                    showBackendLocation(result);
+                }
+            } catch (error) {
+                showApiError('busMessage', error, 'load this bus session');
+            }
+        }
+
+        async function loadWaitingOverview() {
+            if (!state.selectedBus) return;
+            try {
+                const result = await api(`/buses/${encodeURIComponent(state.selectedBus)}/waiting-overview/`);
+                const container = $('waitingOverview');
+                container.replaceChildren();
+                if (result.route) {
+                    const route = document.createElement('p');
+                    route.textContent = `Route: ${result.route}`;
+                    container.append(route);
+                }
+                if (!Array.isArray(result.stops) || !result.stops.length) {
+                    const empty = document.createElement('p');
+                    empty.textContent = 'No active trip or waiting counts are available.';
+                    container.append(empty);
+                    return;
+                }
+                const list = document.createElement('ul');
+                result.stops.forEach((stop) => {
+                    const item = document.createElement('li');
+                    item.textContent = `${stop.stop_name}: ${stop.waiting_count} waiting`;
+                    list.append(item);
+                });
+                container.append(list);
+            } catch (error) {
+                showApiError('waitingOverview', error, 'view waiting requests for this bus');
+            }
+        }
+
+        async function loadRoutes() {
+            try {
+                const routes = await api('/routes/search/');
+                state.routes = Array.isArray(routes) ? routes : [];
+                const select = $('routeSelect');
+                select.replaceChildren(new Option('Select a route', ''));
+                state.routes.forEach((route) => select.add(new Option(route.route_long_name || 'Unnamed route', route.route_id)));
+            } catch (error) {
+                showApiError('tripMessage', error, 'load routes');
+            }
+        }
+
+        async function loadDestinations(routeId) {
+            const select = $('destinationSelect');
+            select.replaceChildren(new Option('Select a destination', ''));
+            select.disabled = true;
+            state.destinations = [];
+            if (!routeId) return;
+            try {
+                const destinations = await api(`/routes/${encodeURIComponent(routeId)}/destinations/`);
+                state.destinations = Array.isArray(destinations) ? destinations : [];
+                state.destinations.forEach((item) => select.add(new Option(item.destination, item.destination)));
+                select.disabled = state.destinations.length === 0;
+                if (!state.destinations.length) message('tripMessage', 'The backend returned no destinations for this route.', '');
+                else message('tripMessage', '', '');
+            } catch (error) {
+                showApiError('tripMessage', error, 'load route destinations');
+            }
+        }
+
+        async function busAction(path, messageId, action) {
+            if (!state.selectedBus) {
+                message(messageId, 'Select an assigned bus first.', 'error');
+                return;
+            }
+            try {
+                const result = await api(`/buses/${encodeURIComponent(state.selectedBus)}/${path}/`, { method: 'POST' });
+                if (path === 'start-fresh' || path === 'deactivate') message('tripMessage', '', '');
+                if (path === 'start-fresh') {
+                    stopTracking();
+                    $('locationValue').textContent = 'Not reported';
+                    $('speedValue').textContent = 'Not reported';
+                    $('locationStatusValue').textContent = 'Not reported';
+                    if (state.marker) { state.map.removeLayer(state.marker); state.marker = null; }
+                    $('mapMessage').textContent = 'No backend-reported location is available yet.';
+                }
+                message(messageId, result.message || `${action} completed.`, 'success');
+                await loadAssignedBuses(true);
+            } catch (error) {
+                showApiError(messageId, error, action);
+            }
+        }
+
+        async function startTrip() {
+            const routeId = $('routeSelect').value;
+            const destination = $('destinationSelect').value;
+            if (!state.selectedBus) return message('tripMessage', 'Select an assigned bus before starting a trip.', 'error');
+            if (!routeId || !destination) return message('tripMessage', 'Select a route and destination first.', 'error');
+            try {
+                const result = await api('/buses/start-trip/', {
+                    method: 'POST',
+                    body: { registration_number: state.selectedBus, route_id: routeId, destination },
+                });
+                message('tripMessage', result.message || 'Trip started.', 'success');
+                await Promise.all([loadBusSession(), loadWaitingOverview(), loadAssignedBuses()]);
+            } catch (error) {
+                showApiError('tripMessage', error, 'start a trip for this bus');
+            }
+        }
+
+        function initializeMap() {
+            if (!window.L || state.map) return;
+            state.map = L.map('map').setView([0, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                referrerPolicy: 'strict-origin-when-cross-origin',
+                attribution: '&copy; OpenStreetMap contributors',
+            }).addTo(state.map);
+        }
+
+        function showBackendLocation(result) {
+            const lat = Number(result.lat);
+            const lng = Number(result.lng);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+            $('locationValue').textContent = `${result.lat}, ${result.lng}`;
+            $('speedValue').textContent = result.speed ?? 'Not returned';
+            $('locationStatusValue').textContent = result.status || 'Not returned';
+            $('vehicleStatus').textContent = `Status: ${result.status || 'Unavailable'}`;
+            $('mapMessage').textContent = `Latest location returned by backend for ${result.registration_number || state.selectedBus}.`;
+            initializeMap();
+            if (!state.map) return;
+            if (!state.marker) state.marker = L.marker([lat, lng]).addTo(state.map);
+            else state.marker.setLatLng([lat, lng]);
+            state.map.setView([lat, lng], 14);
+            state.marker.bindPopup(`${result.registration_number || state.selectedBus}`).openPopup();
+        }
+
+        async function publishPosition(position) {
+            if (!state.selectedBus || state.publishing) return;
+            state.publishing = true;
+            try {
+                const speed_kmh = (position.coords.speed ?? 0) * 3.6;
+                const result = await api(`/buses/${encodeURIComponent(state.selectedBus)}/location/`, {
+                    method: 'POST',
+                    body: {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        speed: speed_kmh,
+                    },
+                });
+                showBackendLocation(result);
+                message('locationMessage', 'GPS update accepted by backend.', 'success');
+                await loadWaitingOverview();
+            } catch (error) {
+                showApiError('locationMessage', error, 'publish GPS for this bus');
+            } finally {
+                state.publishing = false;
+            }
+        }
+
+        function stopTracking() {
+            if (state.watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(state.watchId);
+            state.watchId = null;
+            const button = $('trackingBtn');
+            if (button) button.textContent = 'Start GPS tracking';
+            if ($('locationMessage')) message('locationMessage', 'Tracking is stopped.');
+        }
+
+        function toggleTracking() {
+            if (state.watchId !== null) return stopTracking();
+            if (!state.selectedBus) return message('locationMessage', 'Select an assigned bus before starting GPS tracking.', 'error');
+            if (!navigator.geolocation) return message('locationMessage', 'This browser does not support device geolocation.', 'error');
+            state.watchId = navigator.geolocation.watchPosition(
+                publishPosition,
+                (error) => message('locationMessage', `GPS error: ${error.message}`, 'error'),
+                { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 },
+            );
+            $('trackingBtn').textContent = 'Stop GPS tracking';
+            message('locationMessage', 'Waiting for a device GPS fix…');
+        }
+
+        async function logout() {
+            try {
+                const result = await api('/auth/driver/logout/', { method: 'POST' });
+                resetDashboard();
+                message('authMessage', result.message || 'You have been logged out.', 'success');
+            } catch (error) {
+                showApiError('authMessage', error, 'log out');
+            }
+        }
+
+        $('loginForm').addEventListener('submit', login);
+        $('busSelect').addEventListener('change', (event) => chooseBus(event.target.value));
+        $('activateBtn').addEventListener('click', () => busAction('activate', 'busMessage', 'activate this bus'));
+        $('deactivateBtn').addEventListener('click', () => busAction('deactivate', 'busMessage', 'deactivate this bus'));
+        $('resetBtn').addEventListener('click', () => busAction('start-fresh', 'busMessage', 'reset this bus operational state'));
+        $('routeSelect').addEventListener('change', (event) => loadDestinations(event.target.value));
+        $('startTripBtn').addEventListener('click', startTrip);
+        $('trackingBtn').addEventListener('click', toggleTracking);
+        $('logoutBtn').addEventListener('click', logout);
+        initializeMap();
+        loadCurrentDriver();
+    </script>
+</body>
+</html>

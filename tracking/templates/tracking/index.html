@@ -550,8 +550,8 @@
                     return;
                 }
                 showNotification(`✅ Waiting request created for ${state.destination}.`, 'success');
-                await loadWaitingRequests();
                 closeRideModal();
+                await showWaitingRequests();
             } catch (error) {
                 showLoading(false);
                 console.error('Waiting request error:', error);
@@ -776,6 +776,9 @@
             }
             await loadWaitingRequests();
             const requests = state.waitingRequests || [];
+            await Promise.all(requests.filter(request => request.status === 'WAITING').map(async request => {
+                request.eta_minutes = await loadWaitingRequestEta(request.id);
+            }));
             document.getElementById('sheetTitle').textContent = 'My Waiting Requests';
             document.getElementById('sheetContent').innerHTML = requests.length
                 ? requests.map(request => `
@@ -789,6 +792,14 @@
                             ${request.stop_name || 'Stop unavailable'} ·
                             ${request.created_at ? new Date(request.created_at).toLocaleString() : ''}
                         </div>
+
+                        ${request.status === 'WAITING' ? `
+                            <div class="bus-details">
+                                ${request.eta_minutes == null
+                                    ? 'ETA unavailable'
+                                    : `Estimated arrival at ${request.stop_name || 'your stop'}: about ${Math.round(request.eta_minutes)} minutes`}
+                            </div>
+                        ` : ''}
 
                         ${request.status === 'WAITING' ? `
                             <button
@@ -825,6 +836,20 @@
                 `).join('')
                 : '<div style="text-align:center; padding:20px; color:#6b7280;">No waiting requests yet.</div>';
             document.getElementById('bottomSheet').classList.add('active');
+        }
+
+        async function loadWaitingRequestEta(waitingRequestId) {
+            try {
+                const response = await apiFetch(`/api/waiting-requests/${waitingRequestId}/eta/`);
+                if (!response.ok) return null;
+                const result = await response.json();
+                return Number.isFinite(result.eta_minutes) && result.eta_minutes >= 0
+                    ? result.eta_minutes
+                    : null;
+            } catch (error) {
+                console.warn('Unable to load waiting-request ETA:', error);
+                return null;
+            }
         }
 
         function showLoading(show) {
