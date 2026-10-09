@@ -23,3 +23,5 @@ Thumbs.db
 
 #Project backups
 backup_before_gtfs.json
+deployment_venv/
+staticfiles/
