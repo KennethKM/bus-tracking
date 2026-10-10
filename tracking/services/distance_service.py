@@ -1,7 +1,8 @@
+import os
 import requests
 
 
-OSRM_URL = "http://localhost:5000"
+OSRM_URL = os.getenv("OSRM_URL", "http://localhost:5000").rstrip("/")
 
 
 def get_road_distance(
