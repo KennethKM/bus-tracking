@@ -244,10 +244,11 @@
                 <input type="text" id="authUsername" placeholder="Username" style="margin-bottom: 8px;">
                 <input type="password" id="authPassword" placeholder="Password" style="margin-bottom: 8px;">
                 <input type="text" id="authName" placeholder="Full name" style="margin-bottom: 8px;">
-                <input type="email" id="authEmail" placeholder="Email (optional)">
+                <input type="email" id="authEmail" placeholder="Email address">
                 <div style="display:flex; gap:8px; margin-top:10px;">
                     <button type="button" class="location-btn" onclick="registerPassenger()">Register</button>
                     <button type="button" class="location-btn" onclick="loginPassenger()">Login</button>
+                    <p><a href="{% url 'password_reset' %}">Forgot password?</a></p>
                     <button type="button" class="location-btn" onclick="logoutPassenger()">Logout</button>
                 </div>
             </div>
@@ -350,8 +351,8 @@
             const name = document.getElementById('authName').value.trim();
             const email = document.getElementById('authEmail').value.trim();
 
-            if (!username || !password || !name) {
-                showNotification('Username, password, and name are required.', 'error');
+            if (!username || !password || !name || !email) {
+                showNotification('Username, password, name, and email are required.', 'error');
                 return;
             }
 
