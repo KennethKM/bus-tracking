@@ -41,6 +41,13 @@ class DiagnosticPasswordResetForm(PasswordResetForm):
         )
 
         return users
+
+    def send_mail(self, *args, **kwargs):
+        logger.warning("Password reset SMTP send starting.")
+        result = super().send_mail(*args, **kwargs)
+        logger.warning("Password reset SMTP send completed.")
+        return result
+
 urlpatterns = [
     path(
         '',
