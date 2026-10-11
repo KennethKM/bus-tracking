@@ -14,10 +14,33 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import logging
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.contrib.auth.forms import PasswordResetForm
 from django.urls import include, path, reverse_lazy
 from django.views.generic import TemplateView
+logger = logging.getLogger(__name__)
+
+
+class DiagnosticPasswordResetForm(PasswordResetForm):
+    def get_users(self, email):
+        users = list(super().get_users(email))
+
+        logger.warning(
+            "Password reset diagnostic: eligible_accounts=%s "
+            "smtp_backend=%s smtp_host_configured=%s "
+            "smtp_username_configured=%s smtp_password_configured=%s tls=%s",
+            len(users),
+            settings.EMAIL_BACKEND,
+            bool(settings.EMAIL_HOST),
+            bool(settings.EMAIL_HOST_USER),
+            bool(settings.EMAIL_HOST_PASSWORD),
+            settings.EMAIL_USE_TLS,
+        )
+
+        return users
 urlpatterns = [
     path(
         '',
@@ -38,6 +61,7 @@ urlpatterns = [
     path(
         "password-reset/",
         auth_views.PasswordResetView.as_view(
+            form_class=DiagnosticPasswordResetForm,
             template_name="tracking/registration/password_reset_form.html",
             email_template_name="tracking/registration/password_reset_email.txt",
             subject_template_name="tracking/registration/password_reset_subject.txt",
