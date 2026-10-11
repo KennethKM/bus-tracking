@@ -25,3 +25,5 @@ Thumbs.db
 backup_before_gtfs.json
 deployment_venv/
 staticfiles/
+batch_import.py
+render_seed.json
