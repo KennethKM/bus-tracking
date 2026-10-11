@@ -19,8 +19,21 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='tracking/index.html'), name='passenger_ui'),
-    path('driver/', TemplateView.as_view(template_name='tracking/driver_interface.html'), name='driver_ui'),
+    path(
+        '',
+        TemplateView.as_view(template_name='tracking/landing.html'),
+        name='home',
+    ),
+    path(
+        'passenger/',
+        TemplateView.as_view(template_name='tracking/index.html'),
+        name='passenger_ui',
+    ),
+    path(
+        'driver/',
+        TemplateView.as_view(template_name='tracking/driver_interface.html'),
+        name='driver_ui',
+    ),
     path('admin/', admin.site.urls),
     path('api/', include('tracking.urls')),
 ]
