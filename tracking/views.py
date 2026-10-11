@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 
 from .models import (
@@ -162,36 +164,50 @@ def register_passenger(request):
     name = request.data.get("name", "").strip()
     email = request.data.get("email", "").strip()
 
-    if not username or not password or not name:
+    if not username or not password or not name or not email:
         return Response(
-            {"error": "Username, password, and name are required."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "Username, password, name, and email are required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        validate_email(email)
+    except ValidationError:
+        return Response(
+            {"error": "Enter a valid email address."},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     if User.objects.filter(username=username).exists():
         return Response(
             {"error": "Username already exists."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if User.objects.filter(email__iexact=email).exists():
+        return Response(
+            {"error": "An account already uses this email address."},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     user = User.objects.create_user(
         username=username,
         password=password,
-        email=email
+        email=email,
     )
 
     Passenger.objects.create(
         user=user,
-        name=name
+        name=name,
     )
 
     return Response(
         {
             "message": "Passenger account created successfully.",
             "username": user.username,
-            "name": name
+            "name": name,
         },
-        status=status.HTTP_201_CREATED
+        status=status.HTTP_201_CREATED,
     )
 
 
