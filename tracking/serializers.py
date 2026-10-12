@@ -156,6 +156,10 @@ class WaitingRequestSerializer(serializers.ModelSerializer):
             "stop_name",
         ]
 
+        read_only_fields = [
+            "id", "status", "created_at", "deactivated_at", "passenger",
+        ]
+
     def validate(self, attrs):
 
         trip = attrs.get("trip")

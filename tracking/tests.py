@@ -233,3 +233,260 @@ class WaitingOverviewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.data["trip_id"])
         self.assertEqual(response.data["stops"], [])
+
+
+class ApiAccessSecurityTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="security-passenger")
+        self.passenger = Passenger.objects.create(user=self.user, name="Private Name")
+        self.driver_user = User.objects.create_user(username="security-driver")
+        self.driver = Driver.objects.create(user=self.driver_user)
+        self.route = Route.objects.create(route_id="SEC", route_long_name="Security Route")
+        self.stop = Stop.objects.create(
+            stop_id=900, stop_name="Destination", stop_lat=-15.4, stop_lon=28.3,
+        )
+        self.trip = Trip.objects.create(
+            trip_id="SEC-08:00:00", route=self.route, trip_headsign="Destination",
+            direction_id=0, shape_id="SEC", service_id="SEC",
+        )
+        StopTime.objects.create(trip=self.trip, stop=self.stop, stop_sequence=1)
+        self.bus = Bus.objects.create(registration_number="SEC-BUS")
+        self.assignment = DriverBusAssignment.objects.create(driver=self.driver, bus=self.bus)
+        self.waiting = WaitingRequest.objects.create(
+            passenger=self.passenger, trip=self.trip, stop=self.stop,
+        )
+
+    def test_generic_transport_writes_are_disabled(self):
+        records = (("routes", self.route.pk), ("stops", self.stop.pk), ("buses", self.bus.pk))
+        for user in (None, self.user, self.driver_user):
+            self.client.force_authenticate(user=user)
+            for resource, pk in records:
+                for method, url in (
+                    ("post", f"/api/{resource}/"),
+                    ("put", f"/api/{resource}/{pk}/"),
+                    ("patch", f"/api/{resource}/{pk}/"),
+                    ("delete", f"/api/{resource}/{pk}/"),
+                ):
+                    with self.subTest(user=user, resource=resource, method=method):
+                        response = getattr(self.client, method)(url, {}, format="json")
+                        self.assertEqual(response.status_code, 405)
+        self.assertTrue(Route.objects.filter(pk=self.route.pk).exists())
+        self.assertTrue(Stop.objects.filter(pk=self.stop.pk).exists())
+        self.bus.refresh_from_db()
+        self.assertEqual(self.bus.registration_number, "SEC-BUS")
+
+    def test_passenger_directory_is_removed(self):
+        for user in (None, self.user):
+            self.client.force_authenticate(user=user)
+            for url in ("/api/passengers/", f"/api/passengers/{self.passenger.pk}/"):
+                with self.subTest(user=user, url=url):
+                    self.assertEqual(self.client.get(url).status_code, 404)
+
+    @patch("tracking.views.calculate_eta", return_value=5.0)
+    def test_public_transport_reads_remain_available(self, calculate_eta):
+        urls = (
+            "/api/routes/", f"/api/routes/{self.route.pk}/",
+            "/api/stops/", f"/api/stops/{self.stop.pk}/",
+            "/api/buses/", f"/api/buses/{self.bus.pk}/",
+            "/api/routes/search/?q=Security", "/api/routes/SEC/destinations/",
+            "/api/routes/SEC/stops/?destination=Destination",
+            f"/api/buses/{self.bus.pk}/eta/{self.stop.pk}/",
+            f"/api/trips/{self.trip.pk}/stops/{self.stop.pk}/waiting-count/",
+        )
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 200)
+
+        calculate_eta.assert_called_once()
+
+    def test_registration_and_login_endpoints_are_public(self):
+        response = self.client.post("/api/auth/register/", {
+            "username": "new-security-passenger", "password": "Testing-password-123",
+            "name": "New Passenger", "email": "security@example.com",
+        }, format="json")
+        self.assertEqual(response.status_code, 201)
+        response = self.client.post("/api/auth/login/", {
+            "username": "new-security-passenger", "password": "Testing-password-123",
+        }, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
+        self.driver_user.set_password("Testing-password-123")
+        self.driver_user.save()
+        response = self.client.post("/api/auth/driver/login/", {
+            "username": self.driver_user.username, "password": "Testing-password-123",
+        }, format="json")
+        self.assertEqual(response.status_code, 200)
+
+    def test_assigned_driver_can_update_gps(self):
+        self.client.force_authenticate(user=self.driver_user)
+        response = self.client.post("/api/buses/SEC-BUS/location/", {
+            "lat": -15.4, "lng": 28.3, "speed": 10,
+        }, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.bus.refresh_from_db()
+        self.assertEqual((self.bus.current_lat, self.bus.current_lng, self.bus.speed), (-15.4, 28.3, 10))
+
+    def test_assigned_driver_can_operate_bus(self):
+        self.client.force_authenticate(user=self.driver_user)
+        for operation in ("activate", "start-fresh", "deactivate"):
+            with self.subTest(operation=operation):
+                self.assertEqual(self.client.post(f"/api/buses/SEC-BUS/{operation}/").status_code, 200)
+        response = self.client.post("/api/buses/start-trip/", {
+            "registration_number": "SEC-BUS", "route_id": "SEC", "destination": "Destination",
+        }, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.bus.refresh_from_db()
+        self.assertEqual(self.bus.current_trip, self.trip)
+
+    def test_driver_operations_require_active_driver_and_assignment(self):
+        unassigned = User.objects.create_user(username="unassigned-security-driver")
+        Driver.objects.create(user=unassigned)
+        for user, active_driver, active_assignment in (
+            (None, True, True), (self.user, True, True), (unassigned, True, True),
+            (self.driver_user, False, True), (self.driver_user, True, False),
+        ):
+            self.driver.is_active = active_driver
+            self.driver.save()
+            self.assignment.is_active = active_assignment
+            self.assignment.save()
+            self.client.force_authenticate(user=user)
+            for operation in ("activate", "deactivate", "start-fresh", "location"):
+                with self.subTest(user=user, operation=operation, active_driver=active_driver, active_assignment=active_assignment):
+                    self.assertEqual(self.client.post(f"/api/buses/SEC-BUS/{operation}/", {
+                        "lat": -15.4, "lng": 28.3,
+                    }, format="json").status_code, 403)
+            self.assertEqual(self.client.post("/api/buses/start-trip/", {
+                "registration_number": "SEC-BUS", "route_id": "SEC", "destination": "Destination",
+            }, format="json").status_code, 403)
+            self.assertEqual(self.client.get("/api/buses/SEC-BUS/waiting-overview/").status_code, 403)
+        self.bus.refresh_from_db()
+        self.assertIsNone(self.bus.current_lat)
+        self.assertIsNone(self.bus.current_trip)
+        self.assertFalse(self.bus.is_active)
+
+    def test_expiry_requires_administrator(self):
+        other = User.objects.create_user(username="other-security-passenger")
+        Passenger.objects.create(user=other, name="Other Passenger")
+        for user in (None, other, self.user, self.driver_user):
+            self.client.force_authenticate(user=user)
+            with self.subTest(user=user):
+                response = self.client.post(f"/api/waiting-requests/{self.waiting.pk}/expire/")
+                self.assertEqual(response.status_code, 403)
+                self.waiting.refresh_from_db()
+                self.assertEqual(self.waiting.status, "WAITING")
+                self.assertIsNone(self.waiting.deactivated_at)
+        admin = User.objects.create_user(username="security-admin", is_staff=True)
+        self.client.force_authenticate(user=admin)
+        self.assertEqual(self.client.post(f"/api/waiting-requests/{self.waiting.pk}/expire/").status_code, 200)
+        self.waiting.refresh_from_db()
+        self.assertEqual(self.waiting.status, "EXPIRED")
+        self.assertIsNotNone(self.waiting.deactivated_at)
+
+    def test_default_permission_requires_authentication(self):
+        from rest_framework.permissions import IsAuthenticated
+        from rest_framework.settings import api_settings
+        self.assertEqual(api_settings.DEFAULT_PERMISSION_CLASSES, [IsAuthenticated])
+        for url in ("/api/auth/me/", "/api/auth/driver/me/", "/api/waiting-requests/"):
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 403)
+
+
+    def test_registration_rejects_invalid_passwords_without_creating_accounts(self):
+        for password in ("short", "password", "123456789012", "validator-person"):
+            with self.subTest(password=password):
+                response = self.client.post("/api/auth/register/", {
+                    "username": "validator-person", "email": "validator@example.com",
+                    "name": "Validator Person", "password": password,
+                }, format="json")
+                self.assertEqual(response.status_code, 400)
+                self.assertIsInstance(response.data["error"], str)
+                self.assertTrue(response.data["password"])
+                self.assertFalse(User.objects.filter(username="validator-person").exists())
+                self.assertEqual(Passenger.objects.count(), 1)
+
+    def test_registration_uses_configured_password_validators(self):
+        from django.test import override_settings
+        with override_settings(AUTH_PASSWORD_VALIDATORS=[{
+            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+            "OPTIONS": {"min_length": 40},
+        }]):
+            response = self.client.post("/api/auth/register/", {
+                "username": "configured-validator", "email": "configured@example.com",
+                "name": "Configured Validator", "password": "Testing-password-123",
+            }, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("40", response.data["error"])
+        self.assertFalse(User.objects.filter(username="configured-validator").exists())
+
+    def test_owner_cannot_update_or_delete_waiting_request_directly(self):
+        self.client.force_authenticate(user=self.user)
+        original_created_at = self.waiting.created_at
+        url = f"/api/waiting-requests/{self.waiting.pk}/"
+        for method in ("put", "patch", "delete"):
+            for requested_status in ("ON_BOARD", "COMPLETED", "EXPIRED"):
+                with self.subTest(method=method, status=requested_status):
+                    response = getattr(self.client, method)(url, {
+                        "trip": self.trip.pk, "stop": self.stop.pk,
+                        "status": requested_status,
+                        "created_at": "2000-01-01T00:00:00Z",
+                        "deactivated_at": "2000-01-01T00:00:00Z",
+                    }, format="json")
+                    self.assertEqual(response.status_code, 405)
+                    self.waiting.refresh_from_db()
+                    self.assertEqual(self.waiting.status, "WAITING")
+                    self.assertEqual(self.waiting.created_at, original_created_at)
+                    self.assertIsNone(self.waiting.deactivated_at)
+
+    def test_creation_ignores_client_supplied_lifecycle_fields(self):
+        self.client.force_authenticate(user=self.user)
+        self.assertEqual(self.client.post(
+            f"/api/waiting-requests/{self.waiting.pk}/cancel/",
+        ).status_code, 200)
+        for requested_status in ("ON_BOARD", "COMPLETED", "EXPIRED"):
+            with self.subTest(status=requested_status):
+                response = self.client.post("/api/waiting-requests/", {
+                    "trip": self.trip.pk, "stop": self.stop.pk,
+                    "status": requested_status, "passenger": 99999,
+                    "created_at": "2000-01-01T00:00:00Z",
+                    "deactivated_at": "2000-01-01T00:00:00Z",
+                }, format="json")
+                self.assertEqual(response.status_code, 201)
+                created = WaitingRequest.objects.get(pk=response.data["id"])
+                self.assertEqual(created.status, "WAITING")
+                self.assertEqual(created.passenger, self.passenger)
+                self.assertIsNone(created.deactivated_at)
+                self.assertGreater(created.created_at.year, 2000)
+                self.assertEqual(self.client.post(
+                    f"/api/waiting-requests/{created.pk}/cancel/",
+                ).status_code, 200)
+                created.refresh_from_db()
+                self.assertEqual(created.status, "CANCELLED")
+                self.assertIsNotNone(created.deactivated_at)
+
+    def test_owner_can_board_and_complete_through_workflow_actions(self):
+        self.client.force_authenticate(user=self.user)
+        self.assertEqual(self.client.get("/api/waiting-requests/").status_code, 200)
+        self.assertEqual(self.client.get(f"/api/waiting-requests/{self.waiting.pk}/").status_code, 200)
+        self.assertEqual(self.client.post(
+            f"/api/waiting-requests/{self.waiting.pk}/board/",
+        ).status_code, 200)
+        self.waiting.refresh_from_db()
+        self.assertEqual(self.waiting.status, "ON_BOARD")
+        self.assertEqual(self.client.post(
+            f"/api/waiting-requests/{self.waiting.pk}/complete/",
+        ).status_code, 200)
+        self.waiting.refresh_from_db()
+        self.assertEqual(self.waiting.status, "COMPLETED")
+        self.assertIsNotNone(self.waiting.deactivated_at)
+
+    def test_other_passenger_cannot_use_workflow_actions(self):
+        other_user = User.objects.create_user(username="workflow-other")
+        Passenger.objects.create(user=other_user, name="Other Passenger")
+        self.client.force_authenticate(user=other_user)
+        for action, current_status in (("cancel", "WAITING"), ("board", "WAITING"), ("complete", "ON_BOARD")):
+            self.waiting.status = current_status
+            self.waiting.save(update_fields=["status"])
+            response = self.client.post(f"/api/waiting-requests/{self.waiting.pk}/{action}/")
+            self.assertEqual(response.status_code, 404)
+            self.waiting.refresh_from_db()
+            self.assertEqual(self.waiting.status, current_status)

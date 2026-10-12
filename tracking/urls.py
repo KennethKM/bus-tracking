@@ -4,7 +4,6 @@ from .views import (
     RouteViewSet,
     StopViewSet,
     BusViewSet,
-    PassengerViewSet,
     WaitingRequestViewSet,
     
     route_destinations, 
@@ -38,7 +37,6 @@ router = DefaultRouter()
 router.register(r'routes', RouteViewSet)
 router.register(r'stops', StopViewSet)
 router.register(r'buses', BusViewSet)
-router.register(r'passengers', PassengerViewSet)
 router.register(
     r'waiting-requests',
     WaitingRequestViewSet,
