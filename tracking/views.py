@@ -3,7 +3,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, serializers
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import AllowAny, BasePermission, IsAuthenticated, IsAdminUser
+from rest_framework.exceptions import PermissionDenied
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
@@ -84,6 +85,21 @@ class BusViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = BusSerializer
 
 
+def get_passenger_for_request(request):
+    if not request.user.is_authenticated:
+        raise PermissionDenied("Authentication is required.")
+    passenger = getattr(request.user, "passenger_profile", None)
+    if passenger is None:
+        raise PermissionDenied("This account is not a passenger account.")
+    return passenger
+
+
+class IsPassenger(BasePermission):
+    def has_permission(self, request, view):
+        get_passenger_for_request(request)
+        return True
+
+
 class WaitingRequestViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -91,15 +107,15 @@ class WaitingRequestViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = WaitingRequestSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsPassenger]
 
     def get_queryset(self):
         return WaitingRequest.objects.filter(
-            passenger=self.request.user.passenger_profile
+            passenger=get_passenger_for_request(self.request)
         )
 
     def perform_create(self, serializer):
-        passenger = self.request.user.passenger_profile
+        passenger = get_passenger_for_request(self.request)
 
         if WaitingRequest.objects.filter(
             passenger=passenger,
@@ -766,7 +782,7 @@ def board_passenger(request, waiting_request_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def cancel_waiting_request_view(request, waiting_request_id):
-    passenger = request.user.passenger_profile
+    passenger = get_passenger_for_request(request)
 
     try:
         waiting_request = cancel_waiting_request(

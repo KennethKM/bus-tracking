@@ -490,3 +490,59 @@ class ApiAccessSecurityTests(APITestCase):
             self.assertEqual(response.status_code, 404)
             self.waiting.refresh_from_db()
             self.assertEqual(self.waiting.status, current_status)
+
+
+    def test_anonymous_waiting_request_paths_return_forbidden(self):
+        self.assert_waiting_request_paths_forbidden(None)
+
+    def test_non_passenger_waiting_request_paths_return_forbidden(self):
+        self.assert_waiting_request_paths_forbidden(self.driver_user)
+        user = User.objects.create_user(username="no-passenger-profile")
+        self.assert_waiting_request_paths_forbidden(user)
+
+    def assert_waiting_request_paths_forbidden(self, user):
+        self.client.force_authenticate(user=user)
+        detail = f"/api/waiting-requests/{self.waiting.pk}/"
+        paths = [("get", "/api/waiting-requests/"), ("get", detail),
+                 ("post", "/api/waiting-requests/")]
+        paths += [("post", detail + action + "/") for action in ("board", "cancel", "complete")]
+        paths += [("get", detail + "eta/")]
+        for method, url in paths:
+            with self.subTest(user=user, method=method, url=url):
+                response = getattr(self.client, method)(url, {
+                    "trip": self.trip.pk, "stop": self.stop.pk,
+                }, format="json")
+                self.assertEqual(response.status_code, 403)
+                self.waiting.refresh_from_db()
+                self.assertEqual(self.waiting.status, "WAITING")
+                self.assertEqual(WaitingRequest.objects.count(), 1)
+
+    def test_waiting_request_reads_remain_owner_scoped(self):
+        other = User.objects.create_user(username="request-read-other")
+        Passenger.objects.create(user=other, name="Other Passenger")
+        self.client.force_authenticate(user=other)
+        response = self.client.get("/api/waiting-requests/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, [])
+        self.assertEqual(self.client.get(
+            f"/api/waiting-requests/{self.waiting.pk}/",
+        ).status_code, 404)
+
+
+    def test_viewset_profile_guards_also_protect_direct_method_calls(self):
+        from types import SimpleNamespace
+        from django.contrib.auth.models import AnonymousUser
+        from rest_framework.exceptions import PermissionDenied
+        from .views import WaitingRequestViewSet
+        for user in (AnonymousUser(), self.driver_user):
+            view = WaitingRequestViewSet()
+            view.request = SimpleNamespace(user=user)
+            with self.subTest(user=user):
+                with self.assertRaises(PermissionDenied):
+                    view.get_queryset()
+                with self.assertRaises(PermissionDenied):
+                    view.perform_create(None)
+
+    def test_non_passenger_creation_is_forbidden_before_payload_validation(self):
+        self.client.force_authenticate(user=self.driver_user)
+        self.assertEqual(self.client.post("/api/waiting-requests/", {}, format="json").status_code, 403)
