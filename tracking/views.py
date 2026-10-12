@@ -1,11 +1,12 @@
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, serializers
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
@@ -29,7 +30,6 @@ from .serializers import (
     StartTripSerializer,
     StopSerializer,
     BusSerializer,
-    PassengerSerializer,
     WaitingRequestSerializer,
     DriverSessionSerializer,
     
@@ -66,29 +66,30 @@ from tracking.services.trip_service import (
 )
 
 
-class RouteViewSet(viewsets.ModelViewSet):
+class RouteViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Route.objects.all().order_by("route_long_name")
     serializer_class = RouteSerializer
 
 
-class StopViewSet(viewsets.ModelViewSet):
+class StopViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Stop.objects.all()
     serializer_class = StopSerializer
 
 
-class BusViewSet(viewsets.ModelViewSet):
+class BusViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Bus.objects.all()
     serializer_class = BusSerializer
 
 
-class PassengerViewSet(viewsets.ModelViewSet):
-
-    queryset = Passenger.objects.all()
-
-    serializer_class = PassengerSerializer
-
-
-class WaitingRequestViewSet(viewsets.ModelViewSet):
+class WaitingRequestViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = WaitingRequestSerializer
     permission_classes = [IsAuthenticated]
 
@@ -158,6 +159,7 @@ def get_authorized_bus_for_driver(request, registration_number):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def register_passenger(request):
     username = request.data.get("username", "").strip()
     password = request.data.get("password", "")
@@ -187,6 +189,17 @@ def register_passenger(request):
     if User.objects.filter(email__iexact=email).exists():
         return Response(
             {"error": "An account already uses this email address."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        validate_password(
+            password,
+            user=User(username=username, email=email, first_name=name),
+        )
+    except ValidationError as exc:
+        return Response(
+            {"error": " ".join(exc.messages), "password": exc.messages},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -300,6 +313,7 @@ def start_fresh(request, registration_number):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def route_destinations(request, route_id):
 
     route = get_object_or_404(
@@ -336,6 +350,7 @@ def route_destinations(request, route_id):
     )
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def trip_stops(request, route_id):
 
     destination = request.GET.get(
@@ -401,6 +416,7 @@ def trip_stops(request, route_id):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def search_routes(request):
 
     query = request.GET.get("q", "").strip()
@@ -510,6 +526,7 @@ def update_bus_location(request, registration_number):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def bus_eta(request, bus_id, stop_id):
 
     try:
@@ -567,6 +584,7 @@ def waiting_request_eta(request, waiting_request_id):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def waiting_count(request, trip_id, stop_id):
 
     try:
@@ -618,7 +636,11 @@ def waiting_count(request, trip_id, stop_id):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def route_waiting_overview(request, registration_number):
+    _, authorization_error = get_authorized_bus_for_driver(request, registration_number)
+    if authorization_error:
+        return authorization_error
 
     try:
 
@@ -638,6 +660,7 @@ def route_waiting_overview(request, registration_number):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def login_passenger(request):
     username = request.data.get("username", "").strip()
     password = request.data.get("password", "")
@@ -765,6 +788,7 @@ def cancel_waiting_request_view(request, waiting_request_id):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def login_driver(request):
     username = request.data.get("username", "").strip()
     password = request.data.get("password", "")
@@ -929,6 +953,7 @@ def complete_waiting_request_view(request, waiting_request_id):
 
 
 @api_view(["POST"])
+@permission_classes([IsAdminUser])
 def expire_waiting_request_view(request, waiting_request_id):
     try:
         waiting_request = expire_waiting_request(
