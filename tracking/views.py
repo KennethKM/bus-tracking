@@ -1,5 +1,5 @@
 from rest_framework import mixins, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework import status, serializers
 from django.shortcuts import get_object_or_404
@@ -11,6 +11,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
+
+from .throttles import DriverLoginThrottle, PassengerLoginThrottle
 
 from .models import (
     Route,
@@ -677,6 +679,7 @@ def route_waiting_overview(request, registration_number):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([PassengerLoginThrottle])
 def login_passenger(request):
     username = request.data.get("username", "").strip()
     password = request.data.get("password", "")
@@ -805,6 +808,7 @@ def cancel_waiting_request_view(request, waiting_request_id):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([DriverLoginThrottle])
 def login_driver(request):
     username = request.data.get("username", "").strip()
     password = request.data.get("password", "")
