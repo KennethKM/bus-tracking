@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
+from django.test import SimpleTestCase, override_settings
 from unittest.mock import patch
 
 from .models import (
@@ -546,3 +547,75 @@ class ApiAccessSecurityTests(APITestCase):
     def test_non_passenger_creation_is_forbidden_before_payload_validation(self):
         self.client.force_authenticate(user=self.driver_user)
         self.assertEqual(self.client.post("/api/waiting-requests/", {}, format="json").status_code, 403)
+
+
+@override_settings(CACHES={"default": {
+    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    "LOCATION": "login-throttle-tests",
+}})
+class LoginThrottleTests(APITestCase):
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.addCleanup(cache.clear)
+
+    def assert_login_limit(self, url):
+        from rest_framework.throttling import SimpleRateThrottle
+        with patch.object(SimpleRateThrottle, "timer", return_value=1000):
+            for attempt in range(5):
+                response = self.client.post(url, {
+                    "username": f"missing-{attempt}", "password": "wrong-password",
+                }, format="json", REMOTE_ADDR="192.0.2.1")
+                self.assertEqual(response.status_code, 401)
+            response = self.client.post(url, {}, format="json", REMOTE_ADDR="192.0.2.1")
+            self.assertEqual(response.status_code, 429)
+            self.assertEqual(response.data["detail"].code, "throttled")
+            self.assertEqual(response["Retry-After"], "60")
+            self.assertEqual(self.client.post(
+                url, {}, format="json", REMOTE_ADDR="192.0.2.2",
+            ).status_code, 400)
+        with patch.object(SimpleRateThrottle, "timer", return_value=1060):
+            self.assertEqual(self.client.post(
+                url, {}, format="json", REMOTE_ADDR="192.0.2.1",
+            ).status_code, 400)
+
+    def test_passenger_login_rate_limit(self):
+        self.assert_login_limit("/api/auth/login/")
+
+    def test_driver_login_rate_limit(self):
+        self.assert_login_limit("/api/auth/driver/login/")
+
+    def test_login_limits_are_separate_and_registration_is_unthrottled(self):
+        for url in ("/api/auth/login/", "/api/auth/driver/login/"):
+            for attempt in range(5):
+                self.assertEqual(self.client.post(url, {}, format="json").status_code, 400)
+            self.assertEqual(self.client.post(url, {}, format="json").status_code, 429)
+        for attempt in range(6):
+            self.assertEqual(self.client.post("/api/auth/register/", {}, format="json").status_code, 400)
+        self.assertEqual(self.client.get("/api/routes/search/").status_code, 200)
+
+    def test_authenticated_requests_are_also_limited_by_ip(self):
+        for url in ("/api/auth/login/", "/api/auth/driver/login/"):
+            for attempt in range(5):
+                user = User.objects.create_user(username=f"{url}-{attempt}")
+                self.client.force_authenticate(user=user)
+                self.assertEqual(self.client.post(url, {}, format="json").status_code, 400)
+            self.assertEqual(self.client.post(url, {}, format="json").status_code, 429)
+
+
+class DebugDefaultTests(SimpleTestCase):
+    def load_settings(self, debug=None):
+        import os
+        import runpy
+        from pathlib import Path
+        environment = {"DJANGO_SECRET_KEY": "test-only-settings-secret"}
+        if debug is not None:
+            environment["DJANGO_DEBUG"] = debug
+        with patch.dict(os.environ, environment, clear=True):
+            return runpy.run_path(str(Path(__file__).resolve().parents[1] / "bus_tracking" / "settings.py"))
+
+    def test_debug_is_false_when_environment_variable_is_absent(self):
+        self.assertIs(self.load_settings()["DEBUG"], False)
+
+    def test_debug_can_be_explicitly_enabled_for_local_development(self):
+        self.assertIs(self.load_settings("True")["DEBUG"], True)

@@ -7,9 +7,8 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Local development uses DEBUG=True by default.
-# Render will set DJANGO_DEBUG=False.
-DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
+# Local development must explicitly set DJANGO_DEBUG=True.
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
 # The real production secret key will be supplied by Render.
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
