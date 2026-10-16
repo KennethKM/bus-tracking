@@ -166,16 +166,6 @@ The project includes backend testing, debugging, and collaborative Git/GitHub de
 
 For a precise list of automated tests and current results, inspect the test modules and run the suite in a correctly configured environment. No unverified pass count is asserted here.
 
-## Project Team and Contributions
-
-This was a **collaborative final-year software engineering project**.
-
-**Kenneth Kaunda Musonda — Backend Developer / Team Lead**
-
-My work included backend service and REST API development, driver authentication and authorization, integration of live GPS updates, GTFS-related data handling, OSRM integration, and backend trip/vehicle logic. I also participated in debugging, testing, and Git/GitHub collaboration.
-
-Other project components were developed collaboratively with team members; the repository's Git history provides additional detail about contributions.
-
 ## Project Links
 
 - **Live demo:** https://bus-tracking6.onrender.com/
