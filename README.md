@@ -152,13 +152,21 @@ The development server normally starts at `http://127.0.0.1:8000/`.
 
 **Configuration note:** This repository has deployment-specific settings and external-service dependencies. Do not use production secrets in a local environment or commit credentials to version control. Some functions, including road-network calculations, require the relevant external service to be configured and available.
 
-## Using the Application
+## Live Demo and Application Access
 
-**Passengers:** Open the application, register or sign in, search for a route, select a destination and boarding stop, and manage the resulting waiting request as the journey progresses.
+**Live application:** https://bus-tracking6.onrender.com/
 
-**Drivers:** Sign in using an authorized driver account, select an assigned bus, activate it, start a trip, and allow location updates from the driver's device. Driver permissions and active assignments are checked by the backend.
+### Public Passenger Access
 
-The live homepage is available at **https://bus-tracking6.onrender.com/**. Some functionality requires an appropriate user account and, for live vehicle data, an active driver-operated trip.
+Visitors and recruiters can open the live application, select **Passenger Login**, and register or sign in to explore the passenger interface. Available functionality includes route and destination selection, boarding-stop selection, journey planning, viewing active buses on the map, and managing waiting requests.
+
+Live vehicle information depends on buses being active and drivers sending location updates. Some passenger features may therefore have limited live data when no bus trip is operating.
+
+### Restricted Driver Access
+
+The driver interface supports assigned-bus management, trip activation, and GPS location updates from drivers' devices. These operations affect the same live system used by passengers, so **driver demonstration credentials are not publicly shared**.
+
+Driver access is reserved for authorized accounts. A driver-side walkthrough can be arranged separately if needed.
 
 ## Testing and Engineering Practices
 
