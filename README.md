@@ -53,33 +53,41 @@ The application combines a Django REST Framework backend, a browser-based interf
 
 ## System Architecture
 
-```text
-Passenger browser                  Driver phone/browser
-       |                                   |
-       +----------------+------------------+
-                        |
-               Django web application
-                        |
-              Django REST Framework
-                        |
-       +----------------+----------------+
-       |                |                |
- Authentication   Trip / vehicle    Passenger waiting
- & authorization  service logic     request handling
-       |                |                |
-       +----------------+----------------+
-                        |
-                 Django data layer
-                        |
-              Application database
+The system follows a **client-server, three-layer architecture** (with non-strict layering), as shown in the final-year project presentation.
 
-External data/services:
-- GTFS-derived transport data
-- OSRM road-network distance service
-- OpenStreetMap map tiles through Leaflet
+```mermaid
+flowchart TB
+  subgraph P["PRESENTATION LAYER"]
+    direction LR
+    passenger["Passenger browser interface<br/>(map, route search, waiting requests)"]
+    driver["Driver browser dashboard<br/>(sign-in, activation, device GPS)"]
+  end
+
+  subgraph A["APPLICATION LAYER — Django 6 + DRF, Gunicorn on Render"]
+    direction LR
+    models["Models and ORM<br/>10 persisted entities"]
+    api["API views and serializers<br/>(DRF)"]
+    auth["Authorisation helper<br/>(driver + assignment)"]
+    services["Service modules (9)<br/>trip, location, next-stop, status,<br/>distance, ETA, waiting request"]
+  end
+
+  subgraph D["DATA LAYER AND EXTERNAL SERVICES"]
+    direction LR
+    db["PostgreSQL database<br/>(DATABASE_URL)"]
+    gtfs["GTFS text files<br/>(loaded by import commands)"]
+    osrm["OSRM routing service<br/>(OSRM_URL, road distance and duration)"]
+  end
+
+  passenger <-->|"HTTP / JSON + session cookie<br/>polling every 15 s"| api
+  driver <-->|"HTTP / JSON + session cookie<br/>polling every 15 s"| auth
+  models <--> db
+  gtfs -->|"GTFS import commands"| db
+  services <--> osrm
 ```
 
-This diagram is a conceptual overview of the principal components, not a complete deployment or network diagram.
+The passenger and driver interfaces communicate with Django through HTTP/JSON and session cookies, with the interface polling every **15 seconds** rather than using WebSockets. The Django application contains the API views, serializers, authorisation helper, models, and function-based service modules. PostgreSQL stores application data, GTFS text files supply transport data through import commands, and OSRM supplies road-network distance and duration calculations.
+
+OpenStreetMap provides browser map tiles, and Brevo is used for password-reset email. These integrations are additional to the core three-layer diagram.
 
 ## Selected API Endpoints
 
