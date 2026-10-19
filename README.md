@@ -158,7 +158,7 @@ The development server normally starts at `http://127.0.0.1:8000/`.
 
 ### Public Passenger Access
 
-Visitors and recruiters can open the live application, select **Passenger Login**, and register or sign in to explore the passenger interface. Available functionality includes route and destination selection, boarding-stop selection, journey planning, viewing active buses on the map, and managing waiting requests.
+Anyone can open the live application, select **Passenger Login**, and register or sign in to use the passenger interface. Available functionality includes route and destination selection, boarding-stop selection, journey planning, viewing active buses on the map, and managing waiting requests.
 
 Live vehicle information depends on buses being active and drivers sending location updates. Some passenger features may therefore have limited live data when no bus trip is operating.
 
