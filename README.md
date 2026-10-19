@@ -53,8 +53,7 @@ The application combines a Django REST Framework backend, a browser-based interf
 
 ## System Architecture
 
-The system follows a **client-server, three-layer architecture** (with non-strict layering), as shown in the final-year project presentation.
-
+The system follows a **client-server, three-layer architecture** 
 ```mermaid
 flowchart TB
   subgraph P["PRESENTATION LAYER"]
